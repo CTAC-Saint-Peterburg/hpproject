@@ -8,6 +8,7 @@ import { Floor } from "../Floor/Floor";
 import { recognizeGesture } from "../Recognaizer/recognaizer";
 import { SpellTrail } from "./SpellTrail";
 import { Ingredients } from "../Ingredients/Ingredients";
+import { POINT_LIGHT_MAIN } from "../../static/constants";
 
 export default function Scene() {
 const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -56,12 +57,7 @@ const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
         onPosChange={setMousePos}
       />
       <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} />
-      
-      <mesh position={[-2.91, 1.52, 0]}>
-        <boxGeometry />
-        <meshStandardMaterial color="blue" />
-      </mesh>
+      <pointLight position={POINT_LIGHT_MAIN} />
       
       <Floor />
       <Pot />
