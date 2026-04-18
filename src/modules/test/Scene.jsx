@@ -7,10 +7,12 @@ import { Hand } from "../Hand/Hand";
 import { Floor } from "../Floor/Floor";
 import { recognizeGesture } from "../Recognaizer/recognaizer";
 import { SpellTrail } from "./SpellTrail";
+import { Ingredients } from "../Ingredients/Ingredients";
 
 export default function Scene() {
 const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const currentPathRef = useRef([]);
+  const [currentSpell, setCurrentSpell] = useState(null);
 
   const handleMouseUpdate = (pos) => {
     // Собираем точки только когда кнопка нажата
@@ -28,6 +30,7 @@ const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
       });
       console.log('✨ Результат:', spell);
       if (spell) {
+        setCurrentSpell(spell);
   const spellNames = {
     1: '🔥 Огонь', 2: '🛡️ Щит', 3: '💚 Лечение', 4: '💨 Толчок',
     5: '🌀 Аура', 6: '⚡ Молния', 7: '🦅 Полёт', 8: '📦 Призыв',
@@ -65,6 +68,7 @@ const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
       <Hand mousePos={mousePos} /> 
       <Wand mousePos={mousePos} />
       <SpellTrail points={currentPathRef.current} />
+      <Ingredients mousePos={mousePos} disabled={false} spell={currentSpell} />
     </Canvas>
   );
 }
