@@ -9,6 +9,7 @@ import { recognizeGesture } from "../Recognaizer/recognaizer";
 import { SpellTrail } from "./SpellTrail";
 import { Ingredients } from "../Ingredients/Ingredients";
 import { POINT_LIGHT_MAIN } from "../../static/constants";
+import { MagickText } from "../MagickText/MagickText";
 
 export default function Scene() {
 const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -65,6 +66,12 @@ const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
       <Wand mousePos={mousePos} />
       <SpellTrail points={currentPathRef.current} />
       <Ingredients mousePos={mousePos} disabled={false} spell={currentSpell} />
+      <MagickText text={currentSpell}
+    fontSize={0.6}
+    color="#88f" 
+    position={[0,1.2,1]} 
+    pulseIntensity={0.05}
+    opacity={0.6}/>
     </Canvas>
   );
 }
