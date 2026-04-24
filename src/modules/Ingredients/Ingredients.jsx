@@ -20,19 +20,19 @@ export const Ingredients = ({
     <>
       {SPAWN_BOTTLES_CORDS.map(item => (
         <Bottle
-          key={item.id}
-          cords={item.cords}
-          id={item.id}
-          color={item.color}
-          isSelected={selectedId === item.id}
-          isFollowMode={followActive}
-          mousePos={mousePos}
-          onToggle={() => {
-            if (disabled) return
-            // Переключение: если кликнули на уже выбранный — снимаем выделение
-            setSelectedId(prev => prev === item.id ? null : item.id)
-          }}
-        />
+  key={item.id}
+  cords={item.cords}
+  id={item.id}
+  color={item.color}
+  isSelected={selectedId === item.id}
+  isFollowMode={followActive}
+  mousePos={mousePos}
+  onToggle={() => {
+    if (disabled) return
+    setSelectedId(prev => prev === item.id ? null : item.id)
+  }}
+  invertY={false}  // ← Поставьте true, если Y движется в обратную сторону
+/>
       ))}
     </>
   )
