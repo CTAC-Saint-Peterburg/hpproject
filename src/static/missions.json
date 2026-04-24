@@ -1,0 +1,35 @@
+{
+  "level_01": {
+    "stages": [
+      {
+        "name": "Лепестки валерианы",
+        "icon": "🌿",
+        "points_add": 100,
+        "points_deduct": 50
+      },
+      {
+        "name": "Слизь флоббер-червя",
+        "icon": "🐛",
+        "points_add": 150,
+        "points_deduct": 75
+      },
+      {
+        "name": "Лаванда",
+        "icon": "💜",
+        "points_add": 120,
+        "points_deduct": 60
+      },
+      {
+        "name": "Ветки валерианы",
+        "icon": "🌸",
+        "points_add": 130,
+        "points_deduct": 65
+      }
+    ],
+    "result": {
+      "total_points": 500,
+      "success_text": "Отлично сварено зелье! Эрни доволен.",
+      "fail_text": "Зелье неудачное. Попробуй еще раз."
+    }
+  }
+}

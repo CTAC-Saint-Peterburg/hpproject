@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { MouseTracker } from "../MouseTrack/MouseTracker";
 import { Pot } from "../Pot/Pot";
@@ -10,12 +10,22 @@ import { SpellTrail } from "./SpellTrail";
 import { Ingredients } from "../Ingredients/Ingredients";
 import { POINT_LIGHT_MAIN } from "../../static/constants";
 import { MagickText } from "../MagickText/MagickText";
+import { RecipeStages } from "../RecipeStages/RecipeStages";
+import JSONdata from '../../static/missions.json';
 
 export default function Scene() {
 const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const currentPathRef = useRef([]);
   const [currentSpell, setCurrentSpell] = useState(null);
+  const [currentStage, setCurrentStage] = useState(0);
+  const [levelData, setLevelData] = useState(null); // загрузите ваш JSON
 
+  // Обработчик смены этапа:
+const handleStageChange = (newIndex) => {
+  setCurrentStage(newIndex);
+  // Здесь можно добавить логику: проверка, добавление ингредиента и т.д.
+};
+  
   const handleMouseUpdate = (pos) => {
     // Собираем точки только когда кнопка нажата
     if (pos.isDown) {
@@ -51,6 +61,11 @@ const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     }
   };
 
+  useEffect(() => {
+  const data = JSONdata['level_01']; // или динамически: JSONdata[currentLevel]
+  if (data) setLevelData(data);
+}, []);
+
   return (
     <Canvas>
       <MouseTracker 
@@ -72,6 +87,16 @@ const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
     position={[0,1.2,1]} 
     pulseIntensity={0.05}
     opacity={0.6}/>
+    {levelData?.stages && (
+  <RecipeStages
+    stages={levelData.stages}
+    currentStage={currentStage}
+    onStageChange={handleStageChange}
+    position={[-3, 1, 0]}
+    baseFontSize={0.3}
+    enableKeyboardNav={true} // Отключите в продакшене
+  />
+)}
     </Canvas>
   );
 }
