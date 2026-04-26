@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useMemo } from 'react'
+import { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import * as THREE from 'three'
 
 // 🔧 Вспомогательная: 2D расстояние (игнорируем Z)
@@ -21,14 +21,26 @@ const roundArray = (arr, decimals = 2) =>
 
 export const Pot = ({ 
   bottleRadar = [],
-  onCollisionStart,
   onCollisionEnd,
   collisionThreshold = 0.5,
   bottleRadius = 0.5,
-  position = [0, 0, 0]
+  position = [0, 0, 0],
+  levelData = null,
+  currentSpell,
+  currentStage,
+  handleStageChange
 }) => {
   const [isCollision, setIsCollision] = useState(false)
   const collidingBottleRef = useRef(null)
+
+    // 🎯 Обработчики от Pot
+    const onCollisionStart = useCallback((data) => {
+      console.log('🎯 Ingredient added to pot:', data.id);
+      console.log(currentStage, levelData?.stages[currentStage]?.id, data.id)
+      if (levelData?.stages[currentStage]?.id === data.id) {
+        handleStageChange(prev => prev + 1);
+      }
+    }, [currentStage]);
   
   const effectiveThreshold = useMemo(() => 
     collisionThreshold + bottleRadius, 

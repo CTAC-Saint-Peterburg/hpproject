@@ -41,15 +41,6 @@ export default function Scene() {
     return selectedBottle?.isSelected ? [selectedBottle] : [];
   }, [selectedBottle]);
 
-  // 🎯 Обработчики от Pot
-  const handlePotCollisionStart = useCallback((data) => {
-    console.log('🎯 Ingredient added to pot:', data.id);
-    // Пример логики: проверка рецепта
-    // if (levelData?.stages[currentStage]?.ingredientId === data.id) {
-    //   setCurrentStage(prev => prev + 1);
-    // }
-  }, []);
-
   const handlePotCollisionEnd = useCallback((data) => {
     console.log('👋 Bottle left pot:', data.id);
   }, []);
@@ -104,10 +95,13 @@ export default function Scene() {
       
       <Pot 
         bottleRadar={bottleRadar}
-        onCollisionStart={handlePotCollisionStart}
         onCollisionEnd={handlePotCollisionEnd}
         collisionThreshold={0.5}
         bottleRadius={0.5}
+        levelData={levelData}
+        currentSpell={currentSpell}
+        handleStageChange={handleStageChange}
+        currentStage={currentStage}
       />
       
       <Hand mousePos={mousePos} /> 

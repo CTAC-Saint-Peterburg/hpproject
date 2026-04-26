@@ -5,25 +5,29 @@
         "name": "Лепестки валерианы",
         "icon": "🌿",
         "points_add": 100,
-        "points_deduct": 50
+        "points_deduct": 50,
+        "id": 1
       },
       {
         "name": "Слизь флоббер-червя",
         "icon": "🐛",
         "points_add": 150,
-        "points_deduct": 75
+        "points_deduct": 75,
+        "id": 2
       },
       {
         "name": "Лаванда",
         "icon": "💜",
         "points_add": 120,
-        "points_deduct": 60
+        "points_deduct": 60,
+        "id": 3
       },
       {
         "name": "Ветки валерианы",
         "icon": "🌸",
         "points_add": 130,
-        "points_deduct": 65
+        "points_deduct": 65,
+        "id": 4
       }
     ],
     "result": {
