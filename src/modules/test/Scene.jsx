@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import { MouseTracker } from "../MouseTrack/MouseTracker";
 import { Pot } from "../Pot/Pot";
 import { Wand } from "../Wand/Wand";
@@ -12,6 +12,21 @@ import { POINT_LIGHT_MAIN } from "../../static/constants";
 import { MagickText } from "../MagickText/MagickText";
 import { RecipeStages } from "../RecipeStages/RecipeStages";
 import JSONdata from '../../static/missions.json';
+import * as THREE from 'three'
+
+function Background({ color }) {
+  const { scene } = useThree()
+  
+  useEffect(() => {
+    scene.background = new THREE.Color(color)
+    // Очистка при размонтировании
+    return () => {
+      scene.background = null
+    }
+  }, [scene, color])
+  
+  return null
+}
 
 export default function Scene() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -49,7 +64,7 @@ export default function Scene() {
   const handleStageChange = (newIndex) => {
     setCurrentStage(newIndex);
   };
-  
+
   const handleMouseUpdate = (pos) => {
     if (pos.isDown) {
       currentPathRef.current.push({ x: pos.x, y: pos.y });
@@ -84,16 +99,17 @@ export default function Scene() {
 
   return (
     <Canvas>
-      <MouseTracker 
+      <Background color="#484343" />
+      <MouseTracker
         onUpdate={handleMouseUpdate}
         onPosChange={setMousePos}
       />
-      <ambientLight intensity={0.5} />
+      <ambientLight intensity={0.5} color={"#ffffff"} />
       <pointLight position={POINT_LIGHT_MAIN} />
-      
+
       <Floor />
-      
-      <Pot 
+
+      <Pot
         bottleRadar={bottleRadar}
         onCollisionEnd={handlePotCollisionEnd}
         collisionThreshold={0.5}
@@ -103,27 +119,27 @@ export default function Scene() {
         handleStageChange={handleStageChange}
         currentStage={currentStage}
       />
-      
-      <Hand mousePos={mousePos} /> 
+
+      <Hand mousePos={mousePos} />
       <Wand mousePos={mousePos} />
       <SpellTrail points={currentPathRef.current} />
-      
-      <Ingredients 
-        mousePos={mousePos} 
-        disabled={false} 
-        spell={currentSpell} 
+
+      <Ingredients
+        mousePos={mousePos}
+        disabled={false}
+        spell={currentSpell}
         onPositionUpdate={handleBottlePositionUpdate}
       />
-      
-      <MagickText 
+
+      <MagickText
         text={currentSpell}
         fontSize={0.6}
-        color="#88f" 
-        position={[0, 1.2, 1]} 
+        color="#88f"
+        position={[0, 1.2, 1]}
         pulseIntensity={0.05}
         opacity={0.6}
       />
-      
+
       {levelData?.stages && (
         <RecipeStages
           stages={levelData.stages}
