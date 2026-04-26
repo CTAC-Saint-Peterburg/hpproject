@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import * as THREE from 'three'
+import { PotParticles } from './PotParticles'
 
 // 🔧 Вспомогательная: 2D расстояние (игнорируем Z)
 const getDistance2D = (pos1, pos2) => {
@@ -31,21 +32,27 @@ export const Pot = ({
   handleStageChange
 }) => {
   const [isCollision, setIsCollision] = useState(false)
+  const [isPotSelected, setIsPotSelected] = useState(false)  // ← выделение при клике
   const collidingBottleRef = useRef(null)
 
-    // 🎯 Обработчики от Pot
-    const onCollisionStart = useCallback((data) => {
-      console.log('🎯 Ingredient added to pot:', data.id);
-      console.log(currentStage, levelData?.stages[currentStage]?.id, data.id)
-      if (levelData?.stages[currentStage]?.id === data.id) {
-        handleStageChange(prev => prev + 1);
-      }
-    }, [currentStage]);
+  const onCollisionStart = useCallback((data) => {
+    console.log('🎯 Ingredient added to pot:', data.id);
+    console.log(currentStage, levelData?.stages[currentStage]?.id, data.id)
+    if (levelData?.stages[currentStage]?.id === data.id) {
+      handleStageChange(prev => prev + 1);
+    }
+  }, [currentStage, levelData, handleStageChange]);
   
   const effectiveThreshold = useMemo(() => 
     collisionThreshold + bottleRadius, 
     [collisionThreshold, bottleRadius]
   )
+
+  // 🔥 Обработчик клика по котлу
+  const handlePotClick = useCallback((event) => {
+    event.stopPropagation()
+    setIsPotSelected(prev => !prev)
+  }, [])
 
   useEffect(() => {
     const activeBottles = bottleRadar.filter(b => 
@@ -95,11 +102,25 @@ export const Pot = ({
   }, [bottleRadar, position, effectiveThreshold, onCollisionStart, onCollisionEnd])
 
   return (
-    <mesh position={position}>
+    <group position={[0, 0, 0]}>
+    <mesh 
+      position={position} 
+      onClick={handlePotClick}
+    >
       <boxGeometry />
-      <meshStandardMaterial color={isCollision ? "#ff3333" : "#00f500"} />
       
-      {isCollision && (
+      <meshStandardMaterial 
+        color={
+          isPotSelected 
+            ? "#00ff00"      // 🟢 зелёный при выделении
+            : isCollision 
+              ? "#ff3333"    // 🔴 красный при коллизии
+              : "#00f500"    // 🟢 обычный зелёный
+        } 
+      />
+      
+      {/* 🔥 Красная обводка при коллизии */}
+      {isCollision && !isPotSelected && (
         <mesh scale={1.12} raycast={() => null}>
           <boxGeometry />
           <meshBasicMaterial 
@@ -110,6 +131,29 @@ export const Pot = ({
           />
         </mesh>
       )}
+      
+      {/* 🟢 Зелёная обводка при клике */}
+      {isPotSelected && (
+        <mesh scale={1.15} raycast={() => null}>
+          <boxGeometry />
+          <meshBasicMaterial 
+            color="#00ff00" 
+            side={THREE.BackSide} 
+            transparent 
+            opacity={0.9} 
+          />
+        </mesh>
+      )}
     </mesh>
+     <PotParticles 
+        count={30}
+        speed={0.8}
+        spread={0.4}
+        color="#e9e915"
+        size={0.08}
+        lifetime={2.5}
+        position={[0, -0.8, 0]}
+      />
+    </group>
   )
 }
