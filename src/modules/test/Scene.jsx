@@ -12,7 +12,9 @@ import { POINT_LIGHT_MAIN } from "../../static/constants";
 import { MagickText } from "../MagickText/MagickText";
 import { RecipeStages } from "../RecipeStages/RecipeStages";
 import JSONdata from '../../static/missions.json';
+import { Preload } from "@react-three/drei";
 import * as THREE from 'three'
+import LoadingOverlay from "../Loader/LoaderOverlay";
 
 function Background({ color }) {
   const { scene } = useThree()
@@ -98,7 +100,10 @@ export default function Scene() {
   }, []);
 
   return (
+    <>
     <Canvas>
+      <LoadingOverlay />
+      <Preload all />
       <Background color="#484343" />
       <MouseTracker
         onUpdate={handleMouseUpdate}
@@ -151,5 +156,6 @@ export default function Scene() {
         />
       )}
     </Canvas>
+    </>
   );
 }
