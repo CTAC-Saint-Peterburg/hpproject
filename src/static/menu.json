@@ -1,0 +1,21 @@
+{
+  "defaultBgColor": "#1976d2",
+  "languages": [
+    { "code": "ru", "name": "Русский" },
+    { "code": "en", "name": "English" },
+    { "code": "de", "name": "Deutsch" }
+  ],
+  "levels": [
+    { "id": 1, "color": "#FF5733" },
+    { "id": 2, "color": "#33FF57" },
+    { "id": 3, "color": "#3357FF" },
+    { "id": 4, "color": "#FF33A8" },
+    { "id": 5, "color": "#F3FF33" },
+    { "id": 6, "color": "#33FFF5" }
+  ],
+  "menuItems": {
+    "tutorial": "📖 Туториал",
+    "options": "⚙️ Опции",
+    "play": "▶️ ИГРАТЬ"
+  }
+}
