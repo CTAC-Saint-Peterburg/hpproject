@@ -65,7 +65,7 @@ export const PotParticles = ({
   })
 
   return (
-    <points ref={particlesRef} position={position}>
+    <points ref={particlesRef} position={position} key={count}>
       <bufferGeometry>
         <bufferAttribute
           attach="attributes-position"

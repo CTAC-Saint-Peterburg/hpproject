@@ -31,9 +31,8 @@ export const Pot = ({
   currentStage,
   handleStageChange
 }) => {
-    const { currentSpell} = useGameStore();
+    const { currentSpell, isPotSelected, togglePotSelected, potTemperature } = useGameStore();
   const [isCollision, setIsCollision] = useState(false)
-  const [isPotSelected, setIsPotSelected] = useState(false)  // ← выделение при клике
   const collidingBottleRef = useRef(null)
 
   const onCollisionStart = useCallback((data) => {
@@ -52,7 +51,7 @@ export const Pot = ({
   // 🔥 Обработчик клика по котлу
   const handlePotClick = useCallback((event) => {
     event.stopPropagation()
-    setIsPotSelected(prev => !prev)
+    togglePotSelected();
   }, [])
 
   useEffect(() => {
@@ -147,12 +146,12 @@ export const Pot = ({
       )}
     </mesh>
      <PotParticles 
-        count={30}
-        speed={0.8}
+        count={potTemperature * 10}
+        speed={0.4}
         spread={0.4}
         color="#e9e915"
         size={0.08}
-        lifetime={2.5}
+        lifetime={2}
         position={[0, -0.8, 0]}
       />
     </group>

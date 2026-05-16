@@ -34,7 +34,7 @@ function Background({ color }) {
 export default function Scene() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const currentPathRef = useRef([]);
-  const { currentSpell, setCurrentSpell } = useGameStore();
+  const { currentSpell, setCurrentSpell, changePotTemperature, isPotSelected } = useGameStore();
   const [currentStage, setCurrentStage] = useState(0);
   const [levelData, setLevelData] = useState(null);
   const [selectedBottle, setSelectedBottle] = useState(null);
@@ -82,6 +82,12 @@ export default function Scene() {
       console.log('✨ Результат:', spell);
       if (spell) {
         setCurrentSpell(spell);
+        if (spell === 1 && isPotSelected) {
+          changePotTemperature(1);
+        }
+        if (spell === 2 && isPotSelected) {
+          changePotTemperature(-1);
+        }
         const spellNames = {
           1: '🔥 Огонь', 2: '🛡️ Щит', 3: '💚 Лечение', 4: '💨 Толчок',
           5: '🌀 Аура', 6: '⚡ Молния', 7: '🦅 Полёт', 8: '📦 Призыв',
