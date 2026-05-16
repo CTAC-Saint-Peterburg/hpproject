@@ -15,6 +15,7 @@ import JSONdata from '../../static/missions.json';
 import { Preload } from "@react-three/drei";
 import * as THREE from 'three'
 import LoadingOverlay from "../Loader/LoaderOverlay";
+import { useGameStore } from "../Stores/GameStore";
 
 function Background({ color }) {
   const { scene } = useThree()
@@ -33,7 +34,7 @@ function Background({ color }) {
 export default function Scene() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const currentPathRef = useRef([]);
-  const [currentSpell, setCurrentSpell] = useState(null);
+  const { currentSpell, setCurrentSpell } = useGameStore();
   const [currentStage, setCurrentStage] = useState(0);
   const [levelData, setLevelData] = useState(null);
   const [selectedBottle, setSelectedBottle] = useState(null);
@@ -120,7 +121,6 @@ export default function Scene() {
         collisionThreshold={0.5}
         bottleRadius={0.5}
         levelData={levelData}
-        currentSpell={currentSpell}
         handleStageChange={handleStageChange}
         currentStage={currentStage}
       />
@@ -132,12 +132,10 @@ export default function Scene() {
       <Ingredients
         mousePos={mousePos}
         disabled={false}
-        spell={currentSpell}
         onPositionUpdate={handleBottlePositionUpdate}
       />
 
       <MagickText
-        text={currentSpell}
         fontSize={0.6}
         color="#88f"
         position={[0, 1.2, 1]}

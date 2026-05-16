@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState, useMemo, useCallback } from 'react'
 import * as THREE from 'three'
 import { PotParticles } from './PotParticles'
+import { useGameStore } from '../Stores/GameStore'
 
 // 🔧 Вспомогательная: 2D расстояние (игнорируем Z)
 const getDistance2D = (pos1, pos2) => {
@@ -27,10 +28,10 @@ export const Pot = ({
   bottleRadius = 0.5,
   position = [0, 0, 0],
   levelData = null,
-  currentSpell,
   currentStage,
   handleStageChange
 }) => {
+    const { currentSpell} = useGameStore();
   const [isCollision, setIsCollision] = useState(false)
   const [isPotSelected, setIsPotSelected] = useState(false)  // ← выделение при клике
   const collidingBottleRef = useRef(null)

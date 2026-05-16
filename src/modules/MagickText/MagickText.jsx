@@ -2,11 +2,11 @@
 import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
+import { useGameStore } from '../Stores/GameStore'
 import * as THREE from 'three'
 
 export const MagickText = ({
   position = [0, 0, 0],
-  text = 'Magic',
   fontSize = 0.4,
   color = '#ffffff',
   pulseSpeed = 3,        // Частота пульсации (Гц)
@@ -16,6 +16,8 @@ export const MagickText = ({
   ...props
 }) => {
   const textRef = useRef()
+
+  const {currentSpell} = useGameStore();
 
   const spellNames = {
     1: '🔥 Огонь', 2: '🛡️ Щит', 3: '💚 Лечение', 4: '💨 Толчок',
@@ -59,7 +61,7 @@ export const MagickText = ({
       toneMapped={false} // Чтобы свечение не «приглушалось» тональной компрессией
       {...props}
     >
-      {spellNames?.[+text] }
+      {spellNames?.[+currentSpell] }
     </Text>
   )
 }
