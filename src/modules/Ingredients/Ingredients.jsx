@@ -4,7 +4,7 @@ import { Bottle } from './Bottle'
 import { useGameStore } from '../Stores/GameStore'
 
 export const Ingredients = ({ 
-  isFollowMode = false,
+
   mousePos,
   disabled,
   onPositionUpdate
@@ -27,7 +27,7 @@ export const Ingredients = ({
           onToggle={() => {
             if (disabled) return
             const newSelected = selectedId === item.id ? null : item.id
-            setSelectedId(newSelected)
+            setSelectedId(newSelected); onPositionUpdate?.({ id: item.id, isSelected: false });
           }}
           onPositionUpdate={onPositionUpdate}
           invertY={false}

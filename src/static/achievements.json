@@ -1,0 +1,48 @@
+[
+  {
+    "id": "first",
+    "name": "Искра ученика",
+    "description": "Завершить первую миссию.",
+    "conditions": {
+      "wins": {
+        "min": 1
+      }
+    }
+  },
+  {
+    "id": "perfect",
+    "name": "Печать архимага",
+    "description": "Три звезды без ошибок.",
+    "conditions": {
+      "rating": {
+        "min": 3
+      },
+      "mistakes": {
+        "eq": 0
+      }
+    }
+  },
+  {
+    "id": "time",
+    "name": "Хранитель песочных часов",
+    "description": "Срочная миссия с запасом 20 секунд.",
+    "conditions": {
+      "timed": {
+        "eq": true
+      },
+      "remaining": {
+        "min": 20
+      }
+    }
+  },
+  {
+    "id": "all",
+    "name": "Мастер трёх стихий",
+    "description": "Пройти три разные миссии.",
+    "conditions": {
+      "wins": {
+        "min": 3
+      }
+    }
+  }
+]

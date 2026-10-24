@@ -1,39 +1,178 @@
 {
   "level_01": {
+    "name": "Первое зелье",
+    "timeLimit": null,
+    "stonesReward": 25,
     "stages": [
       {
+        "id": 1,
         "name": "Лепестки валерианы",
-        "icon": "🌿",
+        "icon": "🌸",
         "points_add": 100,
         "points_deduct": 50,
-        "id": 1
+        "temperature": {
+          "min": 20,
+          "max": 60
+        }
       },
       {
-        "name": "Слизь флоббер-червя",
-        "icon": "🐛",
+        "id": 2,
+        "name": "Слизь лунной жабы",
+        "icon": "🐸",
         "points_add": 150,
-        "points_deduct": 75,
-        "id": 2
+        "points_deduct": 50,
+        "temperature": {
+          "min": 20,
+          "max": 60
+        }
       },
       {
-        "name": "Лаванда",
-        "icon": "💜",
+        "id": 3,
+        "name": "Лунная роса",
+        "icon": "💧",
         "points_add": 120,
-        "points_deduct": 60,
-        "id": 3
+        "points_deduct": 50,
+        "temperature": {
+          "min": 20,
+          "max": 60
+        }
       },
       {
-        "name": "Ветки валерианы",
-        "icon": "🌸",
+        "id": 4,
+        "name": "Ветвь мандрагоры",
+        "icon": "🌿",
         "points_add": 130,
-        "points_deduct": 65,
-        "id": 4
+        "points_deduct": 50,
+        "temperature": {
+          "min": 20,
+          "max": 60
+        }
       }
     ],
-    "result": {
-      "total_points": 500,
-      "success_text": "Отлично сварено зелье! Эрни доволен.",
-      "fail_text": "Зелье неудачное. Попробуй еще раз."
+    "enemySpawn": {
+      "allowed": [
+        "enemycold"
+      ],
+      "rarity": 2,
+      "spawnWindow": 150
+    }
+  },
+  "level_02": {
+    "name": "Пламя феникса",
+    "timeLimit": 120,
+    "stonesReward": 50,
+    "stages": [
+      {
+        "id": 1,
+        "name": "Лепестки валерианы",
+        "icon": "🌸",
+        "points_add": 100,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 65,
+          "max": 90
+        }
+      },
+      {
+        "id": 2,
+        "name": "Слизь лунной жабы",
+        "icon": "🐸",
+        "points_add": 150,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 65,
+          "max": 90
+        }
+      },
+      {
+        "id": 3,
+        "name": "Лунная роса",
+        "icon": "💧",
+        "points_add": 120,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 40,
+          "max": 65
+        }
+      },
+      {
+        "id": 4,
+        "name": "Ветвь мандрагоры",
+        "icon": "🌿",
+        "points_add": 130,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 40,
+          "max": 65
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire"
+      ],
+      "rarity": 5,
+      "spawnWindow": 120
+    }
+  },
+  "level_03": {
+    "name": "Лунный эликсир",
+    "timeLimit": 90,
+    "stonesReward": 75,
+    "stages": [
+      {
+        "id": 1,
+        "name": "Лепестки валерианы",
+        "icon": "🌸",
+        "points_add": 100,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 65,
+          "max": 90
+        }
+      },
+      {
+        "id": 2,
+        "name": "Слизь лунной жабы",
+        "icon": "🐸",
+        "points_add": 150,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 65,
+          "max": 90
+        }
+      },
+      {
+        "id": 3,
+        "name": "Лунная роса",
+        "icon": "💧",
+        "points_add": 120,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 40,
+          "max": 65
+        }
+      },
+      {
+        "id": 4,
+        "name": "Ветвь мандрагоры",
+        "icon": "🌿",
+        "points_add": 130,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 40,
+          "max": 65
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire"
+      ],
+      "rarity": 8,
+      "spawnWindow": 90
     }
   }
 }

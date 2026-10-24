@@ -2,7 +2,7 @@ import { useRef, useMemo } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-// 🔧 Округление с заменой -0 → 0
+// рџ”§ РћРєСЂСѓРіР»РµРЅРёРµ СЃ Р·Р°РјРµРЅРѕР№ -0 в†’ 0
 const roundCoord = (val, decimals = 2) => {
   const factor = Math.pow(10, decimals)
   const rounded = Math.round(val * factor) / factor
@@ -50,19 +50,8 @@ export const Bottle = ({
       return
     }
 
-    // Конвертация координат мыши → NDC
-    let ndcX, ndcY
-    if (mousePos.x <= 1 && mousePos.y <= 1) {
-      ndcX = mousePos.x * 2 - 1
-      ndcY = (invertY ? -1 : 1) * mousePos.y * 2 + (invertY ? 1 : -1)
-    } else if (Math.abs(mousePos.x) <= 1 && Math.abs(mousePos.y) <= 1) {
-      ndcX = mousePos.x
-      ndcY = invertY ? -mousePos.y : mousePos.y
-    } else {
-      ndcX = (mousePos.x / size.width) * 2 - 1
-      ndcY = (invertY ? -1 : 1) * (mousePos.y / size.height) * 2 + (invertY ? 1 : -1)
-    }
-    mouseNDC.set(ndcX, ndcY)
+    // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РєРѕРѕСЂРґРёРЅР°С‚ РјС‹С€Рё в†’ NDC
+    mouseNDC.set(mousePos.x, invertY ? -mousePos.y : mousePos.y)
 
     raycaster.setFromCamera(mouseNDC, camera)
     const targetZ = cords[2]
@@ -79,7 +68,7 @@ export const Bottle = ({
 
     meshRef.current.position.lerp(targetPos.current, 0.15)
 
-    // 📡 Отправка позиции с троттлингом и округлением
+    // рџ“Ў РћС‚РїСЂР°РІРєР° РїРѕР·РёС†РёРё СЃ С‚СЂРѕС‚С‚Р»РёРЅРіРѕРј Рё РѕРєСЂСѓРіР»РµРЅРёРµРј
     if (isSelected && isFollowMode && onPositionUpdate) {
       const now = state.clock.getElapsedTime() * 1000
       const currentPos = meshRef.current.position
