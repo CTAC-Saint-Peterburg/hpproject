@@ -4,6 +4,7 @@ import { useFrame } from '@react-three/fiber'
 import { Text } from '@react-three/drei'
 import { useGameStore } from '../Stores/GameStore'
 import * as THREE from 'three'
+import { useTranslation } from 'react-i18next'
 
 export const MagickText = ({
   position = [0, 0, 0],
@@ -16,19 +17,15 @@ export const MagickText = ({
   ...props
 }) => {
   const textRef = useRef()
+  const { t } = useTranslation()
 
   const {currentSpell} = useGameStore();
 
-  const spellNames = {
-    1: '🔥 Огонь', 2: '🛡️ Щит', 3: '💚 Лечение', 4: '💨 Толчок',
-    5: '🌀 Аура', 6: '⚡ Молния', 7: '🦅 Полёт', 8: '📦 Призыв',
-    9: '🌀 Телепорт', 10: '👥 Массовое'
-  };
   
   // Кэшируем вектор для масштаба (чтобы не создавать новый каждый кадр)
   const scaleVec = useMemo(() => new THREE.Vector3(1, 1, 1), [])
 
-  useFrame((state, delta) => {
+  useFrame((state) => {
     if (!textRef.current) return
 
     const t = state.clock.elapsedTime
@@ -61,7 +58,7 @@ export const MagickText = ({
       toneMapped={false} // Чтобы свечение не «приглушалось» тональной компрессией
       {...props}
     >
-      {spellNames?.[+currentSpell] }
+      {currentSpell ? t(`spells.${currentSpell}.name`) : ''}
     </Text>
   )
 }

@@ -2,9 +2,12 @@
 import { useFrame } from '@react-three/fiber';
 import { PotParticles } from './PotParticles';
 import { useGameStore } from '../Stores/GameStore';
+import { BackSide } from 'three';
+import shopItems from '../../static/shop.json';
 
 export const Pot = ({ bottleRadar = [] }) => {
   const s = useGameStore();
+  const appearance = shopItems.find(item => item.id === s.equippedItems.pot && item.type === 'pot');
   const contact = useRef(null);
   useFrame(() => {
     if (s.status !== 'playing') return;
@@ -19,8 +22,12 @@ export const Pot = ({ bottleRadar = [] }) => {
   return <group>
     <mesh onClick={e => { e.stopPropagation(); if (s.status === 'playing') s.togglePotSelected(); }}>
       <cylinderGeometry args={[0.65, 0.5, 0.85, 24]} />
-      <meshStandardMaterial color={s.isPotSelected ? '#70a86b' : '#39333e'}
+      <meshStandardMaterial color={appearance?.color || '#39333e'}
         emissive="#ff4500" emissiveIntensity={warmth * 0.65} />
+      {s.isPotSelected && <mesh scale={1.08} raycast={() => null}>
+        <cylinderGeometry args={[0.65, 0.5, 0.85, 24]} />
+        <meshBasicMaterial color="#90ffab" side={BackSide} />
+      </mesh>}
     </mesh>
     <PotParticles count={Math.round(warmth * 100)} speed={0.3 + warmth}
       spread={0.7} color={warmth > 0.7 ? '#ffd34e' : '#ff6b20'}

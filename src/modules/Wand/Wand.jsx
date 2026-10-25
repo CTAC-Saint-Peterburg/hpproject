@@ -1,84 +1,39 @@
-// src/components/Wand/Wand.js
-import React, { useRef } from "react";
-import { useFrame, useThree } from "@react-three/fiber";
-import * as THREE from "three";
-import { WandParticles } from "./WandParticles";
+import { useRef } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Vector3 } from 'three';
+import { WandParticles } from './WandParticles';
+import { settings } from './effectSettings';
+import { useGameStore } from '../Stores/GameStore';
+import shopItems from '../../static/shop.json';
 
 export const Wand = () => {
-  const meshRef = useRef();
-  const particlesRef = useRef();
-  const { mouse } = useThree();
-
-  const tipPositionRef = useRef(new THREE.Vector3(1, 1.5, 1.1));
-  const timeRef = useRef(0);
-  
-  // 🔥 Ref для плавного следования позиции по X
-  const currentXRef = useRef(0); // Текущая позиция (начинаем с 0)
-
-  useFrame((state, delta) => {
-    if (!meshRef.current) return;
-
-    timeRef.current += delta;
-
-    // === 🎯 Наклон палочки за мышью ===
-    const targetTiltX = mouse.y * 0.40;
-    const targetTiltY = mouse.x * 0.20;
-    const lerp = (a, b, t) => a + (b - a) * t;
-    const clamp = (num, min, max) => Math.max(min, Math.min(max, num));
-
-    // === 🌊 Покачивание (sway) ===
-    const swayAmplitude = 0.1;
-    const swayFrequency = 2;
-    const swayOffset = Math.sin(timeRef.current * swayFrequency * Math.PI * 2) * swayAmplitude;
-    
-    const isMoving = Math.abs(mouse.x) > 0.1 || Math.abs(mouse.y) > 0.1;
-    const finalTargetTiltX = targetTiltX + (isMoving ? swayOffset : 0);
-
-    // Применяем вращение
-    meshRef.current.rotation.x = lerp(meshRef.current.rotation.x, finalTargetTiltX, 0.08);
-    meshRef.current.rotation.y = lerp(meshRef.current.rotation.y, targetTiltY, 0.08);
-    meshRef.current.rotation.x = clamp(meshRef.current.rotation.x, -0.15, 0.15);
-    meshRef.current.rotation.y = clamp(meshRef.current.rotation.y, -0.15, 0.15);
-
-    // === ➡️ НОВОЕ: Плавное следование по оси X ===
-    // mouse.x: от -1 (слева) до 1 (справа)
-    // Умножаем на 0.4 — амплитуда смещения в мировых единицах (подберите под свою сцену)
-    const targetX = mouse.x * 0.4;
-    
-    // Плавная интерполяция текущей позиции к целевой (0.05 = очень плавно)
-    currentXRef.current = lerp(currentXRef.current, targetX, 0.05);
-    
-    // Применяем смещение к позиции меша (Y и Z остаются на месте)
-    meshRef.current.position.x = currentXRef.current;
-
-    // === 🔮 Позиция кончика палочки для частиц ===
-    const endOffset = new THREE.Vector3(0, 1.25, 0);
-    endOffset.applyQuaternion(meshRef.current.quaternion);
-    endOffset.add(meshRef.current.position);
-
-    tipPositionRef.current.copy(endOffset);
-
-    if (particlesRef.current?.updatePosition) {
-      particlesRef.current.updatePosition(endOffset.toArray());
-    }
+  const equipped = useGameStore(s => s.equippedItems.wand);
+  const appearance = shopItems.find(item => item.id === equipped && item.type === 'wand');
+  const mesh = useRef();
+  const tip = useRef(new Vector3());
+  const time = useRef(0);
+  const { pointer } = useThree();
+  useFrame((_, delta) => {
+    if (!mesh.current) return;
+    time.current += delta;
+    const follow = 1 - Math.exp(-delta * 5);
+    const sway = Math.sin(time.current * Math.PI * 4) * .1;
+    mesh.current.rotation.x += (Math.max(-.15, Math.min(.15, pointer.y * .4 + sway)) - mesh.current.rotation.x) * follow;
+    mesh.current.rotation.y += (Math.max(-.15, Math.min(.15, pointer.x * .2)) - mesh.current.rotation.y) * follow;
+    mesh.current.position.x += (pointer.x * .4 - mesh.current.position.x) * follow;
+    mesh.current.updateWorldMatrix(true, false);
+    // Convert the real tip to world coordinates; particles are outside the wand group.
+    mesh.current.localToWorld(tip.current.set(0, 1.25, 0));
   });
-
-  return (
-    <group position={[-0.7, -0.3, 1.2]}>
-      <mesh ref={meshRef} position={[0, 0, 1]}> {/* 👈 Убрали фиксированный X=1, теперь управляем через useFrame */}
-        <boxGeometry args={[0.1, 2.5, 0.02]} />
-        <meshStandardMaterial color="brown" emissive="#331100" emissiveIntensity={0.5} />
+  return <>
+    <group position={settings.wand.position}>
+      <mesh ref={mesh} position={[0, 0, 1]}>
+        <boxGeometry args={[.1, 2.5, .02]} />
+        <meshStandardMaterial color={appearance && !appearance.default ? appearance.color : settings.wand.color}
+          emissive={appearance && !appearance.default ? appearance.emissive : settings.wand.emissive}
+          emissiveIntensity={settings.wand.emissiveIntensity} />
       </mesh>
-
-      <WandParticles
-        ref={particlesRef}
-        position={tipPositionRef.current.toArray()}
-        emitRate={25}
-        color="#ffff88"
-        particleSize={0.05}
-        lifetime={1.2}
-        maxParticles={40}
-      />
     </group>
-  );
+    <WandParticles tip={tip} />
+  </>;
 };

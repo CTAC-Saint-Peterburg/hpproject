@@ -1,7 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Html, useProgress } from '@react-three/drei';
+import { useTranslation } from 'react-i18next';
 
 export default function LoaderOverlay() {
+  const { t } = useTranslation();
   const { progress, active, errors } = useProgress();
   const [isVisible, setIsVisible] = useState(true);
   const [displayProgress, setDisplayProgress] = useState(0);
@@ -42,7 +44,7 @@ export default function LoaderOverlay() {
         <div style={styles.content}>
           <div style={styles.spinner} />
           <div style={styles.text}>
-            {errors?.length ? '⚠️ Ошибка' : `Загрузка: ${Math.round(displayProgress)}%`}
+            {errors?.length ? t('loading.error') : t('loading.progress', {progress: Math.round(displayProgress)})}
           </div>
           <div style={styles.progressContainer}>
             <div style={{ ...styles.progressBar, width: `${displayProgress}%` }} />

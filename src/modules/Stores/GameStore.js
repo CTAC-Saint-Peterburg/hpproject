@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import missions from '../../static/missions.json';
 import { ENEMY_TYPES, ENEMY_FLIGHT_MS, ENEMY_SHOT_MS, PROJECTILE_FLIGHT_MS } from '../../static/enemies';
 import achievements from '../../static/achievements.json';
+import shopItems from '../../static/shop.json';
 
 export const useGameStore = create(persist((set, get) => ({
 
@@ -12,18 +13,18 @@ export const useGameStore = create(persist((set, get) => ({
     const s = get();
     if (s.status !== 'playing' || !s.enemies.some(enemy => enemy.id === id)) return;
     set({ selectedEnemyId: s.selectedEnemyId === id ? null : id, isPotSelected: false, currentSpell: null,
-      message: 'Враг выбран: синий — V (огонь), жёлтый — квадрат (холод).' });
+      message: 'messages.enemySelected' });
   },
   spawnEnemy: (type, forced = false, now = Date.now()) => {
     const s = get();
     if (s.status !== 'playing' || !s.startGame || !ENEMY_TYPES[type]) return false;
     const freeSide = [-1, 1].filter(side => !s.enemies.some(enemy => enemy.side === side));
-    if (!freeSide.length) { if (forced) set({ message: 'Оба угла заняты: сначала уничтожьте врага.' }); return false; }
+    if (!freeSide.length) { if (forced) set({ message: 'messages.full' }); return false; }
     const side = freeSide[Math.floor(Math.random() * freeSide.length)];
     const serial = s.enemySerial + 1;
     const enemy = { id: 'enemy-' + serial, type, side, bornAt: now, nextShotAt: now + ENEMY_FLIGHT_MS + ENEMY_SHOT_MS };
     set({ enemies: [...s.enemies, enemy], enemySerial: serial,
-      ...(forced ? { debugUsed: true, message: 'Враг вызван для отладки; награды отключены до новой попытки.' } : {}) });
+      ...(forced ? { debugUsed: true, message: 'messages.spawned' } : {}) });
     return true;
   },
   updateEnemies: now => {
@@ -41,7 +42,7 @@ export const useGameStore = create(persist((set, get) => ({
     });
     set({ enemies, projectiles: shots, enemySerial: serial,
       potTemperature: Math.max(20, Math.min(110, s.potTemperature + temperatureDelta)),
-      ...(impacts.length ? { message: 'Попадание в котёл: ' + (temperatureDelta >= 0 ? '+' : '') + temperatureDelta + ' °C' } : {}) });
+      ...(impacts.length ? { message: 'messages.impact', messageValues: { delta: (temperatureDelta >= 0 ? '+' : '') + temperatureDelta } } : {}) });
     s = get();
     const config = s.mission.enemySpawn;
     const allowed = (config?.allowed || []).filter(type => ENEMY_TYPES[type]);
@@ -55,24 +56,53 @@ export const useGameStore = create(persist((set, get) => ({
     }
   },
 
+  tutorialProgress: {},
+  ownedItems: ['wand_default', 'pot_default'],
+  equippedItems: { wand: 'wand_default', pot: 'pot_default' },
+  buyItem: id => {
+    const item = shopItems.find(entry => entry.id === id);
+    if (!item || !['wand','pot'].includes(item.type) || !Number.isFinite(item.price) || item.price < 0) return 'shop.invalid';
+    const s = get();
+    if (item.default || s.ownedItems.includes(id)) return 'shop.owned';
+    if (s.stones < item.price) return 'shop.insufficient';
+    set({ stones: s.stones - item.price, ownedItems: [...s.ownedItems, id] });
+    return 'shop.purchased';
+  },
+  equipItem: id => {
+    const item = shopItems.find(entry => entry.id === id);
+    const s = get();
+    if (!item || (!item.default && !s.ownedItems.includes(id))) return 'shop.notOwned';
+    set({ equippedItems: { ...s.equippedItems, [item.type]: id } });
+    return 'shop.applied';
+  },
+  recordTraining: id => {
+    if (!Number.isInteger(id) || id < 1 || id > 10) return;
+    set(s => ({ tutorialProgress: { ...s.tutorialProgress, [id]: Math.min(2, (s.tutorialProgress[id] || 0) + 1) } }));
+  },
   stones: 0, unlocked: [], records: {}, completed: [], selectedLevel: 'level_01',
   runId: 0, startGame: false, status: 'idle', mission: null, currentStage: 0,
   currentSpell: null, isPotSelected: false, potTemperature: 20, heatLevel: 0,
   score: 0, mistakes: 0, rating: 0, reward: 0, remaining: null, fps: 0,
-  message: '', debugUsed: false, lastTick: 0, deadline: null,
+  message: '', messageValues: {}, debugUsed: false, lastTick: 0, deadline: null,
+  spellCast: null, spellCastSerial: 0,
   setCurrentSpell: currentSpell => {
+    if (!Number.isInteger(currentSpell) || currentSpell < 1 || currentSpell > 10) return;
     get().tick(Date.now());
     const s = get();
     if (s.status !== 'playing') return;
     const enemy = s.enemies.find(item => item.id === s.selectedEnemyId);
+    const cast = {
+      sequence: s.spellCastSerial + 1, spellId: currentSpell, at: Date.now(),
+      target: enemy ? { kind: 'enemy', enemy: { ...enemy } } : s.isPotSelected ? { kind: 'pot' } : { kind: 'wand' },
+    };
     if (enemy) {
       if (ENEMY_TYPES[enemy.type].counterSpell === currentSpell) {
         set({ enemies: s.enemies.filter(item => item.id !== enemy.id), selectedEnemyId: null,
-          currentSpell: null, message: 'Враг рассеян!' });
+          currentSpell: null, spellCast: cast, spellCastSerial: cast.sequence, message: 'messages.defeated' });
       } else {
-        set({ currentSpell: null, message: 'Не то заклинание: синий — V, жёлтый — квадрат.' });
+        set({ currentSpell: null, message: 'messages.wrongSpell' });
       }
-    } else set({ currentSpell });
+    } else set({ currentSpell, spellCast: cast, spellCastSerial: cast.sequence });
   },
   togglePotSelected: () => set(s => ({ isPotSelected: !s.isPotSelected, selectedEnemyId: null, currentSpell: null })),
   changePotTemperature: value => set(s => ({ heatLevel: Math.max(0, Math.min(3, s.heatLevel + value)) })),
@@ -85,7 +115,7 @@ export const useGameStore = create(persist((set, get) => ({
     if (!mission) return;
     const now = Date.now();
     set({ runId: get().runId + 1, selectedLevel: id, mission, startGame: true, status: 'playing', currentStage: 0,
-      currentSpell: null, isPotSelected: false, potTemperature: 20, heatLevel: 0,
+      currentSpell: null, spellCast: null, spellCastSerial: 0, isPotSelected: false, potTemperature: 20, heatLevel: 0,
       score: 0, mistakes: 0, rating: 0, reward: 0, message: '', debugUsed: false,
       remaining: mission.timeLimit ?? null, deadline: mission.timeLimit ? now + mission.timeLimit * 1000 : null,
       lastTick: now, enemies: [], projectiles: [], selectedEnemyId: null, enemiesSpawned: 0, enemySerial: 0,
@@ -93,7 +123,7 @@ export const useGameStore = create(persist((set, get) => ({
         (mission.enemySpawn.spawnWindow ?? mission.timeLimit ?? 150) * 1000 /
         (Math.max(1, Math.min(10, Math.trunc(mission.enemySpawn.rarity || 1))) + 1) : null });
   },
-  exitToMenu: () => set({ runId: 0, startGame: false, status: 'idle', currentSpell: null, isPotSelected: false, heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null }),
+  exitToMenu: () => set({ runId: 0, startGame: false, status: 'idle', currentSpell: null, spellCast: null, isPotSelected: false, heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null }),
   tick: now => {
     const s = get();
     if (!s.startGame || s.status !== 'playing') return;
@@ -113,10 +143,10 @@ export const useGameStore = create(persist((set, get) => ({
     if (!stage) return;
     if (id !== stage.id || s.potTemperature < stage.temperature.min || s.potTemperature > stage.temperature.max) {
       set({ score: Math.max(0, s.score - stage.points_deduct), mistakes: s.mistakes + 1,
-        message: id !== stage.id ? 'Неверный ингредиент.' : 'Температура не подходит: измените огонь и подождите.' });
+        message: id !== stage.id ? 'messages.wrongIngredient' : 'messages.wrongTemperature' });
       return;
     }
-    set({ currentStage: s.currentStage + 1, score: s.score + stage.points_add, message: 'Ингредиент принят.' });
+    set({ currentStage: s.currentStage + 1, score: s.score + stage.points_add, message: 'messages.accepted' });
     if (get().currentStage === s.mission.stages.length) get().finish(true);
   },
   debugAdvance: () => {
@@ -143,11 +173,11 @@ export const useGameStore = create(persist((set, get) => ({
           rule.eq !== undefined ? facts[key] === rule.eq : facts[key] >= rule.min)) unlocked.add(a.id);
       });
     }
-    set({ status: won ? 'won' : 'lost', rating, reward, stones: s.stones + reward,
+    set({ status: won ? 'won' : 'lost', spellCast: null, rating, reward, stones: s.stones + reward,
       completed, records, unlocked: [...unlocked], heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null });
   },
 }), {
   name: 'hpproject-save-v1',
-  partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed }),
+  partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed, tutorialProgress: s.tutorialProgress, ownedItems: s.ownedItems, equippedItems: s.equippedItems }),
 }));
 

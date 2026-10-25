@@ -11,6 +11,7 @@ source = source.replace("'zustand'", JSON.stringify(new URL('../node_modules/zus
   .replace(/import missions from .*?;/, 'const missions = ' + read('src/static/missions.json') + ';')
   .replace(/import achievements from .*?;/, 'const achievements = ' + read('src/static/achievements.json') + ';');
 const saved = new Map();
+source = source.replace(/import shopItems from .*?;/, 'const shopItems = ' + read('src/static/shop.json') + ';');
 globalThis.window = { localStorage: { getItem: k => saved.get(k) ?? null, setItem: (k, v) => saved.set(k, v) } };
 const { useGameStore: store } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 const s = () => store.getState();
@@ -33,12 +34,23 @@ test('enemy spawn, attacks, counterspells, limits and mission cleanup', () => {
     assert.equal(s().isPotSelected, false);
     s().setCurrentSpell(2);
     assert.equal(s().enemies.length, 2);
+    assert.equal(s().spellCast, null); // Wrong counterspell must not produce a success flash.
     s().setCurrentSpell(1);
     assert.equal(s().enemies.length, 1);
+    assert.equal(s().spellCast.spellId, 1);
+    assert.equal(s().spellCast.target.enemy.id, cold.id);
     assert.equal(s().selectedEnemyId, null);
     s().selectEnemy(s().enemies[0].id);
     s().setCurrentSpell(2);
     assert.equal(s().enemies.length, 0);
+    s().setCurrentSpell(3);
+    const firstCast = s().spellCast.sequence;
+    s().setCurrentSpell(3);
+    assert.equal(s().spellCast.sequence, firstCast + 1);
+    assert.equal(s().spellCast.target.kind, 'wand');
+    s().togglePotSelected();
+    s().setCurrentSpell(1);
+    assert.equal(s().spellCast.target.kind, 'pot');
 
     for (const [type, expected] of [['enemycold', 45], ['enemyfire', 75]]) {
       start();
@@ -68,11 +80,13 @@ test('enemy spawn, attacks, counterspells, limits and mission cleanup', () => {
     assert.equal(s().enemies.length, 0);
     assert.equal(s().projectiles.length, 1); // A launched projectile survives its owner.
     s().exitToMenu();
+    assert.equal(s().spellCast, null);
     assert.equal(s().projectiles.length, 0);
     assert.equal(s().enemies.length, 0);
     assert.equal(s().spawnEnemy('enemycold', true), false);
 
     s().beginMission('level_01');
+    assert.equal(s().spellCast, null);
     assert.equal(s().debugUsed, false);
     now = s().nextEnemyAt;
     s().updateEnemies(now);

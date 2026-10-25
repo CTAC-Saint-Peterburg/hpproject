@@ -1,0 +1,10 @@
+[
+  { "id": "wand_default", "type": "wand", "name": "shop.items.wand_default", "description": "shop.wandDescription", "price": 0, "color": "#754327", "emissive": "#331100", "default": true },
+  { "id": "wand_ruby", "type": "wand", "name": "shop.items.wand_ruby", "description": "shop.wandDescription", "price": 80, "color": "#e84365", "emissive": "#64152c" },
+  { "id": "wand_azure", "type": "wand", "name": "shop.items.wand_azure", "description": "shop.wandDescription", "price": 100, "color": "#42baff", "emissive": "#123b75" },
+  { "id": "wand_violet", "type": "wand", "name": "shop.items.wand_violet", "description": "shop.wandDescription", "price": 120, "color": "#b781ff", "emissive": "#48236b" },
+  { "id": "pot_default", "type": "pot", "name": "shop.items.pot_default", "description": "shop.potDescription", "price": 0, "color": "#39333e", "default": true },
+  { "id": "pot_jade", "type": "pot", "name": "shop.items.pot_jade", "description": "shop.potDescription", "price": 60, "color": "#40ba8b" },
+  { "id": "pot_gold", "type": "pot", "name": "shop.items.pot_gold", "description": "shop.potDescription", "price": 90, "color": "#e8b844" },
+  { "id": "pot_rose", "type": "pot", "name": "shop.items.pot_rose", "description": "shop.potDescription", "price": 110, "color": "#dc7aab" }
+]

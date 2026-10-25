@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from './Stores/GameStore';
@@ -16,6 +17,7 @@ export function FrameCounter() {
 }
 
 export default function GameHud() {
+  const { t } = useTranslation();
   const s = useGameStore();
   const [showFps, setShowFps] = useState(false);
   useEffect(() => {
@@ -46,23 +48,23 @@ export default function GameHud() {
   }, [s.startGame, s.status]);
   const stage = s.mission?.stages[s.currentStage];
   return <>
-    <div className="wallet">💎 {s.stones} stones</div>
+    <div className="wallet">💎 {s.stones} {t('hud.stones')}</div>
     {showFps && <div className="fps">{s.fps}</div>}
     {s.startGame && <>
-      <div className="timer">{s.remaining === null ? 'Без ограничения времени' : Math.ceil(s.remaining) + ' сек.'}</div>
+      <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
       <div className="hud">
-        <button onClick={s.exitToMenu}>В меню · Esc</button>
-        <p>🌡 {Math.round(s.potTemperature)} °C · огонь {s.heatLevel}/3</p>
-        <p>{stage ? stage.icon + ' ' + stage.name + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : 'Рецепт завершён'}</p>
-        <p>Очки: {s.score} · Ошибки: {s.mistakes}</p>
-        <p>Враги: синий — V (огонь), жёлтый — квадрат (холод). Сначала выберите врага кликом.</p>
-        <p role="status">{s.message}</p>
+        <button onClick={s.exitToMenu}>{t('menu.return')} · Esc</button>
+        <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
+        <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>
+        <p>{t('hud.score', {score:s.score, mistakes:s.mistakes})}</p>
+        <p>{t('hud.enemies')}</p>
+        <p role="status">{s.message ? t(s.message, s.messageValues) : ''}</p>
       </div>
-      {s.status !== 'playing' && <div className="result"><h2>{s.status === 'won' ? 'Зелье готово!' : 'Время истекло'}</h2>
-        <p>Оценка: {'★'.repeat(s.rating)}{'☆'.repeat(3 - s.rating)} · {s.score} очков</p>
-        <p>Награда: 💎 {s.reward}</p>{s.debugUsed && <p>Отладочное прохождение: награды и достижения отключены.</p>}
-        <button onClick={() => s.beginMission(s.selectedLevel)}>Повторить</button>
-        <button onClick={s.exitToMenu}>В меню</button>
+      {s.status !== 'playing' && <div className="result"><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
+        <p>{t('result.rating', {stars: '★'.repeat(s.rating) + '☆'.repeat(3 - s.rating), score:s.score})}</p>
+        <p>{t('result.reward', {reward:s.reward})}</p>{s.debugUsed && <p>{t('result.debug')}</p>}
+        <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.retry')}</button>
+        <button onClick={s.exitToMenu}>{t('menu.return')}</button>
       </div>}
     </>}
   </>;

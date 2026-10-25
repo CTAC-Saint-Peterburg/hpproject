@@ -1,6 +1,6 @@
 export const ENEMY_TYPES = {
-  enemycold: { color: '#32aaff', temperatureDelta: -15, counterSpell: 1, name: 'Ледяной дух' },
-  enemyfire: { color: '#ffdf32', temperatureDelta: 15, counterSpell: 2, name: 'Огненный дух' },
+  enemycold: { color: '#32aaff', temperatureDelta: -15, counterSpell: 1, name: 'enemies.enemycold' },
+  enemyfire: { color: '#ffdf32', temperatureDelta: 15, counterSpell: 2, name: 'enemies.enemyfire' },
 };
 export const ENEMY_FLIGHT_MS = 2500;
 export const ENEMY_SHOT_MS = 4000;

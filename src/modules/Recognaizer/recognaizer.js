@@ -1,6 +1,8 @@
 // utils/gestureRecognizer.js
 // Распознавание жестов: 10 заклинаний с простой эвристикой
 
+import { recognizeLessonGesture } from '../../static/spellLessons';
+
 export function recognizeGesture(points, options = {}) {
   const {
     minPoints = 3,
@@ -10,6 +12,9 @@ export function recognizeGesture(points, options = {}) {
   if (!points || !Array.isArray(points) || points.length < minPoints) {
     return null;
   }
+
+  const lessonGesture = recognizeLessonGesture(points);
+  if (lessonGesture !== null) return lessonGesture;
 
   // === БАЗОВЫЕ МЕТРИКИ ===
   const xs = points.map(p => p.x);

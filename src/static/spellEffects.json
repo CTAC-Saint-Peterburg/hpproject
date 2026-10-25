@@ -1,0 +1,195 @@
+{
+  "capacity": 512,
+  "particleOpacity": 0.85,
+  "tipBurstRatio": 0.33,
+  "flashLightDistance": 5,
+  "maxBurstParticles": 120,
+  "activeSpellSeconds": 2.5,
+  "wand": {
+    "position": [
+      -0.7,
+      -0.3,
+      1.2
+    ],
+    "color": "#754327",
+    "emissive": "#331100",
+    "emissiveIntensity": 0.5
+  },
+  "trail": {
+    "color": "#ffe897",
+    "emitRate": 25,
+    "size": 0.045,
+    "lifetime": 1.2,
+    "speed": 0.35,
+    "spread": 0.06,
+    "gravity": 0.05,
+    "swirl": 2,
+    "motion": "fountain"
+  },
+  "burst": {
+    "count": 48,
+    "size": 0.07,
+    "lifetime": 0.8,
+    "speed": 1.8,
+    "spread": 0.12,
+    "gravity": 0.3,
+    "swirl": 4,
+    "motion": "burst"
+  },
+  "flash": {
+    "duration": 0.32,
+    "size": 0.32,
+    "growth": 2.8,
+    "intensity": 5,
+    "ringRadius": 0.25,
+    "ringGrowth": 3,
+    "opacity": 0.8
+  },
+  "drawing": {
+    "color": "#ffd86e",
+    "lineWidth": 3,
+    "opacity": 0.85
+  },
+  "spells": {
+    "1": {
+      "color": "#ff7733",
+      "motion": "fountain",
+      "speed": 0.3,
+      "burst": {
+        "count": 36,
+        "speed": 1.3,
+        "motion": "fountain",
+        "lifetime": 0.65
+      },
+      "flash": {
+        "duration": 0.25
+      }
+    },
+    "2": {
+      "color": "#69d9ff",
+      "motion": "drift",
+      "speed": 0.345,
+      "burst": {
+        "count": 42,
+        "speed": 1.45,
+        "motion": "drift",
+        "lifetime": 0.7000000000000001
+      },
+      "flash": {
+        "duration": 0.27
+      }
+    },
+    "3": {
+      "color": "#77ffad",
+      "motion": "spiral",
+      "speed": 0.39,
+      "burst": {
+        "count": 48,
+        "speed": 1.6,
+        "motion": "spiral",
+        "lifetime": 0.75
+      },
+      "flash": {
+        "duration": 0.29
+      }
+    },
+    "4": {
+      "color": "#fff1a6",
+      "motion": "drift",
+      "speed": 0.435,
+      "burst": {
+        "count": 54,
+        "speed": 1.75,
+        "motion": "drift",
+        "lifetime": 0.8
+      },
+      "flash": {
+        "duration": 0.31
+      }
+    },
+    "5": {
+      "color": "#b49aff",
+      "motion": "spiral",
+      "speed": 0.48,
+      "burst": {
+        "count": 60,
+        "speed": 1.9,
+        "motion": "spiral",
+        "lifetime": 0.8500000000000001
+      },
+      "flash": {
+        "duration": 0.33
+      }
+    },
+    "6": {
+      "color": "#b8eaff",
+      "motion": "burst",
+      "speed": 0.5249999999999999,
+      "burst": {
+        "count": 66,
+        "speed": 2.05,
+        "motion": "burst",
+        "lifetime": 0.9
+      },
+      "flash": {
+        "duration": 0.35
+      }
+    },
+    "7": {
+      "color": "#ffb8ef",
+      "motion": "fountain",
+      "speed": 0.5700000000000001,
+      "burst": {
+        "count": 72,
+        "speed": 2.2,
+        "motion": "fountain",
+        "lifetime": 0.9500000000000001
+      },
+      "flash": {
+        "duration": 0.37
+      }
+    },
+    "8": {
+      "color": "#ffce73",
+      "motion": "burst",
+      "speed": 0.615,
+      "burst": {
+        "count": 78,
+        "speed": 2.35,
+        "motion": "burst",
+        "lifetime": 1
+      },
+      "flash": {
+        "duration": 0.39
+      }
+    },
+    "9": {
+      "color": "#88eeff",
+      "motion": "drift",
+      "speed": 0.6599999999999999,
+      "burst": {
+        "count": 84,
+        "speed": 2.5,
+        "motion": "drift",
+        "lifetime": 1.05
+      },
+      "flash": {
+        "duration": 0.41000000000000003
+      }
+    },
+    "10": {
+      "color": "#ff4fc8",
+      "motion": "spiral",
+      "speed": 0.705,
+      "burst": {
+        "count": 90,
+        "speed": 2.65,
+        "motion": "spiral",
+        "lifetime": 1.1
+      },
+      "flash": {
+        "duration": 0.43
+      }
+    }
+  }
+}
