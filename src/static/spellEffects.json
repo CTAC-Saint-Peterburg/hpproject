@@ -213,5 +213,53 @@
       0,
       0
     ]
+  },
+  "handRig": {
+    "position": [
+      -0.64,
+      -0.92,
+      3.68
+    ],
+    "handSize": [
+      0.4,
+      2,
+      0.3
+    ],
+    "wandLength": 2.5,
+    "grip": [
+      0,
+      -0.85,
+      0.08
+    ],
+    "gripRotation": [
+      1.5707963267948966,
+      0,
+      0
+    ],
+    "gripDepth": 0.18,
+    "brewingAim": [
+      10,
+      5,
+      -15
+    ],
+    "tracking": {
+      "frequency": 12,
+      "aimDamping": 16,
+      "rotationDamping": 16,
+      "positionInfluence": [
+        0.18,
+        0.09,
+        0
+      ],
+      "velocityTilt": 0.018,
+      "maxTilt": 0.08
+    },
+    "sway": {
+      "frequency": 1.25,
+      "idleAmplitude": 0.007,
+      "moveAmplitude": 0.025,
+      "bob": 0.018,
+      "velocityScale": 0.18
+    }
   }
 }

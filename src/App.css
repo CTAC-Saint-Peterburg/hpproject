@@ -54,3 +54,5 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-debug { position:absolute;right:12px;top:80px;z-index:30;display:flex;flex-direction:column;gap:10px;padding:18px;background:#351f3efa;border:1px solid #c78edb;border-radius:10px; }
 @media(max-width:650px){.arena-top{font-size:12px;gap:7px;}.arena-top button{padding:6px;font-size:11px;}.arena-hints{top:130px;max-width:180px;font-size:11px;}.arena-potions button{font-size:11px;padding:7px;}.arena-between{top:270px;padding:10px;}}
 
+
+.app canvas { touch-action: none; }

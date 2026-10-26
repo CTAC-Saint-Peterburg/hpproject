@@ -1,8 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Plane, Vector3 } from 'three';
-import { Hand } from '../Hand/Hand';
-import { Wand } from '../Wand/Wand';
+import HandWandRig from '../Wand/HandWandRig';
 import { WandParticles } from '../Wand/WandParticles';
 import { settings } from '../Wand/effectSettings';
 import { useDefenseStore } from './DefenseStore';
@@ -31,8 +30,7 @@ export default function ArenaHandWand({ tip }) {
   }, -3);
   return <>
     <group ref={rig}>
-      <Hand aimTarget={aim} />
-      <Wand tipRef={tip} showParticles={false} />
+      <HandWandRig aimTarget={aim} tip={tip} getEffectState={getEffectState} />
     </group>
     {/* Both renderer and targets are in world space, outside the camera-aligned rig. */}
     <WandParticles tip={tip} getEffectState={getEffectState} />

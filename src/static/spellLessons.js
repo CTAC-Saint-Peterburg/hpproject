@@ -1,3 +1,6 @@
+import { resampleStroke, recognizeTemplateStroke } from '../modules/Recognaizer/gestureMatching.js';
+export { resampleStroke } from '../modules/Recognaizer/gestureMatching.js';
+
 const circle = Array.from({ length: 65 }, (_, i) => {
   const angle = -Math.PI / 2 + i * Math.PI * 2 / 64;
   return [0.5 + Math.cos(angle) * 0.28, 0.5 + Math.sin(angle) * 0.28];
@@ -13,25 +16,9 @@ export const spellLessons = [
   { id: 7, name: 'spells.7.name', effect: 'spells.unassigned', points: [[.2,.78],[.5,.22],[.8,.78]] },
   { id: 8, name: 'spells.8.name', effect: 'spells.unassigned', points: [[.27,.2],[.27,.77],[.8,.77]] },
   { id: 9, name: 'spells.9.name', effect: 'spells.unassigned', points: [[.2,.8],[.8,.2]] },
-  { id: 10, name: 'spells.10.name', effect: 'spells.unassigned', points: [[.18,.24],[.34,.76],[.5,.32],[.66,.76],[.82,.24]] },
+  { id: 10, name: 'spells.10.name', effect: 'spells.unassigned', points: [[.18,.24],[.34,.76],[.5,.32],[.66,.76],[.82,.24]],
+    recognitionVariants: [[[.18,.24],[.34,.76],[.5,.48],[.66,.76],[.82,.24]]] },
 ];
-
-export function resampleStroke(points, count = 64) {
-  if (!points.length) return [];
-  const distances = [0];
-  for (let i = 1; i < points.length; i++) {
-    distances.push(distances[i - 1] + Math.hypot(points[i][0] - points[i - 1][0], points[i][1] - points[i - 1][1]));
-  }
-  const total = distances.at(-1);
-  if (total === 0) return Array.from({ length: count }, () => points[0]);
-  let segment = 1;
-  return Array.from({ length: count }, (_, i) => {
-    const target = total * i / (count - 1);
-    while (segment < points.length - 1 && distances[segment] < target) segment++;
-    const fraction = (target - distances[segment - 1]) / (distances[segment] - distances[segment - 1] || 1);
-    return [0, 1].map(axis => points[segment - 1][axis] + (points[segment][axis] - points[segment - 1][axis]) * fraction);
-  });
-}
 
 export function matchesLesson(points, lesson) {
   if (points.length < 3 || points.some(p => p.some(value => !Number.isFinite(value)))) return false;
@@ -49,25 +36,9 @@ export function matchesLesson(points, lesson) {
   return ratio >= .75 && ratio <= 1.5 && Math.max(...errors) < .15 && Math.sqrt(errors.reduce((sum, error) => sum + error ** 2, 0) / errors.length) < .065;
 }
 
-// Match game gestures to the same shapes taught on the training board.
-// Game coordinates have Y pointing up; lesson coordinates have Y pointing down.
-export function recognizeLessonGesture(points) {
-  if (!Array.isArray(points) || points.length < 3 || points.some(p => !Number.isFinite(p?.x) || !Number.isFinite(p?.y))) return null;
-  const stroke = points.map(p => [p.x, -p.y]);
-  const fit = list => {
-    const xs = list.map(p => p[0]), ys = list.map(p => p[1]);
-    const minX = Math.min(...xs), minY = Math.min(...ys);
-    const width = Math.max(...xs) - minX, height = Math.max(...ys) - minY;
-    const size = Math.max(width, height);
-    return size > 0 ? list.map(p => [.5 + (p[0] - minX - width / 2) * .6 / size, .5 + (p[1] - minY - height / 2) * .6 / size]) : list;
-  };
-  const extent = Math.max(...stroke.map(p => p[0])) - Math.min(...stroke.map(p => p[0]));
-  const verticalExtent = Math.max(...stroke.map(p => p[1])) - Math.min(...stroke.map(p => p[1]));
-  if (Math.max(extent, verticalExtent) < .15) return null;
-  const actual = fit(stroke);
-  const lesson = spellLessons.find(item => {
-    const template = { points: fit(item.points) };
-    return matchesLesson(actual, template) || matchesLesson([...actual].reverse(), template);
-  });
-  return lesson?.id ?? null;
+// Game coordinates have Y pointing up; lesson templates point down.
+export function recognizeLessonGesture(points, options = {}) {
+  if (!Array.isArray(points) || points.some(p => !Number.isFinite(p?.x) || !Number.isFinite(p?.y))) return null;
+  const aspect = Number.isFinite(options.aspectRatio) && options.aspectRatio > 0 ? options.aspectRatio : 1;
+  return recognizeTemplateStroke(points.map(p => [p.x * aspect, -p.y]), spellLessons, options);
 }

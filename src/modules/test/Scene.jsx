@@ -2,8 +2,7 @@ import { useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { MouseTracker } from '../MouseTrack/MouseTracker';
 import { Pot } from '../Pot/Pot';
-import { Wand } from '../Wand/Wand';
-import { Hand } from '../Hand/Hand';
+import HandWand from '../Wand/HandWand';
 import { Floor } from '../Floor/Floor';
 import { recognizeGesture } from '../Recognaizer/recognaizer';
 import { SpellTrail } from './SpellTrail';
@@ -20,11 +19,12 @@ export default function Scene() {
   const [trail, setTrail] = useState([]);
   const s = useGameStore();
   const handleMouseUpdate = pos => {
-    if (s.status !== 'playing') { path.current = []; return; }
+    if (s.status !== 'playing' || pos.cancelled) { path.current = []; setTrail([]); return; }
     if (pos.isDown) { path.current.push({ x: pos.x, y: pos.y }); setTrail([...path.current]); }
     else {
-      if (path.current.length >= 3) {
-        const spell = recognizeGesture(path.current);
+      const points = [...path.current, { x: pos.x, y: pos.y }];
+      if (points.length >= 3) {
+        const spell = recognizeGesture(points, { aspectRatio: pos.aspectRatio });
         if (spell) {
           s.setCurrentSpell(spell);
           if (spell !== 3) setSelectedBottle(null);
@@ -43,7 +43,7 @@ export default function Scene() {
     <ambientLight intensity={0.6} /><pointLight position={[10, 10, 10]} intensity={100} />
     <Floor />
     <Pot bottleRadar={s.currentSpell === 3 && selectedBottle?.isSelected ? [selectedBottle] : []} />
-    <Hand mousePos={mousePos} /><Wand />
+    <HandWand />
     <SpellTrail points={trail} />
     <Ingredients mousePos={mousePos} disabled={s.status !== 'playing'} onPositionUpdate={setSelectedBottle} />
     <RecipeStages stages={s.mission?.stages || []} currentStage={s.currentStage}

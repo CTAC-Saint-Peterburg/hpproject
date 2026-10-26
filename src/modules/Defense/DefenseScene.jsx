@@ -117,13 +117,13 @@ export default function DefenseScene(){
   window.addEventListener('keydown',key);document.addEventListener('visibilitychange',visibility);
   return()=>{clearInterval(timer);window.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility);};
  },[]);
- const point=e=>{const r=e.currentTarget.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*2-1,y:1-(e.clientY-r.top)/r.height*2};};
+ const point=(e,element=e.currentTarget)=>{const r=element.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*2-1,y:1-(e.clientY-r.top)/r.height*2};};
  return <section className="defense-game">
  <div className="defense-canvas" onPointerDown={e=>{
-  if(e.button!==0||s.paused||!['wave','clear'].includes(s.phase))return;
+  if(e.button!==0||e.isPrimary===false||draw.current||s.paused||!['wave','clear'].includes(s.phase))return;
   e.target.setPointerCapture(e.pointerId);draw.current={id:e.pointerId,points:[point(e)]};setStroke([]);
- }} onPointerMove={e=>{if(draw.current?.id!==e.pointerId)return;draw.current.points.push(point(e));setStroke([...draw.current.points]);}}
- onPointerUp={e=>{if(draw.current?.id!==e.pointerId)return;const rect=e.currentTarget.getBoundingClientRect();const points=[...draw.current.points,point(e)].map(p=>({x:p.x*rect.width/rect.height,y:p.y}));draw.current=null;setStroke([]);const spell=recognizeGesture(points);if(spell)useDefenseStore.getState().cast(spell);}}
+ }} onPointerMove={e=>{if(draw.current?.id!==e.pointerId)return;const samples=e.nativeEvent.getCoalescedEvents?.();if(samples?.length)for(const sample of samples)draw.current.points.push(point(sample,e.currentTarget));else draw.current.points.push(point(e));setStroke([...draw.current.points]);}}
+ onPointerUp={e=>{if(draw.current?.id!==e.pointerId)return;const rect=e.currentTarget.getBoundingClientRect();const points=[...draw.current.points,point(e)];draw.current=null;setStroke([]);const spell=recognizeGesture(points,{aspectRatio:rect.width/rect.height});if(spell)useDefenseStore.getState().cast(spell);}}
  onPointerCancel={()=>{draw.current=null;setStroke([]);}}>
  <Canvas camera={{position:[0,12,11],fov:50}}><Board/></Canvas>
  <svg className="arena-gesture" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d={stroke.map((p,i)=>(i?'L':'M')+(p.x+1)*50+','+(1-p.y)*50).join(' ')} fill="none" stroke={settings.drawing.color} strokeWidth={settings.drawing.lineWidth} opacity={settings.drawing.opacity} vectorEffect="non-scaling-stroke"/></svg>
