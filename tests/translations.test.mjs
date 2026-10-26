@@ -24,17 +24,23 @@ test('all five dictionaries contain every key and the same interpolation variabl
   const missions = JSON.parse(read('src/static/missions.json'));
   const achievements = JSON.parse(read('src/static/achievements.json'));
   const items = JSON.parse(read('src/static/shop.json'));
+  const potions = JSON.parse(read('src/static/potions.json'));
+  const cards = JSON.parse(read('src/static/cards.json'));
+  const arena = JSON.parse(read('src/static/defense.json'));
   const dynamicKeys = [
     ...Object.values(missions).flatMap(m => [m.name, ...m.stages.map(stage => stage.name)]),
     ...achievements.flatMap(a => [a.name, a.description]),
     ...spellLessons.flatMap(lesson => [lesson.name, lesson.effect]),
     ...Object.values(ENEMY_TYPES).map(enemy => enemy.name),
     ...items.flatMap(item => [item.name, item.description]),
+    ...potions.flatMap(item => [item.name, item.description]),
+    ...cards.flatMap(item => [item.name, item.description]),
+    ...Object.values(arena.enemies).map(item => item.name),
   ];
   for (const key of dynamicKeys) assert.ok(resources.ru[key], key);
   // Literal UI and message keys, including translated Zustand notifications.
-  for (const file of ['src/modules/Menu/MainMenu.jsx','src/modules/Menu/SpellTraining.jsx','src/modules/Menu/Shop.jsx','src/modules/GameHud.jsx','src/modules/Stores/GameStore.js']) {
-    for (const match of read(file).matchAll(/['"]((?:app|menu|time|hud|result|messages|training|help|loading|shop)\.[\w.]+)['"]/g)) {
+  for (const file of ['src/modules/Menu/MainMenu.jsx','src/modules/Menu/SpellTraining.jsx','src/modules/Menu/Shop.jsx','src/modules/Menu/Collection.jsx','src/modules/Defense/DefenseSetup.jsx','src/modules/Defense/DefenseScene.jsx','src/modules/Defense/defenseState.js','src/modules/GameHud.jsx','src/modules/Stores/GameStore.js']) {
+    for (const match of read(file).matchAll(/['"]((?:app|menu|time|hud|result|messages|training|help|loading|shop|arena|collection)\.[\w.]+)['"]/g)) {
       if (match[1] === 'shop.category.') continue;
       assert.ok(resources.ru[match[1]], match[1]);
     }

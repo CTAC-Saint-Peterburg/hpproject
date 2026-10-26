@@ -191,5 +191,27 @@
         "duration": 0.43
       }
     }
+  },
+  "slimeTrail": {
+    "count": 12,
+    "lifetime": 1,
+    "sampleInterval": 0.12,
+    "size": 0.8,
+    "opacity": 0.22,
+    "color": "#a4ecc0"
+  },
+  "arenaRig": {
+    "screenAnchor": [
+      0.45,
+      -0.24
+    ],
+    "depth": 9,
+    "scale": 0.65,
+    "mobileAspect": 0.9,
+    "ringRotation": [
+      -1.5707963267948966,
+      0,
+      0
+    ]
   }
 }

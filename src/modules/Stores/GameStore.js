@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import missions from '../../static/missions.json';
-import { ENEMY_TYPES, ENEMY_FLIGHT_MS, ENEMY_SHOT_MS, PROJECTILE_FLIGHT_MS } from '../../static/enemies';
+import { ENEMY_TYPES, ENEMY_FLIGHT_MS, ENEMY_SHOT_MS, PROJECTILE_FLIGHT_MS, isPotBlocked, randomSlimeSpells } from '../../static/enemies';
 import achievements from '../../static/achievements.json';
 import shopItems from '../../static/shop.json';
 
@@ -13,16 +13,23 @@ export const useGameStore = create(persist((set, get) => ({
     const s = get();
     if (s.status !== 'playing' || !s.enemies.some(enemy => enemy.id === id)) return;
     set({ selectedEnemyId: s.selectedEnemyId === id ? null : id, isPotSelected: false, currentSpell: null,
-      message: 'messages.enemySelected' });
+      message: s.enemies.find(enemy => enemy.id === id)?.type === 'enemyslime' ? 'messages.slimeSelected' : 'messages.enemySelected' });
   },
   spawnEnemy: (type, forced = false, now = Date.now()) => {
     const s = get();
     if (s.status !== 'playing' || !s.startGame || !ENEMY_TYPES[type]) return false;
-    const freeSide = [-1, 1].filter(side => !s.enemies.some(enemy => enemy.side === side));
+    const slime = type === 'enemyslime';
+    if (slime && s.enemies.some(enemy => enemy.type === 'enemyslime')) {
+      if (forced) set({ message: 'messages.slimePresent' });
+      return false;
+    }
+    const freeSide = slime ? [0] : [-1, 1].filter(side => !s.enemies.some(enemy => enemy.side === side));
     if (!freeSide.length) { if (forced) set({ message: 'messages.full' }); return false; }
     const side = freeSide[Math.floor(Math.random() * freeSide.length)];
     const serial = s.enemySerial + 1;
-    const enemy = { id: 'enemy-' + serial, type, side, bornAt: now, nextShotAt: now + ENEMY_FLIGHT_MS + ENEMY_SHOT_MS };
+    const enemy = { id: 'enemy-' + serial, type, side, bornAt: now,
+      ...(slime ? { entrySide: Math.random() < .5 ? -1 : 1, remainingSpells: randomSlimeSpells() }
+        : { nextShotAt: now + ENEMY_FLIGHT_MS + ENEMY_SHOT_MS }) };
     set({ enemies: [...s.enemies, enemy], enemySerial: serial,
       ...(forced ? { debugUsed: true, message: 'messages.spawned' } : {}) });
     return true;
@@ -35,12 +42,13 @@ export const useGameStore = create(persist((set, get) => ({
     let serial = s.enemySerial;
     const shots = s.projectiles.filter(shot => shot.impactAt > now);
     const enemies = s.enemies.map(enemy => {
-      if (now < enemy.nextShotAt) return enemy;
+      if (enemy.type === 'enemyslime' || now < enemy.nextShotAt) return enemy;
       shots.push({ id: 'shot-' + (++serial), type: enemy.type, side: enemy.side, bornAt: enemy.bornAt,
         launchedAt: now, impactAt: now + PROJECTILE_FLIGHT_MS });
       return { ...enemy, nextShotAt: now + ENEMY_SHOT_MS };
     });
     set({ enemies, projectiles: shots, enemySerial: serial,
+      ...(isPotBlocked(enemies, now) ? { isPotSelected: false } : {}),
       potTemperature: Math.max(20, Math.min(110, s.potTemperature + temperatureDelta)),
       ...(impacts.length ? { message: 'messages.impact', messageValues: { delta: (temperatureDelta >= 0 ? '+' : '') + temperatureDelta } } : {}) });
     s = get();
@@ -57,6 +65,24 @@ export const useGameStore = create(persist((set, get) => ({
   },
 
   tutorialProgress: {},
+  potionInventory: {}, mageCards: {},
+  addPotions: ids => set(s => {
+    const potionInventory = { ...s.potionInventory };
+    for (const id of ids) if (['frost','flame','echo','healing'].includes(id)) potionInventory[id] = (potionInventory[id] || 0) + 1;
+    return { potionInventory };
+  }),
+  consumeEntryPotions: ids => {
+    const s = get();
+    if (!Array.isArray(ids) || ids.length !== 3 || new Set(ids).size !== 3 || ids.some(id => !['frost','flame','echo','healing'].includes(id) || !(s.potionInventory[id] > 0))) return false;
+    const potionInventory = { ...s.potionInventory };
+    ids.forEach(id => potionInventory[id]--);
+    set({ potionInventory });
+    return true;
+  },
+  awardMageCard: id => {
+    if (!/^mage_(10|[1-9])$/.test(id)) return;
+    set(s => ({ mageCards: { ...s.mageCards, [id]: (s.mageCards[id] || 0) + 1 } }));
+  },
   ownedItems: ['wand_default', 'pot_default'],
   equippedItems: { wand: 'wand_default', pot: 'pot_default' },
   buyItem: id => {
@@ -96,6 +122,15 @@ export const useGameStore = create(persist((set, get) => ({
       target: enemy ? { kind: 'enemy', enemy: { ...enemy } } : s.isPotSelected ? { kind: 'pot' } : { kind: 'wand' },
     };
     if (enemy) {
+      if (enemy.type === 'enemyslime') {
+        const index = enemy.remainingSpells.indexOf(currentSpell);
+        if (index < 0) { set({ currentSpell: null, message: 'messages.slimeWrong' }); return; }
+        const remainingSpells = enemy.remainingSpells.filter((_, i) => i !== index);
+        set({ enemies: remainingSpells.length ? s.enemies.map(item => item.id === enemy.id ? { ...item, remainingSpells } : item) : s.enemies.filter(item => item.id !== enemy.id),
+          selectedEnemyId: remainingSpells.length ? enemy.id : null, currentSpell: null,
+          spellCast: cast, spellCastSerial: cast.sequence, message: remainingSpells.length ? 'messages.slimeHit' : 'messages.defeated' });
+        return;
+      }
       if (ENEMY_TYPES[enemy.type].counterSpell === currentSpell) {
         set({ enemies: s.enemies.filter(item => item.id !== enemy.id), selectedEnemyId: null,
           currentSpell: null, spellCast: cast, spellCastSerial: cast.sequence, message: 'messages.defeated' });
@@ -104,8 +139,16 @@ export const useGameStore = create(persist((set, get) => ({
       }
     } else set({ currentSpell, spellCast: cast, spellCastSerial: cast.sequence });
   },
-  togglePotSelected: () => set(s => ({ isPotSelected: !s.isPotSelected, selectedEnemyId: null, currentSpell: null })),
-  changePotTemperature: value => set(s => ({ heatLevel: Math.max(0, Math.min(3, s.heatLevel + value)) })),
+  togglePotSelected: () => {
+    const s = get();
+    if (isPotBlocked(s.enemies, Date.now())) { set({ message: 'messages.slimeBlocked' }); return; }
+    set({ isPotSelected: !s.isPotSelected, selectedEnemyId: null, currentSpell: null });
+  },
+  changePotTemperature: value => {
+    const s = get();
+    if (isPotBlocked(s.enemies, Date.now())) { set({ message: 'messages.slimeBlocked' }); return; }
+    set({ heatLevel: Math.max(0, Math.min(3, s.heatLevel + value)) });
+  },
   changeStones: value => {
     if (Number.isFinite(value)) set(s => ({ stones: Math.max(0, s.stones + Math.trunc(value)) }));
   },
@@ -139,6 +182,7 @@ export const useGameStore = create(persist((set, get) => ({
     get().tick(Date.now());
     const s = get();
     if (s.status !== 'playing') return;
+    if (isPotBlocked(s.enemies, Date.now())) { set({ message: 'messages.slimeBlocked' }); return; }
     const stage = s.mission.stages[s.currentStage];
     if (!stage) return;
     if (id !== stage.id || s.potTemperature < stage.temperature.min || s.potTemperature > stage.temperature.max) {
@@ -173,11 +217,13 @@ export const useGameStore = create(persist((set, get) => ({
           rule.eq !== undefined ? facts[key] === rule.eq : facts[key] >= rule.min)) unlocked.add(a.id);
       });
     }
-    set({ status: won ? 'won' : 'lost', spellCast: null, rating, reward, stones: s.stones + reward,
+    const potionInventory = { ...s.potionInventory };
+    if (won && !s.debugUsed && s.mission.rewardPotion) potionInventory[s.mission.rewardPotion] = (potionInventory[s.mission.rewardPotion] || 0) + 1;
+    set({ status: won ? 'won' : 'lost', spellCast: null, rating, reward, stones: s.stones + reward, potionInventory,
       completed, records, unlocked: [...unlocked], heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null });
   },
 }), {
   name: 'hpproject-save-v1',
-  partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed, tutorialProgress: s.tutorialProgress, ownedItems: s.ownedItems, equippedItems: s.equippedItems }),
+  partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed, tutorialProgress: s.tutorialProgress, ownedItems: s.ownedItems, equippedItems: s.equippedItems, potionInventory: s.potionInventory, mageCards: s.mageCards }),
 }));
 

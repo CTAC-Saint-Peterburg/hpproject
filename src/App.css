@@ -24,4 +24,33 @@ button:disabled { opacity: .45; cursor: default; }
 .shop-preview { height: 90px; display: grid; place-items: center; }
 .shop-preview-wand { display: block; width: 10px; height: 80px; border-radius: 5px; transform: rotate(35deg); border-top: 7px solid #fff0be; }
 .shop-preview-pot { display: block; width: 72px; height: 58px; border-radius: 12px 12px 26px 26px; border-top: 8px solid #bbb6c0; }
+.slime-runes { display: flex; gap: 8px; width: max-content; max-width: 85vw; justify-content: center; }
+.slime-rune { width: 76px; padding: 5px; border: 1px solid #a3e7bd; border-radius: 10px; background: #19352ded; color: #c0ffe0; text-align: center; box-shadow: 0 2px 12px #0005; }
+.slime-rune svg { display: block; width: 56px; height: 56px; margin: auto; }
+.slime-rune span { display: block; font-size: 10px; line-height: 1.2; overflow-wrap: anywhere; }
+.defense-setup,.collection { width: min(1000px,100%); display:flex; flex-direction:column; align-items:center; gap:14px; flex-shrink:0; }
+.potion-grid,.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr)); gap:16px; width:100%; }
+.menu .potion-card { width:auto; box-sizing:border-box; border:1px solid #6b5b7f; border-radius:12px; padding:18px; }
+.chosen,.menu .potion-card.chosen { border:2px solid #d9c084; background:#4b3d5f; }
+.potion-symbol { font-size:36px; } .potion-card label { display:flex;flex-direction:row;justify-content:center; } .potion-card input { width:20px;height:20px; }
+.mage-card { min-height:240px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px; }
+.mage-diamond { display:grid;place-items:center;width:70px;height:90px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);color:#fff9d8;font-size:32px; }
+.mage-diamond.large { width:170px;height:220px;font-size:70px; }
+.card-modal { position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;background:#171322f5;overflow:auto;text-align:center; }
+.card-modal p { max-width:680px;line-height:1.7; } .card-close { position:absolute;right:24px;top:24px; }
+.defense-game,.defense-canvas { position:absolute;inset:0; } .defense-canvas { touch-action:none; }
+.arena-gesture { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.arena-top { position:absolute;top:12px;left:12px;right:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:#211d2ee8;padding:12px;border:1px solid #6d5c72;border-radius:10px; }
+.arena-health { height:6px;background:#4e3344;border-radius:5px;overflow:hidden;min-width:90px; }
+.arena-health i { display:block;height:100%;background:#a1dfb1; }
+.arena-enemy-label { background:#211a2bdd;padding:4px 7px;border-radius:6px;color:white;display:flex;flex-direction:column;align-items:center;font-size:10px; }
+.arena-enemy-label .arena-health { min-width:55px;width:55px; } .arena-rune { width:28px;height:28px;color:#ffe5a8; }
+.arena-coin-face { font-size:42px;filter:drop-shadow(0 0 8px #ffe598); }
+.arena-hints { position:absolute;left:16px;top:110px;max-width:290px;background:#211d2ecc;padding:10px;border-radius:8px;pointer-events:none;font-size:13px; }
+.arena-hints p { margin:5px 0; } .arena-hints span { display:block; }
+.arena-potions { position:absolute;bottom:14px;left:14px;right:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#211d2ed9;padding:10px;border-radius:10px; }
+.arena-between { position:absolute;right:18px;top:140px;width:min(280px,70vw);padding:18px;border:1px solid #b6a26e;background:#211d2ef2;border-radius:12px; }
+.arena-between p { font-size:13px; }.arena-between button { display:block;width:100%;margin-top:10px; }
+.arena-debug { position:absolute;right:12px;top:80px;z-index:30;display:flex;flex-direction:column;gap:10px;padding:18px;background:#351f3efa;border:1px solid #c78edb;border-radius:10px; }
+@media(max-width:650px){.arena-top{font-size:12px;gap:7px;}.arena-top button{padding:6px;font-size:11px;}.arena-hints{top:130px;max-width:180px;font-size:11px;}.arena-potions button{font-size:11px;padding:7px;}.arena-between{top:270px;padding:10px;}}
 

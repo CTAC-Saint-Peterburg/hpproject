@@ -3,6 +3,7 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { BackSide } from 'three';
 import { useGameStore } from '../Stores/GameStore';
 import { ENEMY_TYPES, enemyPosition } from '../../static/enemies';
+import Slime from './Slime';
 
 function Enemy({ enemy, selected }) {
   const group = useRef();
@@ -54,7 +55,9 @@ export default function Enemies() {
   const projectiles = useGameStore(s => s.projectiles);
   const selected = useGameStore(s => s.selectedEnemyId);
   return <group>
-    {enemies.map(enemy => <Enemy key={enemy.id} enemy={enemy} selected={selected === enemy.id} />)}
+    {enemies.map(enemy => enemy.type === 'enemyslime'
+      ? <Slime key={enemy.id} enemy={enemy} selected={selected === enemy.id} />
+      : <Enemy key={enemy.id} enemy={enemy} selected={selected === enemy.id} />)}
     {projectiles.map(shot => <Projectile key={shot.id} shot={shot} />)}
   </group>;
 }

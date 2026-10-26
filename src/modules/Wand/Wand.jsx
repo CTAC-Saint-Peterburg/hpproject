@@ -6,11 +6,12 @@ import { settings } from './effectSettings';
 import { useGameStore } from '../Stores/GameStore';
 import shopItems from '../../static/shop.json';
 
-export const Wand = () => {
+export const Wand = ({ tipRef, showParticles = true }) => {
   const equipped = useGameStore(s => s.equippedItems.wand);
   const appearance = shopItems.find(item => item.id === equipped && item.type === 'wand');
   const mesh = useRef();
-  const tip = useRef(new Vector3());
+  const ownTip = useRef(new Vector3());
+  const tip = tipRef || ownTip;
   const time = useRef(0);
   const { pointer } = useThree();
   useFrame((_, delta) => {
@@ -24,7 +25,7 @@ export const Wand = () => {
     mesh.current.updateWorldMatrix(true, false);
     // Convert the real tip to world coordinates; particles are outside the wand group.
     mesh.current.localToWorld(tip.current.set(0, 1.25, 0));
-  });
+  }, -1);
   return <>
     <group position={settings.wand.position}>
       <mesh ref={mesh} position={[0, 0, 1]}>
@@ -34,6 +35,6 @@ export const Wand = () => {
           emissiveIntensity={settings.wand.emissiveIntensity} />
       </mesh>
     </group>
-    <WandParticles tip={tip} />
+    {showParticles && <WandParticles tip={tip} />}
   </>;
 };

@@ -4,6 +4,7 @@ import { PotParticles } from './PotParticles';
 import { useGameStore } from '../Stores/GameStore';
 import { BackSide } from 'three';
 import shopItems from '../../static/shop.json';
+import { isPotBlocked } from '../../static/enemies';
 
 export const Pot = ({ bottleRadar = [] }) => {
   const s = useGameStore();
@@ -11,6 +12,7 @@ export const Pot = ({ bottleRadar = [] }) => {
   const contact = useRef(null);
   useFrame(() => {
     if (s.status !== 'playing') return;
+    if (isPotBlocked(s.enemies, Date.now())) { contact.current = null; return; }
     const bottle = bottleRadar.find(b => b.isSelected && b.currentPos &&
       Math.hypot(b.currentPos[0], b.currentPos[1]) < 1);
     if (bottle && contact.current !== bottle.id) {

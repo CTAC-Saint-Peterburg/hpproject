@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { languages } from '../../translate/i18n';
 import { useGameStore } from '../Stores/GameStore';
 import missions from '../../static/missions.json';
-import achievements from '../../static/achievements.json';
+import Collection from './Collection';
 import pkg from '../../../package.json';
 import SpellTraining from './SpellTraining';
 import Shop from './Shop';
+import DefenseSetup from '../Defense/DefenseSetup';
 
 export default function MainMenu() {
  const { t, i18n } = useTranslation();
@@ -19,14 +20,16 @@ export default function MainMenu() {
  {languageSelect}
  {page === 'main' && <>
  <label>{t('menu.mission')}<select value={s.selectedLevel} onChange={e => s.setLevel(e.target.value)}>
- {Object.entries(missions).map(([id,m]) => <option key={id} value={id}>{t(m.name)} · {m.timeLimit ? t('time.seconds',{value:m.timeLimit}) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}</option>)}
+ {Object.entries(missions).map(([id,m]) => <option key={id} value={id}>{t(m.name)} · {m.rewardPotion ? t('potions.'+m.rewardPotion+'.name') : ''} · {m.timeLimit ? t('time.seconds',{value:m.timeLimit}) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}</option>)}
  </select></label>
  <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.play')}</button>
+ <button onClick={() => setPage('defense')}>{t('arena.title')}</button>
  <button onClick={() => setPage('shop')}>{t('shop.title')}</button>
  <button onClick={() => setPage('training')}>{t('menu.training')}</button>
- <button onClick={() => setPage('achievements')}>{t('menu.achievements')} ({s.unlocked.length}/{achievements.length})</button>
+ <button onClick={() => setPage('achievements')}>{t('menu.achievements')}</button>
  <button onClick={() => setPage('help')}>{t('menu.help')}</button></>}
- {page === 'achievements' && <><h2>{t('menu.achievements')}</h2>{achievements.map(a => <article key={a.id}><strong>{s.unlocked.includes(a.id) ? '🏆' : '🔒'} {t(a.name)}</strong><p>{t(a.description)}</p></article>)}</>}
+ {page === 'achievements' && <Collection />}
+ {page === 'defense' && <DefenseSetup />}
  {page === 'help' && <><h2>{t('menu.help')}</h2><p>{t('help.heat')}</p><p>{t('help.ingredients')}</p><p>{t('help.rules')}</p></>}
  {page === 'shop' && <Shop />}
  {page !== 'main' && <button onClick={() => setPage('main')}>{t('menu.back')}</button>}

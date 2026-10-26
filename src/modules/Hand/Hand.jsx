@@ -3,15 +3,21 @@ import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-// Экспортируем базовую позицию руки, чтобы Wand мог от неё отталкиваться
-export const HAND_BASE_POSITION = [-0.64, -0.92, 3.68];
+// Базовая позиция общей модели руки в локальной системе сцены/рига.
+const HAND_BASE_POSITION = [-0.64, -0.92, 3.68];
 
-export const Hand = ({ mousePos }) => {
+export const Hand = ({ mousePos, aimTarget }) => {
   const meshRef = useRef();
   const target = useRef(new THREE.Vector3());
 
   useFrame(() => {
-    if (!meshRef.current || !mousePos) return;
+    if (!meshRef.current || (!mousePos && !aimTarget)) return;
+
+    if (aimTarget) {
+      meshRef.current.lookAt(aimTarget.current);
+      meshRef.current.rotateX(-Math.PI / 2);
+      return;
+    }
 
     const targetX = mousePos.x * 10;
     const targetY = mousePos.y * 5;
@@ -20,7 +26,7 @@ export const Hand = ({ mousePos }) => {
     target.current.set(targetX, targetY, targetZ);
     meshRef.current.lookAt(target.current);
     meshRef.current.rotateX(-Math.PI / 2);
-  });
+  }, -2);
 
   return (
     <mesh 

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from './Stores/GameStore';
+import { isPotBlocked } from '../static/enemies';
 
 export function FrameCounter() {
   const sample = useRef({ time: 0, frames: 0 });
@@ -28,12 +29,14 @@ export default function GameHud() {
       if (e.altKey && e.shiftKey) {
         if (e.code === 'Equal') { e.preventDefault(); s.changeStones(100); }
         if (e.code === 'Minus') { e.preventDefault(); s.changeStones(-100); }
+        if (e.code === 'KeyP') { e.preventDefault(); s.addPotions(['frost','flame','echo','healing']); }
         if (s.startGame && s.status === 'playing') {
           if (e.code === 'ArrowUp') { e.preventDefault(); s.changePotTemperature(1); }
           if (e.code === 'ArrowDown') { e.preventDefault(); s.changePotTemperature(-1); }
           if (e.code === 'KeyN') { e.preventDefault(); s.debugAdvance(); }
           if (e.code === 'Digit1') { e.preventDefault(); s.spawnEnemy('enemycold', true); }
           if (e.code === 'Digit2') { e.preventDefault(); s.spawnEnemy('enemyfire', true); }
+          if (e.code === 'Digit3') { e.preventDefault(); s.spawnEnemy('enemyslime', true); }
           if (e.code === 'KeyL') { e.preventDefault(); s.setCurrentSpell(3); }
         }
       }
@@ -58,11 +61,13 @@ export default function GameHud() {
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>
         <p>{t('hud.score', {score:s.score, mistakes:s.mistakes})}</p>
         <p>{t('hud.enemies')}</p>
+        {isPotBlocked(s.enemies, s.lastTick) && <p>{t('messages.slimeBlocked')}</p>}
         <p role="status">{s.message ? t(s.message, s.messageValues) : ''}</p>
       </div>
       {s.status !== 'playing' && <div className="result"><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
         <p>{t('result.rating', {stars: '★'.repeat(s.rating) + '☆'.repeat(3 - s.rating), score:s.score})}</p>
         <p>{t('result.reward', {reward:s.reward})}</p>{s.debugUsed && <p>{t('result.debug')}</p>}
+        {s.status === 'won' && !s.debugUsed && s.mission?.rewardPotion && <p>{t('result.potion',{name:t('potions.'+s.mission.rewardPotion+'.name')})}</p>}
         <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.retry')}</button>
         <button onClick={s.exitToMenu}>{t('menu.return')}</button>
       </div>}

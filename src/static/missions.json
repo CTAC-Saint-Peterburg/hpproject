@@ -55,7 +55,8 @@
       ],
       "rarity": 2,
       "spawnWindow": 150
-    }
+    },
+    "rewardPotion": "frost"
   },
   "level_02": {
     "name": "missions.level_02",
@@ -110,11 +111,13 @@
     "enemySpawn": {
       "allowed": [
         "enemycold",
-        "enemyfire"
+        "enemyfire",
+        "enemyslime"
       ],
       "rarity": 5,
       "spawnWindow": 120
-    }
+    },
+    "rewardPotion": "flame"
   },
   "level_03": {
     "name": "missions.level_03",
@@ -169,10 +172,73 @@
     "enemySpawn": {
       "allowed": [
         "enemycold",
-        "enemyfire"
+        "enemyfire",
+        "enemyslime"
       ],
       "rarity": 8,
       "spawnWindow": 90
-    }
+    },
+    "rewardPotion": "echo"
+  },
+  "level_04": {
+    "name": "missions.level_04",
+    "timeLimit": 120,
+    "stonesReward": 100,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 100,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 65,
+          "max": 90
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 150,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 65,
+          "max": 90
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 120,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 40,
+          "max": 65
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 130,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 40,
+          "max": 65
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 8,
+      "spawnWindow": 90
+    },
+    "rewardPotion": "healing"
   }
 }

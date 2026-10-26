@@ -5,7 +5,7 @@ import { useGameStore } from '../Stores/GameStore';
 import { enemyPosition } from '../../static/enemies';
 import { advanceParticle, settings, spellEffect } from './effectSettings';
 
-export function WandParticles({ tip }) {
+export function WandParticles({ tip, getEffectState = useGameStore.getState }) {
   const mesh = useRef();
   const tipFlash = useRef();
   const targetFlash = useRef();
@@ -24,7 +24,7 @@ export function WandParticles({ tip }) {
 
   useFrame((_, rawDelta) => {
     if (!mesh.current) return;
-    const s = useGameStore.getState();
+    const s = getEffectState();
     if (s.status !== 'playing') {
       pool.current = []; active.current = null; flash.current = null; emitter.current = 0;
       mesh.current.count = 0;
@@ -32,6 +32,7 @@ export function WandParticles({ tip }) {
       light.current.intensity = 0;
       return;
     }
+    if (s.paused) return;
     const delta = Math.min(rawDelta, .1);
     const spawn = (position, config) => {
       const angle = Math.random() * Math.PI * 2;
@@ -55,11 +56,11 @@ export function WandParticles({ tip }) {
     if (event && event.sequence !== seen.current) {
       seen.current = event.sequence;
       const profile = spellEffect(event.spellId);
-      const target = event.target?.kind === 'enemy'
+      const target = event.target?.kind === 'world' ? [...event.target.position] : event.target?.kind === 'enemy'
         ? enemyPosition(event.target.enemy, event.at, viewport.width, viewport.height)
         : event.target?.kind === 'pot' ? [0, 0, 0] : tip.current.toArray();
       active.current = { profile, age: 0 };
-      flash.current = { profile: profile.flash, age: 0, target };
+      flash.current = { profile: profile.flash, age: 0, target, rotation: event.target?.rotation || [0, 0, 0] };
       const count = Math.min(settings.maxBurstParticles, Math.max(0, Math.trunc(profile.burst.count)));
       for (let i = 0; i < count; i++) spawn(target, profile.burst);
       // A second, smaller burst always leaves the wand tip.
@@ -103,6 +104,7 @@ export function WandParticles({ tip }) {
       tipFlash.current.position.copy(tip.current);
       targetFlash.current.position.set(...f.target);
       ring.current.position.set(...f.target);
+      ring.current.rotation.set(...f.rotation);
       tipFlash.current.scale.setScalar(size);
       targetFlash.current.scale.setScalar(size);
       ring.current.scale.setScalar(f.profile.ringRadius * (1 + progress * f.profile.ringGrowth));

@@ -1,0 +1,50 @@
+[
+  {
+    "id": "frost",
+    "name": "potions.frost.name",
+    "description": "potions.frost.description",
+    "icon": "❄️",
+    "color": "#74dcff",
+    "effect": "freeze",
+    "duration": 12,
+    "onHitDuration": 4,
+    "slowMultiplier": 0
+  },
+  {
+    "id": "flame",
+    "name": "potions.flame.name",
+    "description": "potions.flame.description",
+    "icon": "🔥",
+    "color": "#ff844f",
+    "effect": "burn",
+    "duration": 12,
+    "onHitDuration": 5,
+    "dps": 4
+  },
+  {
+    "id": "echo",
+    "name": "potions.echo.name",
+    "description": "potions.echo.description",
+    "icon": "✨",
+    "color": "#c699ff",
+    "effect": "multicast",
+    "duration": 12,
+    "spells": [
+      1,
+      2,
+      3,
+      6
+    ],
+    "targets": 3,
+    "chainRadius": 5
+  },
+  {
+    "id": "healing",
+    "name": "potions.healing.name",
+    "description": "potions.healing.description",
+    "icon": "💚",
+    "color": "#7ce0a0",
+    "effect": "heal",
+    "heal": 35
+  }
+]
