@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { useCheatUiStore } from './Cheats/cheatUiStore';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from './Stores/GameStore';
 import { isPotBlocked } from '../static/enemies';
@@ -20,11 +21,10 @@ export function FrameCounter() {
 export default function GameHud() {
   const { t } = useTranslation();
   const s = useGameStore();
-  const [showFps, setShowFps] = useState(false);
+  const showFps = useCheatUiStore(s => s.showFps);
   useEffect(() => {
     const handler = e => {
       if (e.repeat || e.target.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
-      if (e.code === 'F8') { e.preventDefault(); setShowFps(v => !v); }
       if (e.code === 'Escape') s.exitToMenu();
       if (e.altKey && e.shiftKey) {
         if (e.code === 'Equal') { e.preventDefault(); s.changeStones(100); }

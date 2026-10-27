@@ -56,3 +56,15 @@ button:disabled { opacity: .45; cursor: default; }
 
 
 .app canvas { touch-action: none; }
+
+.cheat-menu { box-sizing: border-box; width: min(760px, calc(100vw - 24px)); max-height: calc(100svh - 24px); overflow: auto; padding: 22px; border: 1px solid #bd95dc; border-radius: 12px; color: #fff; background: #241c30; text-align: left; }
+.cheat-menu::backdrop { background: #08060dbb; }
+.cheat-menu header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+.cheat-menu h2 { margin: 0; } .cheat-menu h3 { margin-bottom: 10px; }
+.cheat-menu p { font-size: 14px; line-height: 1.5; }
+.cheat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 8px; }
+.cheat-grid button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; }
+.cheat-menu kbd { font: 11px monospace; color: #d9bfdc; }
+.cheat-menu button:focus-visible, .cheat-menu select:focus-visible { outline: 2px solid #ffdf94; outline-offset: 2px; }
+.cheat-wave { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-top: 12px; }
+.cheat-menu [role=status] { min-height: 42px; color: #ffdf94; }

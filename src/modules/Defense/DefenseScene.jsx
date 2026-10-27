@@ -11,6 +11,7 @@ import { recognizeGesture } from '../Recognaizer/recognaizer';
 import { spellLessons } from '../../static/spellLessons';
 import ArenaHandWand from './ArenaHandWand';
 import { settings } from '../Wand/effectSettings';
+import { useCheatUiStore } from '../Cheats/cheatUiStore';
 
 function Camera(){
  const {camera,size}=useThree();
@@ -97,7 +98,8 @@ function Board(){
 export default function DefenseScene(){
  const {t}=useTranslation();
  const s=useDefenseStore(),stones=useGameStore(state=>state.stones),fps=useGameStore(state=>state.fps);
- const [showFps,setShowFps]=useState(false),[debug,setDebug]=useState(false),[wave,setWave]=useState(1),[enemyType,setEnemyType]=useState('fire');
+ const showFps=useCheatUiStore(s=>s.showFps);
+ const [debug,setDebug]=useState(false),[wave,setWave]=useState(1),[enemyType,setEnemyType]=useState('fire');
  const draw=useRef(null),[stroke,setStroke]=useState([]);
  useEffect(()=>{
   const timer=setInterval(()=>useDefenseStore.getState().tick(Date.now()),50);
@@ -106,7 +108,6 @@ export default function DefenseScene(){
    const state=useDefenseStore.getState();
    if(e.code==='Escape')state.exit();
    if(e.code==='KeyP'&&!e.altKey)state.setPaused(!state.paused);
-   if(e.code==='F8'){e.preventDefault();setShowFps(value=>!value);}
    if(e.code==='F9'){e.preventDefault();setDebug(value=>!value);}
    if(e.altKey&&e.shiftKey){
     const type={Digit1:'fire',Digit2:'frost',Digit3:'moss'}[e.code];
