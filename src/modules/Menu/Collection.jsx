@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../Stores/GameStore';
 import achievements from '../../static/achievements.json';
-import cards from '../../static/cards.json';
+import { cards } from '../../static/themedConfigs';
 
 export default function Collection(){
  const {t}=useTranslation();

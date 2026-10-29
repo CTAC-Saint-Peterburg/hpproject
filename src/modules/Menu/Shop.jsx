@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../Stores/GameStore';
-import items from '../../static/shop.json';
+import { shopItems as items } from '../../static/themedConfigs';
 
 export default function Shop() {
   const { t } = useTranslation();

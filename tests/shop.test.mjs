@@ -1,9 +1,11 @@
+import { prepareStoreSource } from './loadGameStore.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
+import { resolveThemeColors } from '../src/static/theme.js';
 
 const read = p => readFileSync(new URL('../' + p, import.meta.url), 'utf8');
-const catalog = JSON.parse(read('src/static/shop.json'));
+const catalog = resolveThemeColors(JSON.parse(read('src/static/shop.json')));
 let source = read('src/modules/Stores/GameStore.js');
 source = source.replace("'zustand'", JSON.stringify(new URL('../node_modules/zustand/esm/index.mjs', import.meta.url).href))
   .replace("'zustand/middleware'", JSON.stringify(new URL('../node_modules/zustand/esm/middleware.mjs', import.meta.url).href))
@@ -11,7 +13,7 @@ source = source.replace("'zustand'", JSON.stringify(new URL('../node_modules/zus
   .replace(/import (\w+) from '([^']+\.json)';/g, (_, name, path) => 'const ' + name + ' = ' + read('src/static/' + path.split('/').at(-1)) + ';');
 const saved = new Map();
 globalThis.window = { localStorage: { getItem: key => saved.get(key) ?? null, setItem: (key,value) => saved.set(key,value) } };
-const {useGameStore: store} = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const {useGameStore: store} = await import('data:text/javascript;base64,' + Buffer.from(prepareStoreSource(source)).toString('base64'));
 const s = () => store.getState();
 
 test('catalog has unique IDs, prices, colors and free defaults for both types', () => {
@@ -52,7 +54,7 @@ test('purchases debit exactly once, protect ownership and persist equipment', as
   assert.equal(s().stones, 60);
   assert.equal(s().equippedItems.pot, 'pot_jade');
   saved.set('hpproject-save-v1', JSON.stringify({state:{stones:25},version:0}));
-  const {useGameStore: legacy} = await import('data:text/javascript;base64,' + Buffer.from(source + '\n// legacy save instance').toString('base64'));
+  const {useGameStore: legacy} = await import('data:text/javascript;base64,' + Buffer.from(prepareStoreSource(source) + '\n// legacy save instance').toString('base64'));
   assert.equal(legacy.getState().stones, 25);
   assert.deepEqual(legacy.getState().equippedItems, {wand:'wand_default',pot:'pot_default'});
   assert.deepEqual(legacy.getState().ownedItems, ['wand_default','pot_default']);

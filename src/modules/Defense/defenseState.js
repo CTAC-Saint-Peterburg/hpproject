@@ -1,5 +1,4 @@
-import config from '../../static/defense.json';
-import potionTypes from '../../static/potions.json';
+import { defenseConfig as config, potionTypes } from '../../static/themedConfigs';
 
 export { config, potionTypes };
 export function defenseState(profile, random = Math.random) {

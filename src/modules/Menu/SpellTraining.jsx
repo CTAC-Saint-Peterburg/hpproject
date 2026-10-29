@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 import { useTranslation } from 'react-i18next';
 import { useRef, useState } from 'react';
 import { useGameStore } from '../Stores/GameStore';
@@ -53,14 +54,14 @@ export default function SpellTraining({ onBack }) {
         drawing.current.points.push(point(e)); setStroke([...drawing.current.points]);
       }} onPointerUp={finish}
       onPointerCancel={() => { drawing.current = null; setStroke([]); setMessage('training.cancelled'); }}>
-      <defs><pattern id="rune-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke="#78614b" strokeOpacity=".15" /></pattern>
-        <marker id="rune-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke="#775320" strokeWidth="1.5" /></marker></defs>
+      <defs><pattern id="rune-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke={theme.colors.trainingGrid} strokeOpacity=".15" /></pattern>
+        <marker id="rune-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke={theme.colors.trainingRune} strokeWidth="1.5" /></marker></defs>
       <rect width="600" height="600" fill="url(#rune-grid)" />
-      <path d={path(lesson.points)} fill="none" stroke="#b39466" strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" opacity=".3" />
-      <path d={path(lesson.points)} fill="none" stroke="#775320" strokeWidth="3" strokeDasharray="9 7" />
-      <path d={path(arrow)} fill="none" stroke="#775320" strokeWidth="3" markerEnd="url(#rune-arrow)" />
-      <circle cx={lesson.points[0][0] * 600} cy={lesson.points[0][1] * 600} r="11" fill="#d99b28" stroke="#6c451a" strokeWidth="3" />
-      <path d={path(stroke)} fill="none" stroke="#7447bd" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />
+      <path d={path(lesson.points)} fill="none" stroke={theme.colors.trainingGlow} strokeWidth="32" strokeLinecap="round" strokeLinejoin="round" opacity=".3" />
+      <path d={path(lesson.points)} fill="none" stroke={theme.colors.trainingRune} strokeWidth="3" strokeDasharray="9 7" />
+      <path d={path(arrow)} fill="none" stroke={theme.colors.trainingRune} strokeWidth="3" markerEnd="url(#rune-arrow)" />
+      <circle cx={lesson.points[0][0] * 600} cy={lesson.points[0][1] * 600} r="11" fill={theme.colors.trainingStart} stroke={theme.colors.trainingStartBorder} strokeWidth="3" />
+      <path d={path(stroke)} fill="none" stroke={theme.colors.trainingStroke} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />
     </svg>
     <p role="status" aria-live="polite">{t(message)}</p>
     {completed === 10 && <p>{t('training.finished')}</p>}

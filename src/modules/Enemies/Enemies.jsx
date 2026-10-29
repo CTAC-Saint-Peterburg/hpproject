@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { BackSide } from 'three';
@@ -25,7 +26,7 @@ function Enemy({ enemy, selected }) {
       <mesh scale={1.45} raycast={() => null}><boxGeometry args={[0.55, 0.55, 0.55]} />
         <meshBasicMaterial color={config.color} transparent opacity={0.12} depthWrite={false} /></mesh>
       {selected && <mesh scale={1.16} raycast={() => null}><boxGeometry args={[0.55, 0.55, 0.55]} />
-        <meshBasicMaterial color="white" side={BackSide} toneMapped={false} /></mesh>}
+        <meshBasicMaterial color={theme.colors.white} side={BackSide} toneMapped={false} /></mesh>}
     </mesh>
     <pointLight color={config.color} intensity={3} distance={3} />
   </group>;

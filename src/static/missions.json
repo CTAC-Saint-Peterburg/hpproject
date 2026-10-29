@@ -13,6 +13,10 @@
         "temperature": {
           "min": 20,
           "max": 60
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
         }
       },
       {
@@ -24,6 +28,10 @@
         "temperature": {
           "min": 20,
           "max": 60
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
         }
       },
       {
@@ -35,6 +43,10 @@
         "temperature": {
           "min": 20,
           "max": 60
+        },
+        "stirring": {
+          "min": 35,
+          "max": 90
         }
       },
       {
@@ -46,6 +58,10 @@
         "temperature": {
           "min": 20,
           "max": 60
+        },
+        "stirring": {
+          "min": 55,
+          "max": 100
         }
       }
     ],
@@ -56,7 +72,12 @@
       "rarity": 2,
       "spawnWindow": 150
     },
-    "rewardPotion": "frost"
+    "rewardPotion": "frost",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 1,
+      "swaySeconds": 1.5
+    }
   },
   "level_02": {
     "name": "missions.level_02",
@@ -72,6 +93,10 @@
         "temperature": {
           "min": 65,
           "max": 90
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
         }
       },
       {
@@ -83,6 +108,10 @@
         "temperature": {
           "min": 65,
           "max": 90
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
         }
       },
       {
@@ -94,6 +123,10 @@
         "temperature": {
           "min": 40,
           "max": 65
+        },
+        "stirring": {
+          "min": 35,
+          "max": 90
         }
       },
       {
@@ -105,6 +138,10 @@
         "temperature": {
           "min": 40,
           "max": 65
+        },
+        "stirring": {
+          "min": 55,
+          "max": 100
         }
       }
     ],
@@ -117,7 +154,12 @@
       "rarity": 5,
       "spawnWindow": 120
     },
-    "rewardPotion": "flame"
+    "rewardPotion": "flame",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    }
   },
   "level_03": {
     "name": "missions.level_03",
@@ -133,6 +175,10 @@
         "temperature": {
           "min": 65,
           "max": 90
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
         }
       },
       {
@@ -144,6 +190,10 @@
         "temperature": {
           "min": 65,
           "max": 90
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
         }
       },
       {
@@ -155,6 +205,10 @@
         "temperature": {
           "min": 40,
           "max": 65
+        },
+        "stirring": {
+          "min": 35,
+          "max": 90
         }
       },
       {
@@ -166,6 +220,10 @@
         "temperature": {
           "min": 40,
           "max": 65
+        },
+        "stirring": {
+          "min": 55,
+          "max": 100
         }
       }
     ],
@@ -178,7 +236,12 @@
       "rarity": 8,
       "spawnWindow": 90
     },
-    "rewardPotion": "echo"
+    "rewardPotion": "echo",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    }
   },
   "level_04": {
     "name": "missions.level_04",
@@ -194,6 +257,10 @@
         "temperature": {
           "min": 65,
           "max": 90
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
         }
       },
       {
@@ -205,6 +272,10 @@
         "temperature": {
           "min": 65,
           "max": 90
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
         }
       },
       {
@@ -216,6 +287,10 @@
         "temperature": {
           "min": 40,
           "max": 65
+        },
+        "stirring": {
+          "min": 35,
+          "max": 90
         }
       },
       {
@@ -227,6 +302,10 @@
         "temperature": {
           "min": 40,
           "max": 65
+        },
+        "stirring": {
+          "min": 55,
+          "max": 100
         }
       }
     ],
@@ -239,6 +318,11 @@
       "rarity": 8,
       "spawnWindow": 90
     },
-    "rewardPotion": "healing"
+    "rewardPotion": "healing",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    }
   }
 }

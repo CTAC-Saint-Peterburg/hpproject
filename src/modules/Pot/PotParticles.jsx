@@ -1,8 +1,9 @@
+import { theme } from '../../static/theme';
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 
 export const PotParticles = ({ count = 20, speed = 0.5, spread = 0.3,
-  color = '#ff6b20', size = 0.05, lifetime = 2, position = [0, 0, 0] }) => {
+  color = theme.colors.fireWarm, size = 0.05, lifetime = 2, position = [0, 0, 0] }) => {
   const ref = useRef();
   const capacity = 100;
   const positions = useMemo(() => new Float32Array(capacity * 3), []);

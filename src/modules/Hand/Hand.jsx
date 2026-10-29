@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 // src/components/Hand/Hand.js
 import React, { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
@@ -34,7 +35,7 @@ export const Hand = ({ mousePos, aimTarget, attached = false }) => {
       position={attached ? [0, 0, 0] : settings.handRig.position}
     >
       <boxGeometry args={settings.handRig.handSize} />
-      <meshStandardMaterial color="pink" />
+      <meshStandardMaterial color={theme.colors.hand} />
     </mesh>
   );
 };

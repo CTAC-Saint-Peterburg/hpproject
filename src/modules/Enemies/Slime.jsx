@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
@@ -6,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../Stores/GameStore';
 import { enemyPosition, ENEMY_TYPES } from '../../static/enemies';
 import { spellLessons } from '../../static/spellLessons';
-import effects from '../../static/spellEffects.json';
+import { effects } from '../../static/themedConfigs';
 
 export default function Slime({ enemy, selected }) {
   const { t } = useTranslation();
@@ -56,11 +57,11 @@ export default function Slime({ enemy, selected }) {
         <sphereGeometry args={[1, 24, 16]} />
         <meshStandardMaterial color={color} transparent opacity={.58} roughness={.2} emissive={color} emissiveIntensity={.18} depthWrite={false} />
         {selected && <mesh scale={1.06} raycast={() => null}><sphereGeometry args={[1, 24, 16]} />
-          <meshBasicMaterial color="#ffffff" side={BackSide} transparent opacity={.7} depthWrite={false} />
+          <meshBasicMaterial color={theme.colors.white} side={BackSide} transparent opacity={.7} depthWrite={false} />
         </mesh>}
       </mesh>
       {[-.3,.3].map(x => <mesh key={x} position={[x,.18,.62]} raycast={() => null}>
-        <sphereGeometry args={[.085, 12, 8]} /><meshBasicMaterial color="#263e38" />
+        <sphereGeometry args={[.085, 12, 8]} /><meshBasicMaterial color={theme.colors.slimeEye} />
       </mesh>)}
       <group ref={icons} position={[0,-1.12,0]}>
         <Html center style={{pointerEvents:'none'}}>
@@ -70,7 +71,7 @@ export default function Slime({ enemy, selected }) {
               return <div className="slime-rune" key={id} title={t(lesson.name)}>
                 <svg viewBox="0 0 100 100" role="img" aria-label={t(lesson.name)}>
                   <path d={lesson.points.map(([x,y],i) => (i ? 'L' : 'M') + x * 100 + ',' + y * 100).join(' ')} fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
-                  <circle cx={lesson.points[0][0]*100} cy={lesson.points[0][1]*100} r="4" fill="#ffd46b" />
+                  <circle cx={lesson.points[0][0]*100} cy={lesson.points[0][1]*100} r="4" fill={theme.colors.runeStart} />
                 </svg><span>{t(lesson.name)}</span>
               </div>;
             })}

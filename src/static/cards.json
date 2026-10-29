@@ -3,70 +3,70 @@
     "id": "mage_1",
     "name": "cards.1.name",
     "description": "cards.1.description",
-    "color": "#bd8fff",
+    "color": "@colors.cardsMage1Color",
     "wave": 1
   },
   {
     "id": "mage_2",
     "name": "cards.2.name",
     "description": "cards.2.description",
-    "color": "#72cfff",
+    "color": "@colors.cardsMage2Color",
     "wave": 2
   },
   {
     "id": "mage_3",
     "name": "cards.3.name",
     "description": "cards.3.description",
-    "color": "#ffcf76",
+    "color": "@colors.qualityMasterwork",
     "wave": 3
   },
   {
     "id": "mage_4",
     "name": "cards.4.name",
     "description": "cards.4.description",
-    "color": "#8bdfad",
+    "color": "@colors.qualityFine",
     "wave": 4
   },
   {
     "id": "mage_5",
     "name": "cards.5.name",
     "description": "cards.5.description",
-    "color": "#fc92b5",
+    "color": "@colors.cardsMage5Color",
     "wave": 5
   },
   {
     "id": "mage_6",
     "name": "cards.6.name",
     "description": "cards.6.description",
-    "color": "#bd8fff",
+    "color": "@colors.cardsMage1Color",
     "wave": 6
   },
   {
     "id": "mage_7",
     "name": "cards.7.name",
     "description": "cards.7.description",
-    "color": "#72cfff",
+    "color": "@colors.cardsMage2Color",
     "wave": 7
   },
   {
     "id": "mage_8",
     "name": "cards.8.name",
     "description": "cards.8.description",
-    "color": "#ffcf76",
+    "color": "@colors.qualityMasterwork",
     "wave": 8
   },
   {
     "id": "mage_9",
     "name": "cards.9.name",
     "description": "cards.9.description",
-    "color": "#8bdfad",
+    "color": "@colors.qualityFine",
     "wave": 9
   },
   {
     "id": "mage_10",
     "name": "cards.10.name",
     "description": "cards.10.description",
-    "color": "#fc92b5",
+    "color": "@colors.cardsMage5Color",
     "wave": 10
   }
 ]

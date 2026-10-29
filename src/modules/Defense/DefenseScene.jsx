@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
@@ -29,15 +30,15 @@ function Rune({id}){
 }
 function Enemy({enemy,selected,time}){
  const base=config.enemies[enemy.type],rage=time<enemy.rageUntil;
- const color=enemy.frozenUntil>time?'#b5f1ff':base.color;
+ const color=enemy.frozenUntil>time?theme.colors.frozenEnemy:base.color;
  return <group position={[enemy.x,enemy.size*.6+enemy.y,enemy.z]}>
  <mesh scale={base.shape==='slime'?[enemy.size*1.3,enemy.size*.7,enemy.size]:[enemy.size,enemy.size,enemy.size]}
  onClick={e=>{e.stopPropagation();useDefenseStore.getState().select(enemy.id);}}>
  {base.shape==='slime'?<sphereGeometry args={[1,16,12]}/>:<boxGeometry args={[1.4,1.2,1.4]}/>}
- <meshStandardMaterial color={color} emissive={enemy.burnUntil>time?'#ff5500':base.color} emissiveIntensity={rage?.7:.18} roughness={.3}/>
+ <meshStandardMaterial color={color} emissive={enemy.burnUntil>time?theme.colors.burningEnemy:base.color} emissiveIntensity={rage?.7:.18} roughness={.3}/>
  {selected&&<mesh scale={1.1} raycast={()=>null}>
  {base.shape==='slime'?<sphereGeometry args={[1,16,12]}/>:<boxGeometry args={[1.4,1.2,1.4]}/>}
- <meshBasicMaterial color="#fff3c6" side={BackSide}/></mesh>}
+ <meshBasicMaterial color={theme.colors.enemySelected} side={BackSide}/></mesh>}
  </mesh>
  <Html center position={[0,enemy.size+0.45,0]} style={{pointerEvents:'none'}}>
  <div className="arena-enemy-label"><div className="arena-health"><i style={{width:100*enemy.hp/enemy.maxHp+'%'}}/></div>
@@ -47,11 +48,11 @@ function Enemy({enemy,selected,time}){
 function Crystal({selected,effects}){
  const mesh=useRef();
  useFrame((_,delta)=>{if(mesh.current&&!useDefenseStore.getState().paused)mesh.current.rotation.y+=delta*.4;});
- const color=effects.burn?'#ff9959':effects.freeze?'#83d7ff':'#bd9cff';
- return <group><mesh position={[0,.18,0]}><cylinderGeometry args={[1.1,1.3,.35,8]}/><meshStandardMaterial color="#49404e" metalness={.5} roughness={.4}/></mesh>
+ const color=effects.burn?theme.colors.crystalBurn:effects.freeze?theme.colors.crystalFreeze:theme.colors.crystal;
+ return <group><mesh position={[0,.18,0]}><cylinderGeometry args={[1.1,1.3,.35,8]}/><meshStandardMaterial color={theme.colors.crystalBase} metalness={.5} roughness={.4}/></mesh>
  <mesh ref={mesh} position={[0,1.1,0]} onClick={e=>{e.stopPropagation();useDefenseStore.getState().select('crystal');}}>
  <octahedronGeometry args={[.85,0]}/><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.8} metalness={.3} roughness={.1}/>
- {selected&&<mesh scale={1.13} raycast={()=>null}><octahedronGeometry args={[.85,0]}/><meshBasicMaterial color="#fff2bf" wireframe/></mesh>}
+ {selected&&<mesh scale={1.13} raycast={()=>null}><octahedronGeometry args={[.85,0]}/><meshBasicMaterial color={theme.colors.crystalSelected} wireframe/></mesh>}
  </mesh><pointLight position={[0,2,0]} color={color} intensity={10} distance={8}/></group>;
 }
 function ThrownPotion({fx,tip}){
@@ -66,7 +67,7 @@ function ThrownPotion({fx,tip}){
  });
  return <group ref={object}>
  <mesh raycast={()=>null}><sphereGeometry args={[.18,12,8]}/><meshStandardMaterial color={fx.color} transparent opacity={.8}/></mesh>
- <mesh position={[0,.2,0]} raycast={()=>null}><cylinderGeometry args={[.07,.08,.15,8]}/><meshStandardMaterial color="#d9c297"/></mesh>
+ <mesh position={[0,.2,0]} raycast={()=>null}><cylinderGeometry args={[.07,.08,.15,8]}/><meshStandardMaterial color={theme.colors.potionStopper}/></mesh>
  </group>;
 }
 function Coin({selected,result,time}){
@@ -74,7 +75,7 @@ function Coin({selected,result,time}){
  useFrame(()=>{if(group.current){const state=useDefenseStore.getState();const toss=state.phase==='coin'?Math.min(1,(time-state.coinEnd+config.coin.resultSeconds)/.8):0;group.current.rotation.set(toss*Math.PI*(result?6:7),time*.4,0);group.current.position.y=Math.sin(time*2)*.1;}});
  return <group position={[0,1.6,2.3]}>
  <mesh ref={group} onClick={e=>{e.stopPropagation();useDefenseStore.getState().select('coin');}}>
- <cylinderGeometry args={[.6,.6,.13,32]}/><meshStandardMaterial color={selected?'#fff0a3':'#e7ba49'} metalness={.8} roughness={.2}/>
+ <cylinderGeometry args={[.6,.6,.13,32]}/><meshStandardMaterial color={selected?theme.colors.coinSelected:theme.colors.coin} metalness={.8} roughness={.2}/>
  </mesh><Html center position={[0,.7,0]} style={{pointerEvents:'none'}}><span className="arena-coin-face">{result===null?'🪙':result?'🧙':'😞'}</span></Html>
  </group>;
 }
@@ -82,13 +83,13 @@ function Board(){
  const s=useDefenseStore();
  const tip=useRef(new Vector3());
  const w=config.field.width,d=config.field.depth;
- return <><Camera/><color attach="background" args={['#17141e']}/><ambientLight intensity={1.2}/>
+ return <><Camera/><color attach="background" args={[theme.colors.arenaBackground]}/><ambientLight intensity={1.2}/>
  <directionalLight position={[4,10,6]} intensity={2.2}/><FrameCounter/>
- <mesh position={[0,-.18,0]}><boxGeometry args={[w,.35,d]}/><meshStandardMaterial color="#694e46" roughness={.85}/></mesh>
- {Array.from({length:10},(_,i)=><mesh key={i} position={[0,.005,-d/2+i*d/10]}><boxGeometry args={[w,.01,.025]}/><meshBasicMaterial color="#3c302f"/></mesh>)}
+ <mesh position={[0,-.18,0]}><boxGeometry args={[w,.35,d]}/><meshStandardMaterial color={theme.colors.arenaWood} roughness={.85}/></mesh>
+ {Array.from({length:10},(_,i)=><mesh key={i} position={[0,.005,-d/2+i*d/10]}><boxGeometry args={[w,.01,.025]}/><meshBasicMaterial color={theme.colors.arenaWoodLine}/></mesh>)}
  {[-1,1].map(sign=><group key={sign}>
- <mesh position={[sign*(w/2+.1),.1,0]}><boxGeometry args={[.2,.5,d+.4]}/><meshStandardMaterial color="#aa8a63"/></mesh>
- <mesh position={[0,.1,sign*(d/2+.1)]}><boxGeometry args={[w,.5,.2]}/><meshStandardMaterial color="#aa8a63"/></mesh></group>)}
+ <mesh position={[sign*(w/2+.1),.1,0]}><boxGeometry args={[.2,.5,d+.4]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh>
+ <mesh position={[0,.1,sign*(d/2+.1)]}><boxGeometry args={[w,.5,.2]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh></group>)}
  <Crystal selected={s.selected==='crystal'} effects={s.crystalEffects}/>
  {s.enemies.map(enemy=><Enemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time}/>)}
  {['clear','coin'].includes(s.phase)&&<Coin selected={s.coinSelected} result={s.coinResult} time={s.time}/>}

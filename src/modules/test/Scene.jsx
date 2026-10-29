@@ -11,6 +11,7 @@ import { RecipeStages } from '../RecipeStages/RecipeStages';
 import { useGameStore } from '../Stores/GameStore';
 import Enemies from '../Enemies/Enemies';
 import { FrameCounter } from '../GameHud';
+import { theme } from '../../static/theme';
 
 export default function Scene() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -27,27 +28,24 @@ export default function Scene() {
         const spell = recognizeGesture(points, { aspectRatio: pos.aspectRatio });
         if (spell) {
           s.setCurrentSpell(spell);
-          if (spell !== 3) setSelectedBottle(null);
-          if (s.isPotSelected && spell === 1) s.changePotTemperature(1);
-          if (s.isPotSelected && spell === 2) s.changePotTemperature(-1);
         }
       }
       path.current = []; setTrail([]);
     }
   };
   return <Canvas camera={{ position: [0, 0, 10], fov: 60 }}>
-    <color attach="background" args={['#484343']} />
+    <color attach="background" args={[theme.colors.brewBackground]} />
     <FrameCounter />
     <Enemies />
     <MouseTracker onUpdate={handleMouseUpdate} onPosChange={setMousePos} />
     <ambientLight intensity={0.6} /><pointLight position={[10, 10, 10]} intensity={100} />
     <Floor />
-    <Pot bottleRadar={s.currentSpell === 3 && selectedBottle?.isSelected ? [selectedBottle] : []} />
+    <Pot bottleRadar={s.heldIngredientId === selectedBottle?.id && selectedBottle?.isSelected ? [selectedBottle] : []} />
     <HandWand />
     <SpellTrail points={trail} />
     <Ingredients mousePos={mousePos} disabled={s.status !== 'playing'} onPositionUpdate={setSelectedBottle} />
     <RecipeStages stages={s.mission?.stages || []} currentStage={s.currentStage}
-      position={[-3, 1, 0]} baseFontSize={0.24} enableKeyboardNav={false} />
+      position={[-3, 1, 0]} />
   </Canvas>;
 }
 

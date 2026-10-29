@@ -1,0 +1,11 @@
+{
+  "ingredientSize": 0.55,
+  "liftSpell": 3,
+  "dropSpell": 4,
+  "stirSpell": 5,
+  "stirring": {
+    "perCast": 25,
+    "decayPerSecond": 2,
+    "swaySeconds": 1.5
+  }
+}

@@ -1,3 +1,4 @@
+import { prepareStoreSource } from './loadGameStore.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -10,7 +11,7 @@ source = source.replace("'zustand'", JSON.stringify(new URL('../node_modules/zus
   .replace("'../../static/enemies'", JSON.stringify(new URL('../src/static/enemies.js', import.meta.url).href))
   .replace(/import (\w+) from '([^']+\.json)';/g, (_, name, path) => 'const ' + name + ' = ' + read('src/static/' + path.split('/').at(-1)) + ';');
 globalThis.window = {localStorage:{getItem:()=>null,setItem:()=>{}}};
-const {useGameStore: store} = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const {useGameStore: store} = await import('data:text/javascript;base64,' + Buffer.from(prepareStoreSource(source)).toString('base64'));
 const s = () => store.getState();
 
 test('slime draws three distinct spells from the full pool and reaches the cauldron', () => {
@@ -66,6 +67,7 @@ test('slime blocks brewing, takes three matching spells in any order, and never 
     s().setCurrentSpell(1); assert.deepEqual(s().enemies[0].remainingSpells,[4]);
     s().setCurrentSpell(4); assert.equal(s().enemies.length,0);
     assert.equal(s().selectedEnemyId,null);
+    s().togglePotSelected(); s().setCurrentSpell(5);
     s().addIngredient(2); assert.equal(s().currentStage,2);
     s().togglePotSelected(); s().changePotTemperature(1); assert.equal(s().heatLevel,1);
     s().spawnEnemy('enemyslime',true); s().exitToMenu(); assert.equal(s().enemies.length,0);

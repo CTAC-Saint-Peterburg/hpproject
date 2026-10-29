@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 
 import { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
@@ -8,12 +9,11 @@ import { useTranslation } from 'react-i18next'
 
 export const MagickText = ({
   position = [0, 0, 0],
-  fontSize = 0.4,
-  color = '#ffffff',
+  fontSize = theme.typography.magicSize,
+  color = theme.colors.white,
   pulseSpeed = 3,        // Частота пульсации (Гц)
   pulseIntensity = 0.15, // Амплитуда: 0.1 = еле заметно, 0.3 = сильно
-  glowColor = '#ffff88', // Цвет свечения (опционально)
-//   font = 'https://fonts.gstatic.com/s/mediumpurple/v14/JTUSjIg69CK48gW7PXoo9Wlhzg.woff', // Путь к файлу шрифта
+  glowColor = theme.colors.magicGlow, // Цвет свечения (опционально)
   ...props
 }) => {
   const textRef = useRef()
@@ -50,7 +50,7 @@ export const MagickText = ({
       position={position}
       fontSize={fontSize}
       color={color}
-    //   font={font}
+      font={theme.fonts.spatial || undefined}
       anchorX="center"
       anchorY="middle"
       emissive={glowColor}

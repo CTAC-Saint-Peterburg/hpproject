@@ -2,16 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {readFileSync} from 'node:fs';
 import {createStore} from 'zustand/vanilla';
+import { potionCount, addPotionInventory, consumePotionEntry } from '../src/modules/Stores/potionInventory.js';
+import { prepareStoreSource } from './loadGameStore.mjs';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const config=JSON.parse(read('src/static/defense.json'));
 const potions=JSON.parse(read('src/static/potions.json'));
 let source=read('src/modules/Defense/defenseState.js')
- .replace(/import config from .*?;/,'const config = '+JSON.stringify(config)+';')
- .replace(/import potionTypes from .*?;/,'const potionTypes = '+JSON.stringify(potions)+';');
+ .replace("'../../static/themedConfigs'", JSON.stringify(new URL('../src/static/themedConfigs.js',import.meta.url).href));
 const {defenseState}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 function fixture(random=()=>.99, realProfile=null){
- const profile=realProfile||{potionInventory:{frost:3,flame:3,echo:3,healing:3},stones:0,mageCards:{},entries:0,
- consumeEntryPotions(ids){if(ids.length!==3||new Set(ids).size!==3||ids.some(id=>!(this.potionInventory[id]>0)))return false;ids.forEach(id=>this.potionInventory[id]--);this.entries++;return true;},
+ const profile=realProfile||{potionInventory:addPotionInventory(addPotionInventory(addPotionInventory({},['frost','flame','echo','healing']),['frost','flame','echo','healing']),['frost','flame','echo','healing']),stones:0,mageCards:{},entries:0,
+ consumeEntryPotions(ids){const entry=consumePotionEntry(this.potionInventory,ids);if(!entry)return false;this.potionInventory=entry.inventory;this.entries++;return true;},
  changeStones(n){this.stones+=n;},awardMageCard(id){this.mageCards[id]=(this.mageCards[id]||0)+1;}};
  const store=createStore(defenseState(()=>profile,random)),s=()=>store.getState();
  const start=()=>s().start(['frost','flame','echo']);
@@ -31,7 +32,7 @@ test('entry consumes three unique potions exactly once and restart charges again
  const f=fixture();
  assert.equal(f.s().start(['frost','frost','echo']),false);
  assert.equal(f.profile.entries,0);assert.equal(f.start(),true);
- assert.equal(f.profile.potionInventory.frost,2);
+ assert.equal(potionCount(f.profile.potionInventory,'frost'),2);
  assert.equal(f.start(),false);assert.equal(f.profile.entries,1);
  f.s().exit();assert.equal(f.start(),true);assert.equal(f.profile.entries,2);
  f.s().exit();f.profile.potionInventory.echo=0;assert.equal(f.start(),false);
@@ -112,27 +113,39 @@ test('debug jumps disable new rewards, ten normal clears award ten cards and fin
  normal.s().next();assert.equal(normal.profile.entries,1);
 });
 test('real brewing inventory and cards persist, failed and debug recipes grant no potions',async()=>{
- let code=read('src/modules/Stores/GameStore.js');
+ let code=prepareStoreSource();
  code=code.replace("'zustand'",JSON.stringify(new URL('../node_modules/zustand/esm/index.mjs',import.meta.url).href))
  .replace("'zustand/middleware'",JSON.stringify(new URL('../node_modules/zustand/esm/middleware.mjs',import.meta.url).href))
- .replace("'../../static/enemies'",JSON.stringify(new URL('../src/static/enemies.js',import.meta.url).href))
- .replace(/import (\w+) from '([^']+\.json)';/g,(_,name,path)=>'const '+name+' = '+read('src/static/'+path.split('/').at(-1))+';');
+ ;
  const saved=new Map();globalThis.window={localStorage:{getItem:key=>saved.get(key)??null,setItem:(key,value)=>saved.set(key,value)}};
  const {useGameStore:game}=await import('data:text/javascript;base64,'+Buffer.from(code).toString('base64'));
  const g=()=>game.getState();
+ assert.equal(g().stones,0);
+ for(const id of ['frost','flame','echo','healing'])assert.equal(potionCount(g().potionInventory,id),1);
+ game.setState({potionInventory:{}});
  g().beginMission('level_01');g().finish(false);assert.deepEqual(g().potionInventory,{});
  g().beginMission('level_01');g().debugAdvance();g().finish(true);assert.deepEqual(g().potionInventory,{});
- g().beginMission('level_01');for(const id of [1,2,3,4])g().addIngredient(id);
- assert.equal(g().potionInventory.frost,1);g().finish(true);assert.equal(g().potionInventory.frost,1);
+ g().beginMission('level_01');for(const stage of g().mission.stages){
+  game.setState({potTemperature:(stage.temperature.min+stage.temperature.max)/2,agitation:((stage.stirring?.min??0)+(stage.stirring?.max??100))/2});
+  g().addIngredient(stage.id);
+ }
+ assert.equal(potionCount(g().potionInventory,'frost'),1);g().finish(true);assert.equal(potionCount(g().potionInventory,'frost'),1);
  g().exitToMenu();g().addPotions(['flame','echo']);
  assert.equal(g().consumeEntryPotions(['frost','frost','echo']),false);
  const arena=createStore(defenseState(()=>g(),()=>.99));
  assert.equal(arena.getState().start(['frost','flame','echo']),true);
- assert.equal(g().potionInventory.frost,0);
+ assert.equal(potionCount(g().potionInventory,'frost'),0);
  arena.setState({enemies:[],queue:[]});arena.getState().finishWave();assert.equal(g().mageCards.mage_1,1);
  const snapshot=saved.get('hpproject-save-v1');
  game.setState({potionInventory:{},mageCards:{}});saved.set('hpproject-save-v1',snapshot);await game.persist.rehydrate();
- assert.equal(g().mageCards.mage_1,1);assert.equal(g().potionInventory.frost,0);
+ assert.equal(g().mageCards.mage_1,1);assert.equal(potionCount(g().potionInventory,'frost'),0);
+ assert.equal(g().showFirstVisitWelcome,false);
+ saved.set('hpproject-save-v1',JSON.stringify({state:{stones:37,potionInventory:{frost:7,flame:2}},version:0}));
+ const {useGameStore:legacy}=await import('data:text/javascript;base64,'+Buffer.from(code+'\n// legacy quality migration').toString('base64'));
+ assert.equal(legacy.getState().stones,37);
+ assert.deepEqual(legacy.getState().potionInventory.frost,{basic:0,fine:7,masterwork:0});
+ assert.equal(potionCount(legacy.getState().potionInventory,'echo'),0);
+ assert.equal(legacy.getState().showFirstVisitWelcome,false);
 });
 
 test('seeded full run can clear all ten waves using counterspells, buffs and healing',()=>{

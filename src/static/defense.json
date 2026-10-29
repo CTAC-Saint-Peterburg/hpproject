@@ -19,7 +19,7 @@
   "enemies": {
     "fire": {
       "name": "arena.enemy.fire",
-      "color": "#ff733f",
+      "color": "@colors.defenseEnemiesFireColor",
       "shape": "cube",
       "hp": 48,
       "attack": 5,
@@ -43,7 +43,7 @@
     },
     "frost": {
       "name": "arena.enemy.frost",
-      "color": "#72cfff",
+      "color": "@colors.cardsMage2Color",
       "shape": "cube",
       "hp": 42,
       "attack": 4,
@@ -67,7 +67,7 @@
     },
     "moss": {
       "name": "arena.enemy.moss",
-      "color": "#8fdc9c",
+      "color": "@colors.defenseEnemiesMossColor",
       "shape": "slime",
       "hp": 65,
       "attack": 6,

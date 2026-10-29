@@ -4,7 +4,7 @@
     "name": "potions.frost.name",
     "description": "potions.frost.description",
     "icon": "❄️",
-    "color": "#74dcff",
+    "color": "@colors.potionsFrostColor",
     "effect": "freeze",
     "duration": 12,
     "onHitDuration": 4,
@@ -15,7 +15,7 @@
     "name": "potions.flame.name",
     "description": "potions.flame.description",
     "icon": "🔥",
-    "color": "#ff844f",
+    "color": "@colors.potionsFlameColor",
     "effect": "burn",
     "duration": 12,
     "onHitDuration": 5,
@@ -26,7 +26,7 @@
     "name": "potions.echo.name",
     "description": "potions.echo.description",
     "icon": "✨",
-    "color": "#c699ff",
+    "color": "@colors.potionsEchoColor",
     "effect": "multicast",
     "duration": 12,
     "spells": [
@@ -43,7 +43,7 @@
     "name": "potions.healing.name",
     "description": "potions.healing.description",
     "icon": "💚",
-    "color": "#7ce0a0",
+    "color": "@colors.potionsHealingColor",
     "effect": "heal",
     "heal": 35
   }

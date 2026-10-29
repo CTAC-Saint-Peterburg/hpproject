@@ -1,3 +1,4 @@
+import { prepareStoreSource } from './loadGameStore.mjs';
 import { readFileSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
@@ -13,7 +14,7 @@ source = source.replace("'zustand'", JSON.stringify(new URL('../node_modules/zus
 const saved = new Map();
 source = source.replace(/import shopItems from .*?;/, 'const shopItems = ' + read('src/static/shop.json') + ';');
 globalThis.window = { localStorage: { getItem: k => saved.get(k) ?? null, setItem: (k, v) => saved.set(k, v) } };
-const { useGameStore: store } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+const { useGameStore: store } = await import('data:text/javascript;base64,' + Buffer.from(prepareStoreSource(source)).toString('base64'));
 const s = () => store.getState();
 
 test('enemy spawn, attacks, counterspells, limits and mission cleanup', () => {

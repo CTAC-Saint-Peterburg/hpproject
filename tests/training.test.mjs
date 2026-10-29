@@ -1,3 +1,4 @@
+import { prepareStoreSource } from './loadGameStore.mjs';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
@@ -37,7 +38,7 @@ test('tutorial repeats persist, cap at two and never gate playing', async () => 
   const saved = new Map();
   source = source.replace(/import shopItems from .*?;/, 'const shopItems = ' + read('src/static/shop.json') + ';');
   globalThis.window = { localStorage: { getItem: k => saved.get(k) ?? null, setItem: (k,v) => saved.set(k,v) } };
-  const { useGameStore: store } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
+  const { useGameStore: store } = await import('data:text/javascript;base64,' + Buffer.from(prepareStoreSource(source)).toString('base64'));
   const s = () => store.getState();
   s().beginMission('level_01');
   assert.equal(s().startGame, true);

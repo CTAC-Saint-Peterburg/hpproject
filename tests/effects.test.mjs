@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
+import { resolveThemeColors } from '../src/static/theme.js';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
-const config = JSON.parse(read('src/static/spellEffects.json'));
-const source = read('src/modules/Wand/effectSettings.js').replace(/import settings from .*?;/, 'const settings = ' + JSON.stringify(config) + ';');
+const config = resolveThemeColors(JSON.parse(read('src/static/spellEffects.json')));
+const source = read('src/modules/Wand/effectSettings.js').replace(/import \{ effects as settings \} from .*?;/, 'const settings = ' + JSON.stringify(config) + ';');
 const { spellEffect, advanceParticle } = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
 
 test('ten distinct spell colors and complete, bounded effect profiles', () => {

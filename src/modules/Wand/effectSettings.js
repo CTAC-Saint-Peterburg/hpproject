@@ -1,4 +1,4 @@
-import settings from '../../static/spellEffects.json';
+import { effects as settings } from '../../static/themedConfigs';
 
 export { settings };
 export function spellEffect(spellId) {

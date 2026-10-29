@@ -1,110 +1,59 @@
-import { useRef, useMemo } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
-import * as THREE from 'three'
+import { useRef, useMemo } from 'react';
+import { useFrame, useThree } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
+import * as THREE from 'three';
+import SpellHint from '../Pot/SpellHint';
+import brewing from '../../static/brewing.json';
+import { theme } from '../../static/theme';
 
-// рџ”§ РћРєСЂСѓРіР»РµРЅРёРµ СЃ Р·Р°РјРµРЅРѕР№ -0 в†’ 0
-const roundCoord = (val, decimals = 2) => {
-  const factor = Math.pow(10, decimals)
-  const rounded = Math.round(val * factor) / factor
-  return rounded === 0 ? 0 : rounded
-}
+const roundArray = arr => arr.map(value => Math.round(value * 100) / 100 || 0);
 
-const roundArray = (arr, decimals = 2) => 
-  arr.map(val => roundCoord(val, decimals))
-
-export const Bottle = ({ 
-  cords, 
-  id, 
-  color, 
-  isFollowMode, 
-  mousePos, 
-  isSelected, 
-  onToggle,
-  onPositionUpdate,
-  invertY = false
-}) => {
-  const meshRef = useRef()
-  const { camera, size } = useThree()
-  
-  const raycaster = useMemo(() => new THREE.Raycaster(), [])
-  const mouseNDC = useMemo(() => new THREE.Vector2(), [])
-  const initialPos = useMemo(() => new THREE.Vector3(...cords), [cords])
-  const targetPos = useRef(new THREE.Vector3(...cords))
-  
-  const lastUpdateRef = useRef(0)
-  const lastSentPosRef = useRef(new THREE.Vector3())
-  const THROTTLE_MS = 66
-  const MIN_DISTANCE = 0.01
-
-  const hasValidMouse = mousePos?.x !== undefined && 
-                        mousePos?.y !== undefined && 
-                        size?.width > 0 && 
-                        size?.height > 0
-
-  useFrame((state) => {
-    if (!meshRef.current) return
-
-    if (!isFollowMode || !isSelected || !hasValidMouse) {
-      targetPos.current.copy(initialPos)
-      meshRef.current.position.lerp(targetPos.current, 0.15)
-      return
-    }
-
-    // РљРѕРЅРІРµСЂС‚Р°С†РёСЏ РєРѕРѕСЂРґРёРЅР°С‚ РјС‹С€Рё в†’ NDC
-    mouseNDC.set(mousePos.x, invertY ? -mousePos.y : mousePos.y)
-
-    raycaster.setFromCamera(mouseNDC, camera)
-    const targetZ = cords[2]
-    const rayOriginZ = raycaster.ray.origin.z
-    const rayDirZ = raycaster.ray.direction.z
-    
-    if (Math.abs(rayDirZ) < 0.001) return
-    const t = (targetZ - rayOriginZ) / rayDirZ
-    
-    if (isFinite(t) && t > 0) {
-      const point = raycaster.ray.at(t, new THREE.Vector3())
-      targetPos.current.copy(point)
-    }
-
-    meshRef.current.position.lerp(targetPos.current, 0.15)
-
-    // рџ“Ў РћС‚РїСЂР°РІРєР° РїРѕР·РёС†РёРё СЃ С‚СЂРѕС‚С‚Р»РёРЅРіРѕРј Рё РѕРєСЂСѓРіР»РµРЅРёРµРј
-    if (isSelected && isFollowMode && onPositionUpdate) {
-      const now = state.clock.getElapsedTime() * 1000
-      const currentPos = meshRef.current.position
-      
-      if (now - lastUpdateRef.current > THROTTLE_MS) {
-        const distance = currentPos.distanceTo(lastSentPosRef.current)
-        
-        if (distance > MIN_DISTANCE) {
-          lastUpdateRef.current = now
-          lastSentPosRef.current.copy(currentPos)
-          
-          const roundedPos = roundArray(currentPos.toArray(), 2)
-          
-          onPositionUpdate({
-            id,
-            color,
-            cords: roundArray(cords, 2),
-            currentPos: roundedPos,
-            isSelected: true,
-            timestamp: Math.round(now)
-          })
-        }
+export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
+  onToggle, onPositionUpdate, invertY = false, showHint = true }) => {
+  const group = useRef();
+  const { camera, size } = useThree();
+  const raycaster = useMemo(() => new THREE.Raycaster(), []);
+  const mouseNDC = useMemo(() => new THREE.Vector2(), []);
+  const initialPos = useMemo(() => new THREE.Vector3(...cords), [cords]);
+  const targetPos = useRef(new THREE.Vector3(...cords));
+  const lastUpdate = useRef(0), lastSentPos = useRef(new THREE.Vector3());
+  const following = isFollowMode && isSelected;
+  useFrame((state, delta) => {
+    if (!group.current) return;
+    const hasMouse = Number.isFinite(mousePos?.x) && Number.isFinite(mousePos?.y) && size.width > 0 && size.height > 0;
+    targetPos.current.copy(initialPos);
+    if (following && hasMouse) {
+      mouseNDC.set(mousePos.x, invertY ? -mousePos.y : mousePos.y);
+      raycaster.setFromCamera(mouseNDC, camera);
+      const direction = raycaster.ray.direction.z;
+      if (Math.abs(direction) > .001) {
+        const distance = (cords[2] - raycaster.ray.origin.z) / direction;
+        if (Number.isFinite(distance) && distance > 0) raycaster.ray.at(distance, targetPos.current);
       }
     }
-  })
-
-  return (
-    <mesh ref={meshRef} onClick={onToggle}>
-      <boxGeometry />
+    group.current.position.lerp(targetPos.current, 1 - Math.exp(-14 * delta));
+    if (!following || !hasMouse || !onPositionUpdate) return;
+    const now = state.clock.getElapsedTime() * 1000;
+    const current = group.current.position;
+    if (now - lastUpdate.current > 66 && current.distanceTo(lastSentPos.current) > .01) {
+      lastUpdate.current = now;
+      lastSentPos.current.copy(current);
+      onPositionUpdate({ id, color, cords: roundArray(cords), currentPos: roundArray(current.toArray()),
+        isSelected: true, timestamp: Math.round(now) });
+    }
+  });
+  return <group ref={group} position={cords}>
+    <mesh onClick={event => { event.stopPropagation(); onToggle(); }}>
+      <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
       <meshStandardMaterial color={color} />
-      {isSelected && (
-        <mesh scale={1.05} raycast={() => null}>
-          <boxGeometry />
-          <meshBasicMaterial color="white" side={THREE.BackSide} />
-        </mesh>
-      )}
+      {isSelected && <mesh scale={1.08} raycast={() => null}>
+        <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
+        <meshBasicMaterial color={theme.colors.white} side={THREE.BackSide} />
+      </mesh>}
     </mesh>
-  )
-}
+    {showHint && <Html center position={[0, -brewing.ingredientSize * .5 - .36, 0]} style={{ pointerEvents: 'none' }}>
+      <SpellHint spellId={following ? brewing.dropSpell : brewing.liftSpell}
+        labelKey={following ? 'brewing.drop' : 'brewing.lift'} />
+    </Html>}
+  </group>;
+};

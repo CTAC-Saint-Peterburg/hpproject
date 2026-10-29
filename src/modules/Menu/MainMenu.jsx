@@ -19,6 +19,7 @@ export default function MainMenu() {
  return <section className="menu"><h1>{t('app.title')}</h1><p>{t('app.version', {version:pkg.version})}</p>
  {languageSelect}
  {page === 'main' && <>
+ {s.showFirstVisitWelcome && <article role="status"><p>{t('firstVisit.welcome')}</p><button onClick={s.dismissFirstVisit}>{t('collection.close')}</button></article>}
  <label>{t('menu.mission')}<select value={s.selectedLevel} onChange={e => s.setLevel(e.target.value)}>
  {Object.entries(missions).map(([id,m]) => <option key={id} value={id}>{t(m.name)} · {m.rewardPotion ? t('potions.'+m.rewardPotion+'.name') : ''} · {m.timeLimit ? t('time.seconds',{value:m.timeLimit}) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}</option>)}
  </select></label>

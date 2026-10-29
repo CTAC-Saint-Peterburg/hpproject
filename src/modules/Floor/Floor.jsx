@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 export const Floor = () => {
   return (
     <mesh 
@@ -6,7 +7,7 @@ export const Floor = () => {
   receiveShadow  // Принимает тени от объектов сверху
 >
   <planeGeometry args={[20, 20]} />  {/* Ширина 20, глубина 20 */}
-  <meshStandardMaterial color="gray" />
+  <meshStandardMaterial color={theme.colors.floor} />
 </mesh>
   )
 }

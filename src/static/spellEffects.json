@@ -11,12 +11,12 @@
       -0.3,
       1.2
     ],
-    "color": "#754327",
-    "emissive": "#331100",
+    "color": "@colors.shopWanddefaultColor",
+    "emissive": "@colors.shopWanddefaultEmissive",
     "emissiveIntensity": 0.5
   },
   "trail": {
-    "color": "#ffe897",
+    "color": "@colors.spellEffectsTrailColor",
     "emitRate": 25,
     "size": 0.045,
     "lifetime": 1.2,
@@ -46,13 +46,13 @@
     "opacity": 0.8
   },
   "drawing": {
-    "color": "#ffd86e",
+    "color": "@colors.spellEffectsDrawingColor",
     "lineWidth": 3,
     "opacity": 0.85
   },
   "spells": {
     "1": {
-      "color": "#ff7733",
+      "color": "@colors.spellEffectsSpells1Color",
       "motion": "fountain",
       "speed": 0.3,
       "burst": {
@@ -66,7 +66,7 @@
       }
     },
     "2": {
-      "color": "#69d9ff",
+      "color": "@colors.spellEffectsSpells2Color",
       "motion": "drift",
       "speed": 0.345,
       "burst": {
@@ -80,7 +80,7 @@
       }
     },
     "3": {
-      "color": "#77ffad",
+      "color": "@colors.spellEffectsSpells3Color",
       "motion": "spiral",
       "speed": 0.39,
       "burst": {
@@ -94,7 +94,7 @@
       }
     },
     "4": {
-      "color": "#fff1a6",
+      "color": "@colors.spellEffectsSpells4Color",
       "motion": "drift",
       "speed": 0.435,
       "burst": {
@@ -108,7 +108,7 @@
       }
     },
     "5": {
-      "color": "#b49aff",
+      "color": "@colors.spellEffectsSpells5Color",
       "motion": "spiral",
       "speed": 0.48,
       "burst": {
@@ -122,7 +122,7 @@
       }
     },
     "6": {
-      "color": "#b8eaff",
+      "color": "@colors.spellEffectsSpells6Color",
       "motion": "burst",
       "speed": 0.5249999999999999,
       "burst": {
@@ -136,7 +136,7 @@
       }
     },
     "7": {
-      "color": "#ffb8ef",
+      "color": "@colors.spellEffectsSpells7Color",
       "motion": "fountain",
       "speed": 0.5700000000000001,
       "burst": {
@@ -150,7 +150,7 @@
       }
     },
     "8": {
-      "color": "#ffce73",
+      "color": "@colors.spellEffectsSpells8Color",
       "motion": "burst",
       "speed": 0.615,
       "burst": {
@@ -164,7 +164,7 @@
       }
     },
     "9": {
-      "color": "#88eeff",
+      "color": "@colors.spellEffectsSpells9Color",
       "motion": "drift",
       "speed": 0.6599999999999999,
       "burst": {
@@ -178,7 +178,7 @@
       }
     },
     "10": {
-      "color": "#ff4fc8",
+      "color": "@colors.spellEffectsSpells10Color",
       "motion": "spiral",
       "speed": 0.705,
       "burst": {
@@ -198,7 +198,7 @@
     "sampleInterval": 0.12,
     "size": 0.8,
     "opacity": 0.22,
-    "color": "#a4ecc0"
+    "color": "@colors.spellEffectsSlimeTrailColor"
   },
   "arenaRig": {
     "screenAnchor": [

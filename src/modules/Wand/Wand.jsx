@@ -4,7 +4,7 @@ import { Vector3 } from 'three';
 import { WandParticles } from './WandParticles';
 import { settings } from './effectSettings';
 import { useGameStore } from '../Stores/GameStore';
-import shopItems from '../../static/shop.json';
+import { shopItems } from '../../static/themedConfigs';
 
 export const Wand = ({ tipRef, showParticles = true, attached = false }) => {
   const equipped = useGameStore(s => s.equippedItems.wand);

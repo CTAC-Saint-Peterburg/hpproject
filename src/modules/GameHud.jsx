@@ -4,6 +4,7 @@ import { useCheatUiStore } from './Cheats/cheatUiStore';
 import { useFrame } from '@react-three/fiber';
 import { useGameStore } from './Stores/GameStore';
 import { isPotBlocked } from '../static/enemies';
+import PotionResult from './Pot/PotionResult';
 
 export function FrameCounter() {
   const sample = useRef({ time: 0, frames: 0 });
@@ -59,6 +60,7 @@ export default function GameHud() {
         <button onClick={s.exitToMenu}>{t('menu.return')} · Esc</button>
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>
+        {stage && <p>{t('brewing.requiredStirring', { min: stage.stirring?.min ?? 0, max: stage.stirring?.max ?? 100 })}</p>}
         <p>{t('hud.score', {score:s.score, mistakes:s.mistakes})}</p>
         <p>{t('hud.enemies')}</p>
         {isPotBlocked(s.enemies, s.lastTick) && <p>{t('messages.slimeBlocked')}</p>}
@@ -67,7 +69,7 @@ export default function GameHud() {
       {s.status !== 'playing' && <div className="result"><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
         <p>{t('result.rating', {stars: '★'.repeat(s.rating) + '☆'.repeat(3 - s.rating), score:s.score})}</p>
         <p>{t('result.reward', {reward:s.reward})}</p>{s.debugUsed && <p>{t('result.debug')}</p>}
-        {s.status === 'won' && !s.debugUsed && s.mission?.rewardPotion && <p>{t('result.potion',{name:t('potions.'+s.mission.rewardPotion+'.name')})}</p>}
+        {s.status === 'won' && s.mission?.rewardPotion && <PotionResult potionId={s.mission.rewardPotion} quality={s.resultQuality} />}
         <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.retry')}</button>
         <button onClick={s.exitToMenu}>{t('menu.return')}</button>
       </div>}

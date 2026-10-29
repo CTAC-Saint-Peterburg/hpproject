@@ -1,3 +1,4 @@
+import { theme } from '../../static/theme';
 import React, { useEffect, useState, useRef } from 'react';
 import { Html, useProgress } from '@react-three/drei';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +62,7 @@ const styles = {
   overlay: {
     width: '100%',
     height: '100%',
-    backgroundColor: '#1976d2', // синий фон
+    backgroundColor: theme.colors.loader, // синий фон
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -71,32 +72,32 @@ const styles = {
     flexDirection: 'column',
     alignItems: 'center',
     gap: '20px',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
+    fontFamily: theme.fonts.loader,
   },
   spinner: {
     width: '60px',
     height: '60px',
-    border: '4px solid rgba(255, 255, 255, 0.3)',
-    borderTopColor: '#fff',
+    border: `4px solid ${theme.colors.loaderTrack}`,
+    borderTopColor: theme.colors.white,
     borderRadius: '50%',
     animation: 'spin 1s linear infinite',
   },
   text: {
-    color: '#fff',
-    fontSize: '1.2rem',
-    fontWeight: '600',
-    textShadow: '0 1px 2px rgba(0,0,0,0.2)',
+    color: theme.colors.white,
+    fontSize: theme.typography.loading,
+    fontWeight: theme.typography.loadingWeight,
+    textShadow: `0 1px 2px ${theme.colors.loaderShadow}`,
   },
   progressContainer: {
     width: '220px',
     height: '8px',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    backgroundColor: theme.colors.loaderTrack,
     borderRadius: '4px',
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: '#fff',
+    backgroundColor: theme.colors.white,
     transition: 'width 0.2s ease-out',
     borderRadius: '4px',
   },

@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 import './translate/i18n.js'
+import { installTheme } from './static/theme'
+
+installTheme()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

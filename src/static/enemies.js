@@ -1,7 +1,8 @@
+import { theme } from './theme.js';
 export const ENEMY_TYPES = {
-  enemycold: { color: '#32aaff', temperatureDelta: -15, counterSpell: 1, name: 'enemies.enemycold' },
-  enemyfire: { color: '#ffdf32', temperatureDelta: 15, counterSpell: 2, name: 'enemies.enemyfire' },
-  enemyslime: { color: '#94e5b2', name: 'enemies.enemyslime', approachMs: 5000, requiredSpells: 3 },
+  enemycold: { color: theme.colors.enemyCold, temperatureDelta: -15, counterSpell: 1, name: 'enemies.enemycold' },
+  enemyfire: { color: theme.colors.enemyFire, temperatureDelta: 15, counterSpell: 2, name: 'enemies.enemyfire' },
+  enemyslime: { color: theme.colors.enemySlime, name: 'enemies.enemyslime', approachMs: 5000, requiredSpells: 3 },
 };
 export const ENEMY_FLIGHT_MS = 2500;
 export const ENEMY_SHOT_MS = 4000;
