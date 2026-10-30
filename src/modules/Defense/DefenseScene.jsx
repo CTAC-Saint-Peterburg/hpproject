@@ -13,6 +13,7 @@ import { spellLessons } from '../../static/spellLessons';
 import ArenaHandWand from './ArenaHandWand';
 import { settings } from '../Wand/effectSettings';
 import { useCheatUiStore } from '../Cheats/cheatUiStore';
+import CastleRoom from '../Room/CastleRoom';
 
 function Camera(){
  const {camera,size}=useThree();
@@ -83,8 +84,9 @@ function Board(){
  const s=useDefenseStore();
  const tip=useRef(new Vector3());
  const w=config.field.width,d=config.field.depth;
- return <><Camera/><color attach="background" args={[theme.colors.arenaBackground]}/><ambientLight intensity={1.2}/>
+ return <><Camera/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
  <directionalLight position={[4,10,6]} intensity={2.2}/><FrameCounter/>
+ <CastleRoom variant="arena" lighting={false} furniture={false}/>
  <mesh position={[0,-.18,0]}><boxGeometry args={[w,.35,d]}/><meshStandardMaterial color={theme.colors.arenaWood} roughness={.85}/></mesh>
  {Array.from({length:10},(_,i)=><mesh key={i} position={[0,.005,-d/2+i*d/10]}><boxGeometry args={[w,.01,.025]}/><meshBasicMaterial color={theme.colors.arenaWoodLine}/></mesh>)}
  {[-1,1].map(sign=><group key={sign}>

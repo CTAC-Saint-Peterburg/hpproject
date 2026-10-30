@@ -13,14 +13,21 @@ export const ROOM = Object.freeze({
 
 // Everything is built once, grouped by material and merged into five meshes.
 // Small colour variations and painted mortar replace textures and extra lights.
-export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
+export function createBrewingRoomGeometry(requestedHalfWidth = 15, options = {}) {
+  const arena = options.variant === 'arena';
+  const layout = {
+    ...ROOM,
+    frontZ: Number.isFinite(options.frontZ) ? Math.max(6, options.frontZ) : ROOM.frontZ,
+    wallTopY: Number.isFinite(options.wallTopY) ? Math.max(4, options.wallTopY) : ROOM.wallTopY,
+    floorY: Number.isFinite(options.floorY) ? options.floorY : ROOM.floorY,
+  };
   const halfWidth = Math.max(ROOM.minHalfWidth, Math.min(ROOM.maxHalfWidth,
     Number.isFinite(requestedHalfWidth) ? requestedHalfWidth : 15));
   const groups = { stone: [], wood: [], metal: [], glass: [], banners: [] };
-  const depth = ROOM.frontZ - ROOM.backZ;
-  const height = ROOM.wallTopY - ROOM.floorY;
-  const middleY = (ROOM.wallTopY + ROOM.floorY) / 2;
-  const middleZ = (ROOM.frontZ + ROOM.backZ) / 2;
+  const depth = layout.frontZ - layout.backZ;
+  const height = layout.wallTopY - layout.floorY;
+  const middleY = (layout.wallTopY + layout.floorY) / 2;
+  const middleZ = (layout.frontZ + layout.backZ) / 2;
 
   function add(category, source, token, shade = 1, gradient = null) {
     const geometry = source.index ? source.toNonIndexed() : source;
@@ -79,14 +86,14 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
   }
 
   // Structural planes remain solid behind the decorative recesses.
-  box('stone', [halfWidth * 2, height, .32], [0, middleY, ROOM.backZ - .16], 'roomStone');
+  box('stone', [halfWidth * 2, height, .32], [0, middleY, layout.backZ - .16], 'roomStone');
   for (const side of [-1, 1]) {
     box('stone', [.32, height, depth], [side * (halfWidth + .16), middleY, middleZ], 'roomStone', .88);
   }
 
   // Flagstones: column/row caps bound geometry even on ultrawide displays.
   const floor = new PlaneGeometry(halfWidth * 2, depth);
-  floor.rotateX(-Math.PI / 2).translate(0, ROOM.floorY - .018, middleZ);
+  floor.rotateX(-Math.PI / 2).translate(0, layout.floorY - .018, middleZ);
   add('stone', floor, 'roomMortar');
   const tileColumns = Math.min(32, Math.ceil(halfWidth * 2 / 1.7));
   const tileRows = 8;
@@ -95,8 +102,8 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
   for (let row = 0; row < tileRows; row++) {
     for (let column = 0; column < tileColumns; column++) {
       const tile = new PlaneGeometry(tileWidth - .035, tileDepth - .035);
-      tile.rotateX(-Math.PI / 2).translate(-halfWidth + tileWidth * (column + .5), ROOM.floorY,
-        ROOM.backZ + tileDepth * (row + .5));
+      tile.rotateX(-Math.PI / 2).translate(-halfWidth + tileWidth * (column + .5), layout.floorY,
+        layout.backZ + tileDepth * (row + .5));
       add('stone', tile, (column + row * 3) % 5 === 0 ? 'roomFloorLight' : 'roomFloor', 1 - ((column * 7 + row * 3) % 4) * .025);
     }
   }
@@ -109,9 +116,9 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
   const sideColumns = 8;
   const sideBlockDepth = depth / sideColumns;
   for (let row = 0; row <= rows; row++) {
-    const y = ROOM.floorY + row * rowHeight;
-    const seamY = Math.max(ROOM.floorY + .0125, Math.min(ROOM.wallTopY - .0125, y));
-    plane('stone', halfWidth * 2, .025, [0, seamY, ROOM.backZ + .008], 'roomMortar', 0, .95);
+    const y = layout.floorY + row * rowHeight;
+    const seamY = Math.max(layout.floorY + .0125, Math.min(layout.wallTopY - .0125, y));
+    plane('stone', halfWidth * 2, .025, [0, seamY, layout.backZ + .008], 'roomMortar', 0, .95);
     for (const side of [-1, 1]) {
       plane('stone', depth, .025, [side * (halfWidth - .008), seamY, middleZ], 'roomMortar', -side * Math.PI / 2, .9);
     }
@@ -120,13 +127,13 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
     for (let column = 0; column < backColumns; column++) {
       const x = -halfWidth + (column + offset) * blockWidth;
       if (x > -halfWidth + .03 && x < halfWidth - .03) {
-        plane('stone', .023, rowHeight - .025, [x, y + rowHeight / 2, ROOM.backZ + .009], 'roomMortar');
+        plane('stone', .023, rowHeight - .025, [x, y + rowHeight / 2, layout.backZ + .009], 'roomMortar');
       }
     }
     for (const side of [-1, 1]) {
       for (let column = 0; column < sideColumns; column++) {
-        const z = ROOM.backZ + (column + offset) * sideBlockDepth;
-        if (z > ROOM.backZ + .03 && z < ROOM.frontZ - .03) {
+        const z = layout.backZ + (column + offset) * sideBlockDepth;
+        if (z > layout.backZ + .03 && z < layout.frontZ - .03) {
           plane('stone', .023, rowHeight - .025, [side * (halfWidth - .009), y + rowHeight / 2, z],
             'roomMortar', -side * Math.PI / 2, .9);
         }
@@ -135,28 +142,28 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
   }
 
   // A quiet, darker inset keeps the recipe text legible against the room.
-  plane('stone', 4.4, 3.3, [-5.9, .85, ROOM.backZ + .025], 'roomStoneDark');
+  if (!arena) plane('stone', 4.4, 3.3, [-5.9, .85, layout.backZ + .025], 'roomStoneDark');
 
   // Stepped pilasters, plinths and continuous cornices suggest castle masonry.
   const columnXs = [-halfWidth + .7, -4.4, 4.4, halfWidth - .7];
   if (halfWidth > 20) columnXs.push(-halfWidth * .55, halfWidth * .55);
   for (const x of columnXs) {
-    box('stone', [.68, 7.25, .46], [x, 3.25, ROOM.backZ + .22], 'roomStoneLight', .96);
+    box('stone', [.68, 7.25, .46], [x, 3.25, layout.backZ + .22], 'roomStoneLight', .96);
     for (const [width, stepHeight, y, forward] of [[1.08, .25, -.85, .38], [.88, .22, -.615, .32], [.78, .18, -.415, .28],
       [.84, .19, 6.97, .31], [1.02, .23, 7.18, .38], [1.17, .18, 7.385, .44]]) {
-      box('stone', [width, stepHeight, forward + .24], [x, y, ROOM.backZ + forward / 2], 'roomStoneLight');
+      box('stone', [width, stepHeight, forward + .24], [x, y, layout.backZ + forward / 2], 'roomStoneLight');
     }
     for (let band = 0; band < 5; band++) {
-      box('stone', [.73, .055, .5], [x, .3 + band * 1.3, ROOM.backZ + .245], 'roomStone', .95);
+      box('stone', [.73, .055, .5], [x, .3 + band * 1.3, layout.backZ + .245], 'roomStone', .95);
     }
   }
   for (const [y, stepHeight, reach] of [[7.62, .18, .24], [7.86, .3, .38], [8.18, .34, .54]]) {
-    box('stone', [halfWidth * 2, stepHeight, reach], [0, y, ROOM.backZ + reach / 2], 'roomStoneLight', .95);
+    box('stone', [halfWidth * 2, stepHeight, reach], [0, y, layout.backZ + reach / 2], 'roomStoneLight', .95);
     for (const side of [-1, 1]) {
       box('stone', [reach, stepHeight, depth], [side * (halfWidth - reach / 2), y, middleZ], 'roomStoneLight', .88);
     }
   }
-  box('stone', [halfWidth * 2, .22, .23], [0, -.7, ROOM.backZ + .115], 'roomStoneDark');
+  box('stone', [halfWidth * 2, .22, .23], [0, -.7, layout.backZ + .115], 'roomStoneDark');
   for (const side of [-1, 1]) {
     box('stone', [.23, .22, depth], [side * (halfWidth - .115), -.7, middleZ], 'roomStoneDark');
   }
@@ -165,24 +172,24 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
   const doorX = -.8;
   const doorSpring = 1.8;
   const doorRadius = 1.5;
-  const doorZ = ROOM.backZ + .055;
-  plane('wood', doorRadius * 2, doorSpring - ROOM.floorY, [doorX, (doorSpring + ROOM.floorY) / 2, doorZ], 'roomWoodDark');
+  const doorZ = layout.backZ + .055;
+  plane('wood', doorRadius * 2, doorSpring - layout.floorY, [doorX, (doorSpring + layout.floorY) / 2, doorZ], 'roomWoodDark');
   upperArch('wood', doorX, doorSpring, doorRadius, doorZ, 'roomWoodDark');
   for (let plank = -6; plank <= 6; plank++) {
     const x = plank * .225;
     const top = doorSpring + Math.sqrt(Math.max(0, doorRadius * doorRadius - (Math.abs(x) + .105) ** 2));
-    plane('wood', .205, top - ROOM.floorY - .08, [doorX + x, (top + ROOM.floorY + .08) / 2, doorZ + .006],
+    plane('wood', .205, top - layout.floorY - .08, [doorX + x, (top + layout.floorY + .08) / 2, doorZ + .006],
       plank % 3 === 0 ? 'roomWood' : 'roomWoodDark');
   }
-  archTrim(doorX, doorSpring, 1.53, 1.9, ROOM.backZ + .29);
+  archTrim(doorX, doorSpring, 1.53, 1.9, layout.backZ + .29);
   for (const side of [-1, 1]) {
-    box('stone', [.37, doorSpring - ROOM.floorY, .4], [doorX + side * 1.715, (doorSpring + ROOM.floorY) / 2, ROOM.backZ + .2], 'roomStoneLight');
-    box('stone', [.52, .25, .55], [doorX + side * 1.715, -.865, ROOM.backZ + .275], 'roomStone');
+    box('stone', [.37, doorSpring - layout.floorY, .4], [doorX + side * 1.715, (doorSpring + layout.floorY) / 2, layout.backZ + .2], 'roomStoneLight');
+    box('stone', [.52, .25, .55], [doorX + side * 1.715, -.865, layout.backZ + .275], 'roomStone');
   }
   for (let bar = -3; bar <= 3; bar++) {
     const x = bar * .38;
     const top = doorSpring + Math.sqrt(doorRadius * doorRadius - x * x) - .12;
-    box('metal', [.052, top - ROOM.floorY - .18, .075], [doorX + x, (top + ROOM.floorY + .18) / 2, doorZ + .075], 'roomMetal');
+    box('metal', [.052, top - layout.floorY - .18, .075], [doorX + x, (top + layout.floorY + .18) / 2, doorZ + .075], 'roomMetal');
   }
   for (const y of [-.05, 1.25]) box('metal', [2.88, .075, .085], [doorX, y, doorZ + .09], 'roomMetal');
   box('metal', [.28, .36, .04], [doorX + .65, .58, doorZ + .115], 'roomMetal');
@@ -190,17 +197,17 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
 
   // Blue windows stay high and away from the recipe's projected background.
   for (const x of [-8.2, 8.2]) {
-    const bottom = 2.4, spring = 4.9, radius = 1.18, z = ROOM.backZ + .065;
+    const bottom = 2.4, spring = 4.9, radius = 1.18, z = layout.backZ + .065;
     const glassGradient = { token: 'roomGlassHigh', bottom, top: spring + radius };
     const pane = new PlaneGeometry(radius * 2, spring - bottom);
     pane.translate(x, (spring + bottom) / 2, z);
     add('glass', pane, 'roomGlassLow', 1, glassGradient);
     upperArch('glass', x, spring, radius, z, 'roomGlassLow', glassGradient);
-    archTrim(x, spring, 1.2, 1.52, ROOM.backZ + .29);
+    archTrim(x, spring, 1.2, 1.52, layout.backZ + .29);
     for (const side of [-1, 1]) {
-      box('stone', [.31, spring - bottom, .4], [x + side * 1.365, (spring + bottom) / 2, ROOM.backZ + .2], 'roomStoneLight');
+      box('stone', [.31, spring - bottom, .4], [x + side * 1.365, (spring + bottom) / 2, layout.backZ + .2], 'roomStoneLight');
     }
-    box('stone', [3.16, .22, .62], [x, bottom - .12, ROOM.backZ + .31], 'roomStoneLight');
+    box('stone', [3.16, .22, .62], [x, bottom - .12, layout.backZ + .31], 'roomStoneLight');
     for (const offset of [-.39, .39]) {
       const top = spring + Math.sqrt(radius * radius - offset * offset) - .04;
       box('metal', [.055, top - bottom, .08], [x + offset, (top + bottom) / 2, z + .065], 'roomMetal');
@@ -209,31 +216,31 @@ export function createBrewingRoomGeometry(requestedHalfWidth = 15) {
   }
 
   // Sparse ceiling beams and two plain hanging banners complete the silhouette.
-  for (const z of [-5.1, .8, 6.7]) {
+  for (const z of (arena ? [] : [-5.1, .8, 6.7])) {
     box('wood', [halfWidth * 2, .26, .32], [0, 7.48, z], 'roomWoodDark');
   }
   for (const x of [-4.4, 4.4]) {
     const shape = new Shape().moveTo(-.4, 1.1).lineTo(.4, 1.1).lineTo(.4, -.86).lineTo(0, -1.15).lineTo(-.4, -.86).closePath();
     const banner = new ShapeGeometry(shape);
-    banner.translate(x, 4.7, ROOM.backZ + .59);
+    banner.translate(x, 4.7, layout.backZ + .59);
     add('banners', banner, x < 0 ? 'roomBannerGreen' : 'roomBannerBlue');
-    box('metal', [1.04, .065, .1], [x, 5.88, ROOM.backZ + .62], 'roomMetal');
+    box('metal', [1.04, .065, .1], [x, 5.88, layout.backZ + .62], 'roomMetal');
     const emblem = new PlaneGeometry(.28, .28);
-    emblem.rotateZ(Math.PI / 4).translate(x, 4.85, ROOM.backZ + .603);
+    emblem.rotateZ(Math.PI / 4).translate(x, 4.85, layout.backZ + .603);
     add('banners', emblem, 'roomStoneLight');
   }
 
   // Flames join the unlit glass batch: no dynamic lights, shadows or animation.
   for (const x of [-3.05, 2.2]) {
-    box('metal', [.22, .38, .08], [x, 2.0, ROOM.backZ + .38], 'roomMetal');
+    box('metal', [.22, .38, .08], [x, 2.0, layout.backZ + .38], 'roomMetal');
     const holder = new CylinderGeometry(.065, .09, .48, 6);
-    holder.translate(x, 2.17, ROOM.backZ + .63);
+    holder.translate(x, 2.17, layout.backZ + .63);
     add('metal', holder, 'roomMetal');
     const flame = new OctahedronGeometry(.18, 0);
-    flame.scale(.66, 1.35, .66).translate(x, 2.59, ROOM.backZ + .63);
+    flame.scale(.66, 1.35, .66).translate(x, 2.59, layout.backZ + .63);
     add('glass', flame, 'roomFlame');
     const core = new OctahedronGeometry(.09, 0);
-    core.scale(.7, 1.25, .7).translate(x, 2.55, ROOM.backZ + .75);
+    core.scale(.7, 1.25, .7).translate(x, 2.55, layout.backZ + .75);
     add('glass', core, 'roomFlameCore');
   }
 
