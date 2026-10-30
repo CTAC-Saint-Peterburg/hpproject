@@ -236,5 +236,9 @@
   "potion.quality.masterwork": "Masterwork",
   "result.potionQuality": "Quality: {{quality}}",
   "inventory.qualities": "By quality: {{value}}",
-  "firstVisit.welcome": "Welcome! You received one fine potion of each of the four types to try Crystal Defense. Stones: 0."
+  "firstVisit.welcome": "Welcome! You received one fine potion of each of the four types to try Crystal Defense. Stones: 0.",
+  "brewing.nextHeat": "Heat the cauldron (V)",
+  "brewing.nextCool": "Cool the cauldron (□)",
+  "brewing.nextStir": "Stir (○)",
+  "brewing.nextSettle": "Wait for stirring to settle"
 }

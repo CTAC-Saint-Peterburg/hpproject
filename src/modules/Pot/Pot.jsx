@@ -15,9 +15,9 @@ export const Pot = ({ bottleRadar = [] }) => {
   const { t } = useTranslation();
   const s = useGameStore();
   const appearance = shopItems.find(item => item.id === s.equippedItems.pot && item.type === 'pot');
-  const contact = useRef(null);
   const bowl = useRef();
   useFrame((frame, delta) => {
+    if (useGameStore.getState().paused) return;
     if (bowl.current) {
       const state = useGameStore.getState();
       const moving = state.status === 'playing' && Date.now() < state.stirUntil;
@@ -27,14 +27,11 @@ export const Pot = ({ bottleRadar = [] }) => {
       bowl.current.rotation.x += (Math.sin(phase) * amplitude - bowl.current.rotation.x) * damping;
       bowl.current.rotation.z += (Math.cos(phase) * amplitude - bowl.current.rotation.z) * damping;
     }
-    if (s.status !== 'playing') return;
-    if (isPotBlocked(s.enemies, Date.now())) { contact.current = null; return; }
+    const state = useGameStore.getState();
+    if (state.status !== 'playing' || state.ingredientFlight || isPotBlocked(state.enemies, Date.now())) return;
     const bottle = bottleRadar.find(b => b.isSelected && b.currentPos &&
       Math.hypot(b.currentPos[0], b.currentPos[1]) < 1);
-    if (bottle && contact.current !== bottle.id) {
-      contact.current = bottle.id;
-      s.addIngredient(bottle.id);
-    } else if (!bottle) contact.current = null;
+    if (bottle) state.beginIngredientDrop(bottle.id, bottle.currentPos);
   });
   const warmth = Math.max(0, (s.potTemperature - 20) / 90);
   return <group>

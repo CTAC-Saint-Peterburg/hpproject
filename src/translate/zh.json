@@ -236,5 +236,9 @@
   "potion.quality.masterwork": "大师级",
   "result.potionQuality": "品质：{{quality}}",
   "inventory.qualities": "各品质数量：{{value}}",
-  "firstVisit.welcome": "欢迎！你获得了四种优良魔药各一瓶，可以体验水晶守卫模式。魔石：0。"
+  "firstVisit.welcome": "欢迎！你获得了四种优良魔药各一瓶，可以体验水晶守卫模式。魔石：0。",
+  "brewing.nextHeat": "加热坩埚 (V)",
+  "brewing.nextCool": "冷却坩埚 (□)",
+  "brewing.nextStir": "搅拌 (○)",
+  "brewing.nextSettle": "等待搅拌平息"
 }

@@ -236,5 +236,9 @@
   "potion.quality.masterwork": "Magistral",
   "result.potionQuality": "Calidad: {{quality}}",
   "inventory.qualities": "Por calidad: {{value}}",
-  "firstVisit.welcome": "¡Bienvenido! Has recibido una poción buena de cada uno de los cuatro tipos para probar la defensa del cristal. Piedras: 0."
+  "firstVisit.welcome": "¡Bienvenido! Has recibido una poción buena de cada uno de los cuatro tipos para probar la defensa del cristal. Piedras: 0.",
+  "brewing.nextHeat": "Calentar el caldero (V)",
+  "brewing.nextCool": "Enfriar el caldero (□)",
+  "brewing.nextStir": "Remover (○)",
+  "brewing.nextSettle": "Esperar a que se asiente"
 }

@@ -5,12 +5,15 @@ import * as THREE from 'three';
 import SpellHint from '../Pot/SpellHint';
 import brewing from '../../static/brewing.json';
 import { theme } from '../../static/theme';
+import { ingredientRefillProgress } from './ingredientAnimation';
+import { useGameStore } from '../Stores/GameStore';
 
 const roundArray = arr => arr.map(value => Math.round(value * 100) / 100 || 0);
 
 export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
-  onToggle, onPositionUpdate, invertY = false, showHint = true }) => {
+  onToggle, onPositionUpdate, invertY = false, showHint = true, refillAt = null }) => {
   const group = useRef();
+  const material = useRef();
   const { camera, size } = useThree();
   const raycaster = useMemo(() => new THREE.Raycaster(), []);
   const mouseNDC = useMemo(() => new THREE.Vector2(), []);
@@ -19,7 +22,14 @@ export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
   const lastUpdate = useRef(0), lastSentPos = useRef(new THREE.Vector3());
   const following = isFollowMode && isSelected;
   useFrame((state, delta) => {
-    if (!group.current) return;
+    if (!group.current || useGameStore.getState().paused) return;
+    const refill = refillAt === null ? 1 : ingredientRefillProgress((Date.now() - refillAt) / 1000, brewing.ingredientAnimation);
+    group.current.scale.setScalar(Math.max(.001, refill));
+    material.current.opacity = refill;
+    if (refill < 1) {
+      group.current.position.copy(initialPos);
+      return;
+    }
     const hasMouse = Number.isFinite(mousePos?.x) && Number.isFinite(mousePos?.y) && size.width > 0 && size.height > 0;
     targetPos.current.copy(initialPos);
     if (following && hasMouse) {
@@ -45,7 +55,7 @@ export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
   return <group ref={group} position={cords}>
     <mesh onClick={event => { event.stopPropagation(); onToggle(); }}>
       <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
-      <meshStandardMaterial color={color} />
+      <meshStandardMaterial ref={material} color={color} transparent />
       {isSelected && <mesh scale={1.08} raycast={() => null}>
         <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
         <meshBasicMaterial color={theme.colors.white} side={THREE.BackSide} />

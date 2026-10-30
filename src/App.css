@@ -79,3 +79,4 @@ button:disabled { opacity: .45; cursor: default; }
 .potion-result p { margin: 0; }
 .result { box-sizing: border-box; overflow: auto; padding: 24px; justify-content: safe center; gap: 10px; }
 .result h2 { margin: 0; } .result > p { margin: 4px 0; }
+.brewing-pause { z-index: 16777272; }

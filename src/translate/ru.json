@@ -236,5 +236,9 @@
   "potion.quality.masterwork": "Мастерское",
   "result.potionQuality": "Качество: {{quality}}",
   "inventory.qualities": "По качеству: {{value}}",
-  "firstVisit.welcome": "Добро пожаловать! Вы получили по одному добротному зелью каждого из четырёх видов, чтобы попробовать защиту кристалла. Stones: 0."
+  "firstVisit.welcome": "Добро пожаловать! Вы получили по одному добротному зелью каждого из четырёх видов, чтобы попробовать защиту кристалла. Stones: 0.",
+  "brewing.nextHeat": "Нагреть котёл (V)",
+  "brewing.nextCool": "Остудить котёл (□)",
+  "brewing.nextStir": "Взболтать (○)",
+  "brewing.nextSettle": "Дождаться оседания"
 }

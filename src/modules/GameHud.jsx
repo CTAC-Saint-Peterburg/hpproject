@@ -27,11 +27,12 @@ export default function GameHud() {
     const handler = e => {
       if (e.repeat || e.target.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
       if (e.code === 'Escape') s.exitToMenu();
+      if (e.code === 'KeyP' && !e.altKey && !e.ctrlKey && !e.metaKey) s.setPaused(!s.paused);
       if (e.altKey && e.shiftKey) {
         if (e.code === 'Equal') { e.preventDefault(); s.changeStones(100); }
         if (e.code === 'Minus') { e.preventDefault(); s.changeStones(-100); }
         if (e.code === 'KeyP') { e.preventDefault(); s.addPotions(['frost','flame','echo','healing']); }
-        if (s.startGame && s.status === 'playing') {
+        if (s.startGame && s.status === 'playing' && !s.paused) {
           if (e.code === 'ArrowUp') { e.preventDefault(); s.changePotTemperature(1); }
           if (e.code === 'ArrowDown') { e.preventDefault(); s.changePotTemperature(-1); }
           if (e.code === 'KeyN') { e.preventDefault(); s.debugAdvance(); }
@@ -46,10 +47,10 @@ export default function GameHud() {
     return () => window.removeEventListener('keydown', handler);
   }, [s]);
   useEffect(() => {
-    if (!s.startGame || s.status !== 'playing') return;
+    if (!s.startGame || s.status !== 'playing' || s.paused) return;
     const id = setInterval(() => useGameStore.getState().tick(Date.now()), 100);
     return () => clearInterval(id);
-  }, [s.startGame, s.status]);
+  }, [s.startGame, s.status, s.paused]);
   const stage = s.mission?.stages[s.currentStage];
   return <>
     <div className="wallet">💎 {s.stones} {t('hud.stones')}</div>
@@ -58,6 +59,7 @@ export default function GameHud() {
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
       <div className="hud">
         <button onClick={s.exitToMenu}>{t('menu.return')} · Esc</button>
+        {s.status === 'playing' && <button onClick={() => s.setPaused(!s.paused)}>{t(s.paused ? 'arena.resume' : 'arena.pause')} · P</button>}
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>
         {stage && <p>{t('brewing.requiredStirring', { min: stage.stirring?.min ?? 0, max: stage.stirring?.max ?? 100 })}</p>}
@@ -66,6 +68,11 @@ export default function GameHud() {
         {isPotBlocked(s.enemies, s.lastTick) && <p>{t('messages.slimeBlocked')}</p>}
         <p role="status">{s.message ? t(s.message, s.messageValues) : ''}</p>
       </div>
+      {s.paused && <div className="result brewing-pause" role="dialog" aria-modal="true" aria-label={t('arena.paused')}>
+        <h2>{t('arena.paused')}</h2>
+        <button onClick={() => s.setPaused(false)} autoFocus>{t('arena.resume')} · P</button>
+        <button onClick={s.exitToMenu}>{t('menu.return')}</button>
+      </div>}
       {s.status !== 'playing' && <div className="result"><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
         <p>{t('result.rating', {stars: '★'.repeat(s.rating) + '☆'.repeat(3 - s.rating), score:s.score})}</p>
         <p>{t('result.reward', {reward:s.reward})}</p>{s.debugUsed && <p>{t('result.debug')}</p>}

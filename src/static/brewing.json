@@ -3,6 +3,14 @@
   "liftSpell": 3,
   "dropSpell": 4,
   "stirSpell": 5,
+  "ingredientAnimation": {
+    "riseSeconds": 0.55,
+    "hoverSeconds": 0.12,
+    "fallSeconds": 0.55,
+    "liftHeight": 1.8,
+    "refillSeconds": 0.9,
+    "minimumScale": 0.25
+  },
   "stirring": {
     "perCast": 25,
     "decayPerSecond": 2,
