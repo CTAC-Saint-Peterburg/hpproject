@@ -240,5 +240,9 @@
   "brewing.nextHeat": "Calentar el caldero (V)",
   "brewing.nextCool": "Enfriar el caldero (□)",
   "brewing.nextStir": "Remover (○)",
-  "brewing.nextSettle": "Esperar a que se asiente"
+  "brewing.nextSettle": "Esperar a que se asiente",
+  "brewing.cool": "Selecciona el caldero y dibuja un cuadrado para bajar el fuego",
+  "brewing.heatLabel": "Calentar",
+  "brewing.coolLabel": "Enfriar",
+  "brewing.stirLabel": "Remover"
 }

@@ -80,3 +80,10 @@ button:disabled { opacity: .45; cursor: default; }
 .result { box-sizing: border-box; overflow: auto; padding: 24px; justify-content: safe center; gap: 10px; }
 .result h2 { margin: 0; } .result > p { margin: 4px 0; }
 .brewing-pause { z-index: 16777272; }
+.pot-runes { display: flex; align-items: flex-start; justify-content: center; gap: 5px; }
+.pot-rune { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 48px; color: var(--color-rune); }
+.pot-rune .spell-hint { width: 30px; height: 30px; border-radius: 50%; color: inherit; background: var(--color-surface-veil); }
+.pot-rune span:last-child { font-size: var(--type-tiny); line-height: 1.1; white-space: nowrap; text-shadow: 0 1px 3px var(--color-black); }
+.pot-rune-heat { color: var(--color-spell-effects-spells1-color); }
+.pot-rune-cool { color: var(--color-spell-effects-spells2-color); }
+.pot-rune-stir { color: var(--color-spell-effects-spells5-color); }

@@ -58,6 +58,8 @@
     "potDefault": "#39333e",
     "potEmissive": "#ff4500",
     "potSelected": "#90ffab",
+    "potLiquid": "#4c635b",
+    "potMist": "#d3d9d2",
     "fireHot": "#ffd34e",
     "fireWarm": "#ff6b20",
     "fireLight": "#ff6600",

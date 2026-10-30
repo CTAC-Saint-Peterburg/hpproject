@@ -240,5 +240,9 @@
   "brewing.nextHeat": "Chauffer le chaudron (V)",
   "brewing.nextCool": "Refroidir le chaudron (□)",
   "brewing.nextStir": "Remuer (○)",
-  "brewing.nextSettle": "Attendre le repos"
+  "brewing.nextSettle": "Attendre le repos",
+  "brewing.cool": "Sélectionnez le chaudron et tracez un carré pour baisser le feu",
+  "brewing.heatLabel": "Chauffer",
+  "brewing.coolLabel": "Refroidir",
+  "brewing.stirLabel": "Remuer"
 }

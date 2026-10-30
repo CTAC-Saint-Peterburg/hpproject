@@ -240,5 +240,9 @@
   "brewing.nextHeat": "Heat the cauldron (V)",
   "brewing.nextCool": "Cool the cauldron (□)",
   "brewing.nextStir": "Stir (○)",
-  "brewing.nextSettle": "Wait for stirring to settle"
+  "brewing.nextSettle": "Wait for stirring to settle",
+  "brewing.cool": "Select the cauldron and draw a square to lower the heat",
+  "brewing.heatLabel": "Heat",
+  "brewing.coolLabel": "Cool",
+  "brewing.stirLabel": "Stir"
 }

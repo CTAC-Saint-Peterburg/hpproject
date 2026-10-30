@@ -240,5 +240,9 @@
   "brewing.nextHeat": "加热坩埚 (V)",
   "brewing.nextCool": "冷却坩埚 (□)",
   "brewing.nextStir": "搅拌 (○)",
-  "brewing.nextSettle": "等待搅拌平息"
+  "brewing.nextSettle": "等待搅拌平息",
+  "brewing.cool": "选择坩埚并画出正方形以减小火力",
+  "brewing.heatLabel": "加热",
+  "brewing.coolLabel": "冷却",
+  "brewing.stirLabel": "搅拌"
 }

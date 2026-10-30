@@ -240,5 +240,9 @@
   "brewing.nextHeat": "Нагреть котёл (V)",
   "brewing.nextCool": "Остудить котёл (□)",
   "brewing.nextStir": "Взболтать (○)",
-  "brewing.nextSettle": "Дождаться оседания"
+  "brewing.nextSettle": "Дождаться оседания",
+  "brewing.cool": "Выберите котёл и нарисуйте квадрат, чтобы ослабить огонь",
+  "brewing.heatLabel": "Нагрев",
+  "brewing.coolLabel": "Охлаждение",
+  "brewing.stirLabel": "Взболтать"
 }
