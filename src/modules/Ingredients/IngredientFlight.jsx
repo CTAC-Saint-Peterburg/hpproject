@@ -6,21 +6,23 @@ import { WandParticles } from '../Wand/WandParticles';
 import { ingredientFlightPose } from './ingredientAnimation';
 import { SPAWN_BOTTLES_CORDS } from '../../static/constants';
 import brewing from '../../static/brewing.json';
+import IngredientModel from './IngredientModel';
+import { INGREDIENT_MODEL_SIZE } from './ingredientGeometry';
 
-// The same renderer as spell effects, with its emitter attached to the cube.
+// The same renderer as spell effects, with its emitter attached to the ingredient.
 export default function IngredientFlight({ flight }) {
-  const cube = useRef();
+  const ingredient = useRef();
   const tip = useRef(new Vector3(...flight.from));
   const color = SPAWN_BOTTLES_CORDS.find(item => item.id === flight.id)?.color;
   useFrame(() => {
     const s = useGameStore.getState();
-    if (!cube.current || s.paused || !s.ingredientFlight) return;
+    if (!ingredient.current || s.paused || !s.ingredientFlight) return;
     const pose = ingredientFlightPose(flight.from, (Date.now() - s.ingredientFlight.startedAt) / 1000, brewing.ingredientAnimation);
-    cube.current.position.set(...pose.position);
-    cube.current.scale.setScalar(pose.scale);
-    cube.current.rotation.set(pose.rotation, pose.rotation * .6, 0);
-    cube.current.material.opacity = pose.opacity;
-    tip.current.copy(cube.current.position);
+    ingredient.current.position.set(...pose.position);
+    ingredient.current.scale.setScalar(pose.scale * brewing.ingredientSize / INGREDIENT_MODEL_SIZE);
+    ingredient.current.rotation.set(pose.rotation, pose.rotation * .6, 0);
+    ingredient.current.material.opacity = pose.opacity;
+    tip.current.copy(ingredient.current.position);
   });
   const getEffectState = () => {
     const s = useGameStore.getState();
@@ -30,10 +32,8 @@ export default function IngredientFlight({ flight }) {
     } };
   };
   return <>
-    <mesh ref={cube} position={flight.from} raycast={() => null}>
-      <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={.35} transparent />
-    </mesh>
+    <IngredientModel ref={ingredient} id={flight.id} color={color} position={flight.from}
+      emissiveIntensity={.35} raycast={() => null} />
     <WandParticles tip={tip} getEffectState={getEffectState} />
   </>;
 }

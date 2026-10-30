@@ -3,7 +3,7 @@ import { Canvas } from '@react-three/fiber';
 import { MouseTracker } from '../MouseTrack/MouseTracker';
 import { Pot } from '../Pot/Pot';
 import HandWand from '../Wand/HandWand';
-import { Floor } from '../Floor/Floor';
+import BrewingRoom from '../Room/BrewingRoom';
 import { recognizeGesture } from '../Recognaizer/recognaizer';
 import { SpellTrail } from './SpellTrail';
 import { Ingredients } from '../Ingredients/Ingredients';
@@ -37,13 +37,12 @@ export default function Scene() {
       path.current = []; setTrail([]);
     }
   };
-  return <Canvas frameloop={s.paused ? 'never' : 'always'} camera={{ position: [0, 0, 10], fov: 60 }}>
-    <color attach="background" args={[theme.colors.brewBackground]} />
+  return <Canvas dpr={[1, 1.5]} frameloop={s.paused ? 'never' : 'always'} camera={{ position: [0, 0, 10], fov: 60 }}>
+    <color attach="background" args={[theme.colors.roomBackground]} />
     <FrameCounter />
     <Enemies />
     <MouseTracker onUpdate={handleMouseUpdate} onPosChange={setMousePos} />
-    <ambientLight intensity={0.6} /><pointLight position={[10, 10, 10]} intensity={100} />
-    <Floor />
+    <BrewingRoom />
     <Pot bottleRadar={s.heldIngredientId === selectedBottle?.id && selectedBottle?.isSelected ? [selectedBottle] : []} />
     <HandWand />
     <SpellTrail points={s.paused ? [] : trail} />

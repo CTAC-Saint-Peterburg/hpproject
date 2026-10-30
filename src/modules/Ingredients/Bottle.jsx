@@ -4,9 +4,10 @@ import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import SpellHint from '../Pot/SpellHint';
 import brewing from '../../static/brewing.json';
-import { theme } from '../../static/theme';
 import { ingredientRefillProgress } from './ingredientAnimation';
 import { useGameStore } from '../Stores/GameStore';
+import IngredientModel from './IngredientModel';
+import { ingredientRaycast } from './ingredientHitArea';
 
 const roundArray = arr => arr.map(value => Math.round(value * 100) / 100 || 0);
 
@@ -53,14 +54,8 @@ export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
     }
   });
   return <group ref={group} position={cords}>
-    <mesh onClick={event => { event.stopPropagation(); onToggle(); }}>
-      <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
-      <meshStandardMaterial ref={material} color={color} transparent />
-      {isSelected && <mesh scale={1.08} raycast={() => null}>
-        <boxGeometry args={[brewing.ingredientSize, brewing.ingredientSize, brewing.ingredientSize]} />
-        <meshBasicMaterial color={theme.colors.white} side={THREE.BackSide} />
-      </mesh>}
-    </mesh>
+    <IngredientModel id={id} color={color} selected={isSelected} materialRef={material} raycast={ingredientRaycast}
+      onClick={event => { event.stopPropagation(); onToggle(); }} />
     {showHint && <Html center position={[0, -brewing.ingredientSize * .5 - .36, 0]} style={{ pointerEvents: 'none' }}>
       <SpellHint spellId={following ? brewing.dropSpell : brewing.liftSpell}
         labelKey={following ? 'brewing.drop' : 'brewing.lift'} />
