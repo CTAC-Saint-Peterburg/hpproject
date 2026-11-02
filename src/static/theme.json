@@ -156,7 +156,11 @@
     "menuLevels3Color": "#3357FF",
     "menuLevels4Color": "#FF33A8",
     "menuLevels5Color": "#F3FF33",
-    "menuLevels6Color": "#33FFF5"
+    "menuLevels6Color": "#33FFF5",
+    "defenseEnemiesGiantColor": "#9a7154",
+    "defenseEnemiesFlyerFireColor": "#ff9362",
+    "defenseEnemiesFlyerFrostColor": "#80cfff",
+    "defenseEnemiesSentinelColor": "#f2544b"
   },
   "fonts": {
     "body": "system-ui, sans-serif",

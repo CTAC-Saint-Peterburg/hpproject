@@ -45,6 +45,12 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-health i { display:block;height:100%;background:var(--color-health); }
 .arena-enemy-label { background:var(--color-enemy-label);padding:4px 7px;border-radius:6px;color:var(--color-white);display:flex;flex-direction:column;align-items:center;font-size: var(--type-tiny); }
 .arena-enemy-label .arena-health { min-width:55px;width:55px; } .arena-rune { width:28px;height:28px;color:var(--color-rune); }
+.arena-counter-runes { display:flex;align-items:center;justify-content:center;gap:2px; }
+.arena-enemy-status { max-width:180px;text-align:center;line-height:1.2; }
+.arena-enemy-windup { outline:1px solid var(--color-burning-enemy); }
+.arena-projectile-label { display:flex;align-items:center;gap:5px;padding:2px;border-radius:5px;background:var(--color-enemy-label);color:var(--color-rune);font-size:var(--type-tiny); }
+.arena-projectile-selected { padding:5px;outline:1px solid var(--color-enemy-selected);max-width:200px; }
+.arena-projectile-label span { max-width:160px;line-height:1.2; }
 .arena-coin-face { font-size: var(--type-coin);filter:drop-shadow(0 0 8px var(--color-coin-glow)); }
 .arena-hints { position:absolute;left:16px;top:110px;max-width:290px;background:var(--color-arena-hint);padding:10px;border-radius:8px;pointer-events:none;font-size: var(--type-hint); }
 .arena-hints p { margin:5px 0; } .arena-hints span { display:block; }
@@ -87,3 +93,9 @@ button:disabled { opacity: .45; cursor: default; }
 .pot-rune-heat { color: var(--color-spell-effects-spells1-color); }
 .pot-rune-cool { color: var(--color-spell-effects-spells2-color); }
 .pot-rune-stir { color: var(--color-spell-effects-spells5-color); }
+.arena-wallet { white-space: nowrap; padding: 3px 6px; border-radius: 6px; transform-origin: center; }
+.arena-wallet-collected { animation: wallet-collected .4s ease-out; }
+@keyframes wallet-collected { 0% { transform: scale(1.12); background: var(--color-coin-panel); color: var(--color-coin-glow); } 100% { transform: scale(1); } }
+.arena-coin-hint .spell-hint { flex: 0 0 34px; }
+.arena-coin-result { font-size: var(--type-hint); box-shadow: 0 2px 12px var(--color-shadow-medium); }
+@media (prefers-reduced-motion: reduce) { .arena-wallet-collected { animation: none; } }

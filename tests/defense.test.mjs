@@ -8,7 +8,9 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const config=JSON.parse(read('src/static/defense.json'));
 const potions=JSON.parse(read('src/static/potions.json'));
 let source=read('src/modules/Defense/defenseState.js')
- .replace("'../../static/themedConfigs'", JSON.stringify(new URL('../src/static/themedConfigs.js',import.meta.url).href));
+ .replace(/from '([^']+)'/g,(statement,specifier)=>specifier.startsWith('.')
+  ? 'from '+JSON.stringify(new URL(specifier+(specifier.endsWith('.js')?'':'.js'),new URL('../src/modules/Defense/defenseState.js',import.meta.url)).href)
+  : statement);
 const {defenseState}=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
 function fixture(random=()=>.99, realProfile=null){
  const profile=realProfile||{potionInventory:addPotionInventory(addPotionInventory(addPotionInventory({},['frost','flame','echo','healing']),['frost','flame','echo','healing']),['frost','flame','echo','healing']),stones:0,mageCards:{},entries:0,
@@ -56,9 +58,10 @@ test('coin resolves once, doubles or clears points, keeps currency and auto adva
   f.store.setState({phase:'clear',score:150,enemies:[],queue:[]});f.profile.stones=40;
   assert.equal(f.s().cast(1),false);f.s().select('coin');
   assert.equal(f.s().cast(5),true);assert.equal(f.s().coinResult,heads);
-  assert.equal(f.s().score,heads?300:0);assert.equal(f.s().cast(5),false);assert.equal(f.profile.stones,40);
+  assert.equal(f.s().score,150);assert.equal(f.s().cast(5),false);assert.equal(f.profile.stones,40);
   assert.equal(f.s().fx.spellId,5);assert.deepEqual(f.s().fx.target,[0,1.6,2.3]);
-  f.step(2);assert.equal(f.s().phase,'wave');assert.equal(f.s().wave,1);assert.equal(f.profile.entries,1);
+  f.step(f.s().coinToss.duration+.05);assert.equal(f.s().coinResolved,true);assert.equal(f.s().score,heads?300:0);
+  f.step(config.coin.resultSeconds+.1);assert.equal(f.s().phase,'wave');assert.equal(f.s().wave,1);assert.equal(f.profile.entries,1);
  }
 });
 test('rage attacks, criticals, special DOT and opposite cleansing spells',()=>{

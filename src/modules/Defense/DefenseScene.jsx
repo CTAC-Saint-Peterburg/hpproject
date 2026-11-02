@@ -1,51 +1,23 @@
 import { theme } from '../../static/theme';
 import { useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Html } from '@react-three/drei';
-import { BackSide, Vector3 } from 'three';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Vector3 } from 'three';
 import { useTranslation } from 'react-i18next';
 import { useDefenseStore } from './DefenseStore';
 import { config, potionTypes } from './defenseState';
 import { useGameStore } from '../Stores/GameStore';
 import { FrameCounter } from '../GameHud';
 import { recognizeGesture } from '../Recognaizer/recognaizer';
-import { spellLessons } from '../../static/spellLessons';
 import ArenaHandWand from './ArenaHandWand';
 import { settings } from '../Wand/effectSettings';
 import { useCheatUiStore } from '../Cheats/cheatUiStore';
 import CastleRoom from '../Room/CastleRoom';
-
-function Camera(){
- const {camera,size}=useThree();
- useEffect(()=>{
-  const scale=Math.max(1,1.35/(size.width/size.height));
-  camera.position.set(0,12*scale,11*scale);camera.lookAt(0,0,0);camera.updateProjectionMatrix();
- },[camera,size]);
- return null;
-}
-function Rune({id}){
- const lesson=spellLessons.find(item=>item.id===id);
- return <svg className="arena-rune" viewBox="0 0 100 100" aria-hidden="true"><path
- d={lesson.points.map(([x,y],i)=>(i?'L':'M')+x*100+','+y*100).join(' ')}
- fill="none" stroke="currentColor" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round"/></svg>;
-}
-function Enemy({enemy,selected,time}){
- const base=config.enemies[enemy.type],rage=time<enemy.rageUntil;
- const color=enemy.frozenUntil>time?theme.colors.frozenEnemy:base.color;
- return <group position={[enemy.x,enemy.size*.6+enemy.y,enemy.z]}>
- <mesh scale={base.shape==='slime'?[enemy.size*1.3,enemy.size*.7,enemy.size]:[enemy.size,enemy.size,enemy.size]}
- onClick={e=>{e.stopPropagation();useDefenseStore.getState().select(enemy.id);}}>
- {base.shape==='slime'?<sphereGeometry args={[1,16,12]}/>:<boxGeometry args={[1.4,1.2,1.4]}/>}
- <meshStandardMaterial color={color} emissive={enemy.burnUntil>time?theme.colors.burningEnemy:base.color} emissiveIntensity={rage?.7:.18} roughness={.3}/>
- {selected&&<mesh scale={1.1} raycast={()=>null}>
- {base.shape==='slime'?<sphereGeometry args={[1,16,12]}/>:<boxGeometry args={[1.4,1.2,1.4]}/>}
- <meshBasicMaterial color={theme.colors.enemySelected} side={BackSide}/></mesh>}
- </mesh>
- <Html center position={[0,enemy.size+0.45,0]} style={{pointerEvents:'none'}}>
- <div className="arena-enemy-label"><div className="arena-health"><i style={{width:100*enemy.hp/enemy.maxHp+'%'}}/></div>
- <span>{Math.ceil(enemy.hp)}/{Math.ceil(enemy.maxHp)} {rage?'💢':''}</span><Rune id={base.counterSpell}/></div></Html>
- </group>;
-}
+import ArenaCamera from './ArenaCamera';
+import ArenaCoin from './ArenaCoin';
+import ArenaRewards from './ArenaRewards';
+import { pendingRewardStones } from './rewardMotion';
+import ArenaEnemy from './ArenaEnemy';
+import ArenaProjectiles from './ArenaProjectiles';
 function Crystal({selected,effects}){
  const mesh=useRef();
  useFrame((_,delta)=>{if(mesh.current&&!useDefenseStore.getState().paused)mesh.current.rotation.y+=delta*.4;});
@@ -71,20 +43,11 @@ function ThrownPotion({fx,tip}){
  <mesh position={[0,.2,0]} raycast={()=>null}><cylinderGeometry args={[.07,.08,.15,8]}/><meshStandardMaterial color={theme.colors.potionStopper}/></mesh>
  </group>;
 }
-function Coin({selected,result,time}){
- const group=useRef();
- useFrame(()=>{if(group.current){const state=useDefenseStore.getState();const toss=state.phase==='coin'?Math.min(1,(time-state.coinEnd+config.coin.resultSeconds)/.8):0;group.current.rotation.set(toss*Math.PI*(result?6:7),time*.4,0);group.current.position.y=Math.sin(time*2)*.1;}});
- return <group position={[0,1.6,2.3]}>
- <mesh ref={group} onClick={e=>{e.stopPropagation();useDefenseStore.getState().select('coin');}}>
- <cylinderGeometry args={[.6,.6,.13,32]}/><meshStandardMaterial color={selected?theme.colors.coinSelected:theme.colors.coin} metalness={.8} roughness={.2}/>
- </mesh><Html center position={[0,.7,0]} style={{pointerEvents:'none'}}><span className="arena-coin-face">{result===null?'🪙':result?'🧙':'😞'}</span></Html>
- </group>;
-}
-function Board(){
+function Board({walletRef}){
  const s=useDefenseStore();
  const tip=useRef(new Vector3());
  const w=config.field.width,d=config.field.depth;
- return <><Camera/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
+ return <><ArenaCamera/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
  <directionalLight position={[4,10,6]} intensity={2.2}/><FrameCounter/>
  <CastleRoom variant="arena" lighting={false} furniture={false}/>
  <mesh position={[0,-.18,0]}><boxGeometry args={[w,.35,d]}/><meshStandardMaterial color={theme.colors.arenaWood} roughness={.85}/></mesh>
@@ -93,8 +56,11 @@ function Board(){
  <mesh position={[sign*(w/2+.1),.1,0]}><boxGeometry args={[.2,.5,d+.4]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh>
  <mesh position={[0,.1,sign*(d/2+.1)]}><boxGeometry args={[w,.5,.2]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh></group>)}
  <Crystal selected={s.selected==='crystal'} effects={s.crystalEffects}/>
- {s.enemies.map(enemy=><Enemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time}/>)}
- {['clear','coin'].includes(s.phase)&&<Coin selected={s.coinSelected} result={s.coinResult} time={s.time}/>}
+ {s.enemies.map(enemy=><ArenaEnemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time}/>)}
+ <ArenaProjectiles projectiles={s.projectiles} selected={s.selected} time={s.time}/>
+ {['clear','coin'].includes(s.phase)&&<ArenaCoin selected={s.coinSelected} result={s.coinResult} time={s.time}
+   toss={s.coinToss} startedAt={s.coinStartedAt} resolved={s.coinResolved}/>}
+ <ArenaRewards events={s.rewardEvents} time={s.time} paused={s.paused} walletRef={walletRef}/>
  <ArenaHandWand tip={tip}/>{s.fx?.kind==='potion'&&<ThrownPotion key={s.fx.id} fx={s.fx} tip={tip}/>}
  </>;
 }
@@ -104,6 +70,8 @@ export default function DefenseScene(){
  const showFps=useCheatUiStore(s=>s.showFps);
  const [debug,setDebug]=useState(false),[wave,setWave]=useState(1),[enemyType,setEnemyType]=useState('fire');
  const draw=useRef(null),[stroke,setStroke]=useState([]);
+ const walletRef=useRef(null);
+ const pendingStones=pendingRewardStones(s.rewardEvents,s.time);
  useEffect(()=>{
   const timer=setInterval(()=>useDefenseStore.getState().tick(Date.now()),50);
   const key=e=>{
@@ -113,7 +81,8 @@ export default function DefenseScene(){
    if(e.code==='KeyP'&&!e.altKey)state.setPaused(!state.paused);
    if(e.code==='F9'){e.preventDefault();setDebug(value=>!value);}
    if(e.altKey&&e.shiftKey){
-    const type={Digit1:'fire',Digit2:'frost',Digit3:'moss'}[e.code];
+    const digit=/^Digit([1-9])$/.exec(e.code);
+    const type=digit?Object.keys(config.enemies)[Number(digit[1])-1]:null;
     if(type){e.preventDefault();state.debugSpawn(type);}
    }
   };
@@ -129,25 +98,27 @@ export default function DefenseScene(){
  }} onPointerMove={e=>{if(draw.current?.id!==e.pointerId)return;const samples=e.nativeEvent.getCoalescedEvents?.();if(samples?.length)for(const sample of samples)draw.current.points.push(point(sample,e.currentTarget));else draw.current.points.push(point(e));setStroke([...draw.current.points]);}}
  onPointerUp={e=>{if(draw.current?.id!==e.pointerId)return;const rect=e.currentTarget.getBoundingClientRect();const points=[...draw.current.points,point(e)];draw.current=null;setStroke([]);const spell=recognizeGesture(points,{aspectRatio:rect.width/rect.height});if(spell)useDefenseStore.getState().cast(spell);}}
  onPointerCancel={()=>{draw.current=null;setStroke([]);}}>
- <Canvas camera={{position:[0,12,11],fov:50}}><Board/></Canvas>
+ <Canvas camera={{position:[0,12,11],fov:50}}><Board walletRef={walletRef}/></Canvas>
  <svg className="arena-gesture" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d={stroke.map((p,i)=>(i?'L':'M')+(p.x+1)*50+','+(1-p.y)*50).join(' ')} fill="none" stroke={settings.drawing.color} strokeWidth={settings.drawing.lineWidth} opacity={settings.drawing.opacity} vectorEffect="non-scaling-stroke"/></svg>
  </div>
  <header className="arena-top"><strong>{t('arena.wave',{wave:s.wave+1})}</strong>
  <div><span>{t('arena.crystal')} {Math.ceil(s.hp)}/{config.crystal.maxHp}</span><div className="arena-health"><i style={{width:100*s.hp/config.crystal.maxHp+'%'}}/></div></div>
- <span>{t('arena.points',{score:s.score})}</span><span>💎 {stones} (+{s.runStones})</span>
+ <span>{t('arena.points',{score:s.score})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
+   className={s.rewardCollectedSerial?'arena-wallet arena-wallet-collected':'arena-wallet'} aria-live="polite">
+   💎 {Math.max(0,stones-pendingStones)} (+{Math.max(0,s.runStones-pendingStones)})</span>
  <button onClick={()=>s.setPaused(!s.paused)}>{t(s.paused?'arena.resume':'arena.pause')}</button><button onClick={s.exit}>{t('menu.return')}</button></header>
  {showFps&&<div className="fps">{fps}</div>}
  <aside className="arena-hints"><p>{t(s.message)}</p>
  <p>{t('arena.enemiesLeft',{count:s.enemies.length+s.queue.length})}</p>
+ {s.projectiles.length>0&&<p>{t('arena.projectilesLeft',{count:s.projectiles.length})}</p>}
  {Object.entries(s.crystalEffects).map(([kind,effect])=><span key={kind}>{kind==='burn'?'🔥':'❄️'} {t('time.seconds',{value:Math.ceil(effect.until-s.time)})} · {t('arena.cleanse')}</span>)}
  {s.debugUsed&&<p>{t('arena.debug')}</p>}</aside>
  <footer className="arena-potions">{potionTypes.filter(p=>s.inventory[p.id]).map(p=><button key={p.id} disabled={s.phase!=='wave'||s.paused} className={s.pendingPotion===p.id?'chosen':''} onClick={()=>s.usePotion(p.id)}>
  {p.icon} {t(p.name)} × {s.inventory[p.id]}</button>)}
  {potionTypes.filter(p=>s.buffs[p.effect]>s.time).map(p=><span key={p.id}>{p.icon} {t('time.seconds',{value:Math.ceil(s.buffs[p.effect]-s.time)})}</span>)}</footer>
- {s.phase==='clear'&&<aside className="arena-between"><h2>{t(s.debugUsed?'arena.debug':'arena.waveClear')}</h2><p>{t('arena.coinRules')}</p>
+ {s.phase==='clear'&&!s.coinSelected&&<aside className="arena-between"><h2>{t(s.debugUsed?'arena.debug':'arena.waveClear')}</h2><p>{t('arena.coinRules')}</p>
  <p>{t('arena.coinChance',{value:Math.round(config.coin.winChance*100)})}</p>
  <button onClick={()=>s.select('coin')}>{t('arena.selectCoin')}</button><button onClick={s.next}>{t(s.wave===9?'arena.finish':'arena.next')}</button></aside>}
- {s.phase==='coin'&&<aside className="arena-between"><h2>{t(s.message)}</h2><p>{s.coinResult?'🧙':'😞'}</p></aside>}
  {s.paused&&!['won','lost'].includes(s.phase)&&<div className="result"><h2>{t('arena.paused')}</h2><button onClick={()=>s.setPaused(false)}>{t('arena.resume')}</button><button onClick={s.exit}>{t('menu.return')}</button></div>}
  {['won','lost'].includes(s.phase)&&<div className="result"><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2><p>{t('arena.points',{score:s.score})}</p>
  <p>{t('arena.earned',{stones:s.runStones})}</p><button onClick={s.exit}>{t('arena.restock')}</button></div>}
