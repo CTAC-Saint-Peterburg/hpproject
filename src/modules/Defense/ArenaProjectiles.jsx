@@ -5,7 +5,7 @@ import { useDefenseStore } from './DefenseStore';
 import { theme } from '../../static/theme';
 import ArenaRune from './ArenaRune';
 
-function Projectile({ shot, selected, time }) {
+function Projectile({ shot, selected, time, gestureRef }) {
   const { t } = useTranslation();
   const size = shot.size ?? .23;
   const color = config.enemies[shot.type]?.color || (shot.element === 'freeze' ? theme.colors.frozenEnemy : theme.colors.burningEnemy);
@@ -26,7 +26,7 @@ function Projectile({ shot, selected, time }) {
       </mesh>}
     </group>
     {shot.interceptable && <>
-      <mesh onClick={event => { event.stopPropagation(); useDefenseStore.getState().select(shot.id); }}>
+      <mesh onClick={event => { if (gestureRef?.current || event.delta > 4) return; event.stopPropagation(); useDefenseStore.getState().select(shot.id); }}>
         <boxGeometry args={[hitSize, hitSize, hitSize]} />
         {/* Hidden material skips drawing while preserving the generous raycast volume. */}
         <meshBasicMaterial visible={false} />
@@ -41,6 +41,6 @@ function Projectile({ shot, selected, time }) {
   </group>;
 }
 
-export default function ArenaProjectiles({ projectiles = [], selected, time }) {
-  return <>{projectiles.map(shot => <Projectile key={shot.id} shot={shot} selected={selected === shot.id} time={time} />)}</>;
+export default function ArenaProjectiles({ projectiles = [], selected, time, gestureRef }) {
+  return <>{projectiles.map(shot => <Projectile key={shot.id} shot={shot} selected={selected === shot.id} time={time} gestureRef={gestureRef} />)}</>;
 }

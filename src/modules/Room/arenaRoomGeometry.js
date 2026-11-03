@@ -1,17 +1,19 @@
 import { BufferGeometry, Float32BufferAttribute, Frustum, Matrix4, PerspectiveCamera, Plane, Ray, Vector3 } from 'three';
 import { createBrewingRoomGeometry, ROOM } from './roomGeometry.js';
+import { arenaBaseCameraPose } from '../Defense/arenaLayout.js';
+import { defenseConfig } from '../../static/themedConfigs.js';
 
 const ARENA_FLOOR_Y = -.4;
 const COVERAGE_MARGIN = .35;
 const CULL_MARGIN = .05;
 
-// Mirrors the arena's existing camera without mutating its live camera or board.
+// Uses the same framing helper as the arena without mutating its live camera.
 function createLayoutCamera(aspect) {
   const safeAspect = Number.isFinite(aspect) && aspect > 0 ? aspect : 16 / 9;
-  const scale = Math.max(1, 1.35 / safeAspect);
+  const pose = arenaBaseCameraPose(safeAspect);
   const camera = new PerspectiveCamera(50, safeAspect, .1, 1000);
-  camera.position.set(0, 12 * scale, 11 * scale);
-  camera.lookAt(0, 0, 0);
+  camera.position.fromArray(pose.position);
+  camera.lookAt(...pose.target);
   camera.updateProjectionMatrix();
   camera.updateMatrixWorld(true);
   return camera;
@@ -22,7 +24,9 @@ function layoutForCamera(camera) {
   const point = new Vector3();
   const direction = new Vector3();
   const floor = new Plane(new Vector3(0, 1, 0), -ARENA_FLOOR_Y);
-  const back = new Plane(new Vector3(0, 0, 1), -ROOM.backZ);
+  const backZ = Math.min(ROOM.backZ, -defenseConfig.field.depth / 2 - 1.5);
+  const backOffset = backZ - ROOM.backZ;
+  const back = new Plane(new Vector3(0, 0, 1), -backZ);
 
   direction.set(0, -1, .5).unproject(camera).sub(camera.position).normalize();
   ray.set(camera.position, direction);
@@ -40,6 +44,8 @@ function layoutForCamera(camera) {
     frontZ,
     wallTopY,
     floorY: ARENA_FLOOR_Y,
+    backZ,
+    backOffset,
     cameraPosition: camera.position.toArray(),
   };
 }
@@ -107,7 +113,7 @@ export function createArenaRoomGeometry(aspect) {
   const layout = layoutForCamera(camera);
   const source = createBrewingRoomGeometry(layout.halfWidth, {
     variant: 'arena',
-    frontZ: layout.frontZ,
+    frontZ: layout.frontZ - layout.backOffset,
     wallTopY: layout.wallTopY,
     floorY: layout.floorY,
   });
@@ -115,7 +121,10 @@ export function createArenaRoomGeometry(aspect) {
   const frustum = new Frustum().setFromProjectionMatrix(projectionView);
   const geometry = {};
   try {
-    for (const [name, part] of Object.entries(source)) geometry[name] = pruneInvisibleTriangles(part, frustum);
+    for (const [name, part] of Object.entries(source)) {
+      part.translate(0, 0, layout.backOffset);
+      geometry[name] = pruneInvisibleTriangles(part, frustum);
+    }
   } catch (error) {
     Object.values(geometry).forEach(part => part.dispose());
     throw error;

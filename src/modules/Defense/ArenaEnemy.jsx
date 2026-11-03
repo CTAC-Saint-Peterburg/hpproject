@@ -7,7 +7,7 @@ import { theme } from '../../static/theme';
 import ArenaRune from './ArenaRune';
 import { getArenaEnemyGeometry } from './arenaEnemyGeometry';
 
-export default function ArenaEnemy({ enemy, selected, time }) {
+export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
   const { t } = useTranslation();
   const base = config.enemies[enemy.type];
   if (!base) return null;
@@ -26,7 +26,7 @@ export default function ArenaEnemy({ enemy, selected, time }) {
   const health = Math.max(0, Math.min(100, 100 * enemy.hp / Math.max(1, enemy.maxHp)));
   return <group position={[enemy.x, enemy.size * .6 + enemy.y, enemy.z]}>
     <mesh geometry={geometry} scale={scale} rotation={[0, 0, disoriented ? Math.sin(time * 5) * .13 : 0]}
-      onClick={event => { event.stopPropagation(); useDefenseStore.getState().select(enemy.id); }}>
+      onClick={event => { if (gestureRef?.current || event.delta > 4) return; event.stopPropagation(); useDefenseStore.getState().select(enemy.id); }}>
       <meshStandardMaterial color={color} emissive={frozen ? theme.colors.frozenEnemy : enemy.burnUntil > time ? theme.colors.burningEnemy : base.color}
         emissiveIntensity={disoriented ? .08 : pulse} roughness={.4} flatShading={shape !== 'slime'} />
       {selected && <mesh geometry={geometry} scale={1.1} raycast={() => null}>

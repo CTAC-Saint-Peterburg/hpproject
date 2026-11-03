@@ -24,3 +24,17 @@ test('common renderer stays active between waves, freezes on pause and ignores p
   assert.equal(arenaEffectState({phase:'wave',fx:{kind:'potion',id:1}}).spellCast,null);
   assert.equal(arenaEffectState({phase:'clear',fx:null}).spellCast,null);
 });
+
+test('a potion impact reuses a world-space spell burst with its own recipe color', () => {
+  const fx={kind:'potionImpact',id:12,time:4.5,spellId:5,color:'#7fd083',target:[0,.21,2]};
+  const event=arenaEffectState({phase:'clear',paused:false,fx}).spellCast;
+  assert.equal(event.sequence,12);assert.equal(event.at,4.5);assert.equal(event.spellId,5);
+  assert.equal(event.color,fx.color);assert.deepEqual(event.target.position,[0,.21,2]);
+  fx.target[1]=10;assert.equal(event.target.position[1],.21);
+});
+
+test('splash wand casts reuse the existing horizontal ring at their configured radius', () => {
+  const event=arenaEffectState({phase:'wave',fx:{kind:'cast',id:20,time:2,spellId:2,target:[2,.5,1],splashRadius:2.2}}).spellCast;
+  assert.equal(event.flashRingRadius,2.2);assert.deepEqual(event.target.rotation,[-Math.PI/2,0,0]);
+  assert.deepEqual(event.target.position,[2,.5,1]);
+});

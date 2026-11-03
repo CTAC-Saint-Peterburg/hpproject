@@ -80,17 +80,20 @@ test('rage attacks, criticals, special DOT and opposite cleansing spells',()=>{
 test('potions are single use, echo hits multiple types, heal is thrown and capped',()=>{
  const f=fixture();f.s().start(['frost','echo','healing']);
  assert.equal(f.s().usePotion('healing'),true);assert.equal(f.s().pendingPotion,'healing');
- f.s().select('crystal');assert.equal(f.s().inventory.healing,1);
- f.store.setState({hp:80});f.s().select('crystal');
- assert.equal(f.s().hp,100);assert.equal(f.s().inventory.healing,0);assert.equal(f.s().fx.kind,'potion');
+ f.s().select('crystal');assert.equal(f.s().inventory.healing,1);assert.equal(f.s().pendingPotion,null);
+ f.store.setState({hp:80});f.s().usePotion('healing');assert.equal(f.s().cast(3),true);
+ assert.equal(f.s().hp,80);assert.equal(f.s().inventory.healing,0);assert.equal(f.s().potionFlight.potionId,'healing');
+ f.step(config.visuals.potionFlightSeconds+.05);assert.equal(f.s().hp,100);assert.equal(f.s().potionFlight,null);
  assert.equal(f.s().usePotion('healing'),false);
- f.s().usePotion('frost');assert.equal(f.s().usePotion('frost'),false);
- f.s().usePotion('echo');f.store.setState({inventory:{...f.s().inventory,flame:1}});
- f.s().usePotion('flame');
+ f.s().usePotion('frost');assert.equal(f.s().cast(3),true);assert.equal(f.s().usePotion('frost'),false);
+ f.step(config.visuals.potionFlightSeconds+.05);
+ f.s().usePotion('echo');assert.equal(f.s().cast(3),true);f.step(config.visuals.potionFlightSeconds+.05);
+ f.store.setState({inventory:{...f.s().inventory,flame:1}});
+ f.s().usePotion('flame');assert.equal(f.s().cast(3),true);f.step(config.visuals.potionFlightSeconds+.05);
  const enemies=['fire','frost','moss'].map((type,i)=>({...f.s().enemies[0],id:'test-'+i,type,x:2+i*.3,z:0,hp:100,maxHp:100}));
- f.store.setState({enemies,queue:[],selected:'test-0',time:1});
+ f.store.setState({enemies,queue:[],selected:'test-0',time:f.s().time+1});
  f.s().cast(9);
- for(const e of f.s().enemies){assert.equal(e.hp,76);assert.ok(e.frozenUntil>1);assert.ok(e.burnUntil>1);}
+ for(const e of f.s().enemies){assert.equal(e.hp,76);assert.ok(e.frozenUntil>f.s().time);assert.ok(e.burnUntil>f.s().time);}
  const frozen={...f.s().enemies[0],x:1.4,z:0,rageUntil:100,rageAt:100,nextAttack:0,specialChance:1};
  f.store.setState({enemies:[frozen],hp:100});f.step(.2);
  assert.equal(f.s().hp,100);assert.equal(f.s().enemies[0].x,1.4);
@@ -160,8 +163,9 @@ test('seeded full run can clear all ten waves using counterspells, buffs and hea
   f.step(.05);
   if(f.s().phase==='clear'){f.s().next();continue;}
   if(f.s().phase!=='wave')continue;
-  if(f.s().hp<65&&f.s().inventory.healing){f.s().usePotion('healing');f.s().select('crystal');}
-  if(f.s().wave>=5){if(f.s().inventory.echo)f.s().usePotion('echo');if(f.s().inventory.frost)f.s().usePotion('frost');}
+  if(f.s().potionFlight)continue;
+  const potion=f.s().hp<65&&f.s().inventory.healing?'healing':f.s().wave>=5&&f.s().inventory.echo?'echo':f.s().wave>=5&&f.s().inventory.frost?'frost':null;
+  if(potion&&f.s().time-f.s().lastCast>config.player.castCooldown){f.s().usePotion(potion);assert.equal(f.s().cast(3),true);continue;}
   if(f.s().time-f.s().lastCast<=config.player.castCooldown)continue;
   if(Object.keys(f.s().crystalEffects).length){f.s().select('crystal');f.s().cast(f.s().crystalEffects.burn?2:1);}
   else{

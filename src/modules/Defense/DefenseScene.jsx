@@ -1,6 +1,6 @@
 import { theme } from '../../static/theme';
 import { useEffect, useRef, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { Vector3 } from 'three';
 import { useTranslation } from 'react-i18next';
 import { useDefenseStore } from './DefenseStore';
@@ -18,50 +18,36 @@ import ArenaRewards from './ArenaRewards';
 import { pendingRewardStones } from './rewardMotion';
 import ArenaEnemy from './ArenaEnemy';
 import ArenaProjectiles from './ArenaProjectiles';
-function Crystal({selected,effects}){
- const mesh=useRef();
- useFrame((_,delta)=>{if(mesh.current&&!useDefenseStore.getState().paused)mesh.current.rotation.y+=delta*.4;});
- const color=effects.burn?theme.colors.crystalBurn:effects.freeze?theme.colors.crystalFreeze:theme.colors.crystal;
- return <group><mesh position={[0,.18,0]}><cylinderGeometry args={[1.1,1.3,.35,8]}/><meshStandardMaterial color={theme.colors.crystalBase} metalness={.5} roughness={.4}/></mesh>
- <mesh ref={mesh} position={[0,1.1,0]} onClick={e=>{e.stopPropagation();useDefenseStore.getState().select('crystal');}}>
- <octahedronGeometry args={[.85,0]}/><meshStandardMaterial color={color} emissive={color} emissiveIntensity={.8} metalness={.3} roughness={.1}/>
- {selected&&<mesh scale={1.13} raycast={()=>null}><octahedronGeometry args={[.85,0]}/><meshBasicMaterial color={theme.colors.crystalSelected} wireframe/></mesh>}
- </mesh><pointLight position={[0,2,0]} color={color} intensity={10} distance={8}/></group>;
-}
-function ThrownPotion({fx,tip}){
- const object=useRef(),from=useRef(new Vector3()),captured=useRef(false);
- useFrame(()=>{
-  if(!object.current)return;
-  if(!captured.current){from.current.copy(tip.current);captured.current=true;}
-  const age=useDefenseStore.getState().time-fx.time;
-  const progress=Math.max(0,Math.min(1,age/config.visuals.potionFlightSeconds));
-  object.current.visible=progress<1;
-  object.current.position.set(from.current.x*(1-progress),from.current.y+(1.1-from.current.y)*progress+Math.sin(progress*Math.PI)*.5,from.current.z*(1-progress));
- });
- return <group ref={object}>
- <mesh raycast={()=>null}><sphereGeometry args={[.18,12,8]}/><meshStandardMaterial color={fx.color} transparent opacity={.8}/></mesh>
- <mesh position={[0,.2,0]} raycast={()=>null}><cylinderGeometry args={[.07,.08,.15,8]}/><meshStandardMaterial color={theme.colors.potionStopper}/></mesh>
- </group>;
-}
-function Board({walletRef}){
+import ArenaPotions from './ArenaPotions';
+import ArenaCrystal from './ArenaCrystal';
+import { arenaBaseCameraPose, arenaFrontBorder } from './arenaLayout';
+
+const initialCameraPosition=arenaBaseCameraPose(16/9).position;
+
+function Board({walletRef,gestureRef}){
  const s=useDefenseStore();
  const tip=useRef(new Vector3());
  const w=config.field.width,d=config.field.depth;
+ const front=arenaFrontBorder();
  return <><ArenaCamera/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
  <directionalLight position={[4,10,6]} intensity={2.2}/><FrameCounter/>
  <CastleRoom variant="arena" lighting={false} furniture={false}/>
+ <group onClick={event=>{if(gestureRef.current||event.delta>4)return;event.stopPropagation();useDefenseStore.getState().select(null);}}>
  <mesh position={[0,-.18,0]}><boxGeometry args={[w,.35,d]}/><meshStandardMaterial color={theme.colors.arenaWood} roughness={.85}/></mesh>
  {Array.from({length:10},(_,i)=><mesh key={i} position={[0,.005,-d/2+i*d/10]}><boxGeometry args={[w,.01,.025]}/><meshBasicMaterial color={theme.colors.arenaWoodLine}/></mesh>)}
  {[-1,1].map(sign=><group key={sign}>
- <mesh position={[sign*(w/2+.1),.1,0]}><boxGeometry args={[.2,.5,d+.4]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh>
- <mesh position={[0,.1,sign*(d/2+.1)]}><boxGeometry args={[w,.5,.2]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh></group>)}
- <Crystal selected={s.selected==='crystal'} effects={s.crystalEffects}/>
- {s.enemies.map(enemy=><ArenaEnemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time}/>)}
- <ArenaProjectiles projectiles={s.projectiles} selected={s.selected} time={s.time}/>
+ <mesh position={[sign*(w/2+.1),.1,(front.depth-.2)/2]}><boxGeometry args={[.2,.5,d+front.depth+.2]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh></group>)}
+ <mesh position={[0,.1,-d/2-.1]}><boxGeometry args={[w,.5,.2]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder}/></mesh>
+ <mesh position={[0,front.y,front.z]}><boxGeometry args={[front.width,front.height,front.depth]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder} roughness={.8}/></mesh>
+ </group>
+ <ArenaPotions gestureRef={gestureRef}/>
+ <ArenaCrystal selected={s.selected==='crystal'} effects={s.crystalEffects} gestureRef={gestureRef}/>
+ {s.enemies.map(enemy=><ArenaEnemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time} gestureRef={gestureRef}/>)}
+ <ArenaProjectiles projectiles={s.projectiles} selected={s.selected} time={s.time} gestureRef={gestureRef}/>
  {['clear','coin'].includes(s.phase)&&<ArenaCoin selected={s.coinSelected} result={s.coinResult} time={s.time}
-   toss={s.coinToss} startedAt={s.coinStartedAt} resolved={s.coinResolved}/>}
+   toss={s.coinToss} startedAt={s.coinStartedAt} resolved={s.coinResolved} gestureRef={gestureRef}/>}
  <ArenaRewards events={s.rewardEvents} time={s.time} paused={s.paused} walletRef={walletRef}/>
- <ArenaHandWand tip={tip}/>{s.fx?.kind==='potion'&&<ThrownPotion key={s.fx.id} fx={s.fx} tip={tip}/>}
+ <ArenaHandWand tip={tip}/>
  </>;
 }
 export default function DefenseScene(){
@@ -70,8 +56,10 @@ export default function DefenseScene(){
  const showFps=useCheatUiStore(s=>s.showFps);
  const [debug,setDebug]=useState(false),[wave,setWave]=useState(1),[enemyType,setEnemyType]=useState('fire');
  const draw=useRef(null),[stroke,setStroke]=useState([]);
+ const gestureRef=useRef(false);
  const walletRef=useRef(null);
  const pendingStones=pendingRewardStones(s.rewardEvents,s.time);
+ const activePotions=potionTypes.filter(potion=>s.buffs[potion.effect]>s.time);
  useEffect(()=>{
   const timer=setInterval(()=>useDefenseStore.getState().tick(Date.now()),50);
   const key=e=>{
@@ -94,11 +82,24 @@ export default function DefenseScene(){
  return <section className="defense-game">
  <div className="defense-canvas" onPointerDown={e=>{
   if(e.button!==0||e.isPrimary===false||draw.current||s.paused||!['wave','clear'].includes(s.phase))return;
-  e.target.setPointerCapture(e.pointerId);draw.current={id:e.pointerId,points:[point(e)]};setStroke([]);
- }} onPointerMove={e=>{if(draw.current?.id!==e.pointerId)return;const samples=e.nativeEvent.getCoalescedEvents?.();if(samples?.length)for(const sample of samples)draw.current.points.push(point(sample,e.currentTarget));else draw.current.points.push(point(e));setStroke([...draw.current.points]);}}
- onPointerUp={e=>{if(draw.current?.id!==e.pointerId)return;const rect=e.currentTarget.getBoundingClientRect();const points=[...draw.current.points,point(e)];draw.current=null;setStroke([]);const spell=recognizeGesture(points,{aspectRatio:rect.width/rect.height});if(spell)useDefenseStore.getState().cast(spell);}}
- onPointerCancel={()=>{draw.current=null;setStroke([]);}}>
- <Canvas camera={{position:[0,12,11],fov:50}}><Board walletRef={walletRef}/></Canvas>
+  gestureRef.current=false;
+  e.target.setPointerCapture(e.pointerId);draw.current={id:e.pointerId,points:[point(e)],lastX:e.clientX,lastY:e.clientY,distance:0};setStroke([]);
+ }} onPointerMove={e=>{
+  if(draw.current?.id!==e.pointerId)return;
+  const append=sample=>{const current=draw.current;current.distance+=Math.hypot(sample.clientX-current.lastX,sample.clientY-current.lastY);current.lastX=sample.clientX;current.lastY=sample.clientY;if(current.distance>8)gestureRef.current=true;current.points.push(point(sample,e.currentTarget));};
+  const samples=e.nativeEvent.getCoalescedEvents?.();if(samples?.length)for(const sample of samples)append(sample);else append(e);setStroke([...draw.current.points]);
+ }}
+ onPointerUp={e=>{
+  if(draw.current?.id!==e.pointerId)return;
+  const rect=e.currentTarget.getBoundingClientRect(),current=draw.current;
+  gestureRef.current=current.distance+Math.hypot(e.clientX-current.lastX,e.clientY-current.lastY)>8;
+  const points=[...current.points,point(e)];draw.current=null;setStroke([]);
+  const spell=recognizeGesture(points,{aspectRatio:rect.width/rect.height});if(spell)useDefenseStore.getState().cast(spell);
+ }}
+ onPointerCancel={()=>{gestureRef.current=true;draw.current=null;setStroke([]);}}>
+ <Canvas camera={{position:initialCameraPosition,fov:50}} onPointerMissed={event=>{
+  if(event.type==='click'&&!gestureRef.current)useDefenseStore.getState().select(null);
+ }}><Board walletRef={walletRef} gestureRef={gestureRef}/></Canvas>
  <svg className="arena-gesture" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d={stroke.map((p,i)=>(i?'L':'M')+(p.x+1)*50+','+(1-p.y)*50).join(' ')} fill="none" stroke={settings.drawing.color} strokeWidth={settings.drawing.lineWidth} opacity={settings.drawing.opacity} vectorEffect="non-scaling-stroke"/></svg>
  </div>
  <header className="arena-top"><strong>{t('arena.wave',{wave:s.wave+1})}</strong>
@@ -113,9 +114,7 @@ export default function DefenseScene(){
  {s.projectiles.length>0&&<p>{t('arena.projectilesLeft',{count:s.projectiles.length})}</p>}
  {Object.entries(s.crystalEffects).map(([kind,effect])=><span key={kind}>{kind==='burn'?'🔥':'❄️'} {t('time.seconds',{value:Math.ceil(effect.until-s.time)})} · {t('arena.cleanse')}</span>)}
  {s.debugUsed&&<p>{t('arena.debug')}</p>}</aside>
- <footer className="arena-potions">{potionTypes.filter(p=>s.inventory[p.id]).map(p=><button key={p.id} disabled={s.phase!=='wave'||s.paused} className={s.pendingPotion===p.id?'chosen':''} onClick={()=>s.usePotion(p.id)}>
- {p.icon} {t(p.name)} × {s.inventory[p.id]}</button>)}
- {potionTypes.filter(p=>s.buffs[p.effect]>s.time).map(p=><span key={p.id}>{p.icon} {t('time.seconds',{value:Math.ceil(s.buffs[p.effect]-s.time)})}</span>)}</footer>
+ {activePotions.length>0&&<footer className="arena-buffs">{activePotions.map(p=><span key={p.id}>{p.icon} {t(p.name)} · {t('time.seconds',{value:Math.ceil(s.buffs[p.effect]-s.time)})}</span>)}</footer>}
  {s.phase==='clear'&&!s.coinSelected&&<aside className="arena-between"><h2>{t(s.debugUsed?'arena.debug':'arena.waveClear')}</h2><p>{t('arena.coinRules')}</p>
  <p>{t('arena.coinChance',{value:Math.round(config.coin.winChance*100)})}</p>
  <button onClick={()=>s.select('coin')}>{t('arena.selectCoin')}</button><button onClick={s.next}>{t(s.wave===9?'arena.finish':'arena.next')}</button></aside>}

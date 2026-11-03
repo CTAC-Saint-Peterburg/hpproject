@@ -9,7 +9,7 @@ import { coinPose } from './coinMotion';
 import { theme } from '../../static/theme';
 import SpellHint from '../Pot/SpellHint';
 
-export default function ArenaCoin({ selected, result, time, toss, startedAt = 0, resolved = false }) {
+export default function ArenaCoin({ selected, result, time, toss, startedAt = 0, resolved = false, gestureRef }) {
   const { t } = useTranslation();
   const root = useRef(), visual = useRef(), displayTime = useRef(time);
   const geometries = getCoinGeometries();
@@ -22,6 +22,7 @@ export default function ArenaCoin({ selected, result, time, toss, startedAt = 0,
     visual.current.rotation.set(...pose.rotation);
   });
   return <group ref={root} position={[0, 1.6, 2.3]} onClick={event => {
+    if (gestureRef?.current || event.delta > 4) return;
     event.stopPropagation();
     if (!toss && !resolved) useDefenseStore.getState().select('coin');
   }}>

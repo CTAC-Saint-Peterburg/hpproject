@@ -4,14 +4,14 @@ import { Euler, Matrix4, PerspectiveCamera, Vector3 } from 'three';
 import { writeArenaCameraPose } from '../src/modules/Defense/coinCamera.js';
 import { getCoinGeometries } from '../src/modules/Defense/coinGeometry.js';
 import { createCoinToss, coinPose } from '../src/modules/Defense/coinMotion.js';
+import { arenaBaseCameraPose } from '../src/modules/Defense/arenaLayout.js';
 
-test('returning from coin focus restores the original arena framing exactly', () => {
+test('returning from coin focus restores the enlarged arena framing exactly', () => {
   const out = { position: [0, 0, 0], target: [0, 0, 0] };
   for (const aspect of [9 / 21, 9 / 16, 16 / 9, 32 / 9]) {
     writeArenaCameraPose(out, aspect, [.5, .12, 3], 1);
     writeArenaCameraPose(out, aspect, [.5, .12, 3], 0);
-    const scale = Math.max(1, 1.35 / aspect);
-    assert.deepEqual(out.position, [0, 12 * scale, 11 * scale]);
+    assert.deepEqual(out.position, arenaBaseCameraPose(aspect).position);
     assert.deepEqual(out.target, [0, 0, 0]);
   }
 });

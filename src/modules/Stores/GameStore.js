@@ -3,10 +3,26 @@ import { persist } from 'zustand/middleware';
 import missions from '../../static/missions.json';
 import { ENEMY_TYPES, ENEMY_FLIGHT_MS, ENEMY_SHOT_MS, PROJECTILE_FLIGHT_MS, isPotBlocked, randomSlimeSpells } from '../../static/enemies';
 import achievements from '../../static/achievements.json';
-import { shopItems } from '../../static/themedConfigs';
+import { shopItems, potionTypes } from '../../static/themedConfigs';
 import brewing from '../../static/brewing.json';
-import { addPotionInventory, consumePotionEntry, resolvePotionProfile } from './potionInventory';
+import { addPotionInventory, consumePotionEntry, resolvePotionProfile, POTION_IDS, POTION_QUALITIES } from './potionInventory';
 import { ingredientFlightSeconds } from '../Ingredients/ingredientAnimation';
+
+const equipmentTypes = ['wand', 'pot', 'crystal'];
+const defaultEquipment = Object.fromEntries(equipmentTypes.map(type => [type,
+  shopItems.find(item => item.type === type && item.default)?.id ?? type + '_default']));
+
+export function resolveEquipmentProfile(saved = {}) {
+  const validItems = new Map(shopItems.filter(item => equipmentTypes.includes(item.type)).map(item => [item.id, item]));
+  const previous = Array.isArray(saved?.ownedItems) ? saved.ownedItems : [];
+  const ownedItems = [...new Set([...Object.values(defaultEquipment), ...previous.filter(id => validItems.has(id))])];
+  const owned = new Set(ownedItems);
+  const equippedItems = Object.fromEntries(equipmentTypes.map(type => {
+    const id = saved?.equippedItems?.[type];
+    return [type, validItems.get(id)?.type === type && owned.has(id) ? id : defaultEquipment[type]];
+  }));
+  return { ownedItems, equippedItems };
+}
 
 export const useGameStore = create(persist((set, get) => ({
 
@@ -83,21 +99,36 @@ export const useGameStore = create(persist((set, get) => ({
     if (!/^mage_(10|[1-9])$/.test(id)) return;
     set(s => ({ mageCards: { ...s.mageCards, [id]: (s.mageCards[id] || 0) + 1 } }));
   },
-  ownedItems: ['wand_default', 'pot_default'],
-  equippedItems: { wand: 'wand_default', pot: 'pot_default' },
+  ...resolveEquipmentProfile(),
   buyItem: id => {
     const item = shopItems.find(entry => entry.id === id);
-    if (!item || !['wand','pot'].includes(item.type) || !Number.isFinite(item.price) || item.price < 0) return 'shop.invalid';
-    const s = get();
-    if (item.default || s.ownedItems.includes(id)) return 'shop.owned';
-    if (s.stones < item.price) return 'shop.insufficient';
-    set({ stones: s.stones - item.price, ownedItems: [...s.ownedItems, id] });
-    return 'shop.purchased';
+    if (!item || !equipmentTypes.includes(item.type) || !Number.isInteger(item.price) || item.price < 0) return 'shop.invalid';
+    let result;
+    set(s => {
+      if (item.default || s.ownedItems.includes(id)) { result = 'shop.owned'; return s; }
+      if (s.stones < item.price) { result = 'shop.insufficient'; return s; }
+      result = 'shop.purchased';
+      return { stones: s.stones - item.price, ownedItems: [...s.ownedItems, id] };
+    });
+    return result;
+  },
+  buyPotion: id => {
+    const potion = potionTypes.find(entry => entry.id === id);
+    const quality = potion?.purchaseQuality ?? 'basic';
+    if (!potion || !POTION_IDS.includes(id) || !Number.isInteger(potion.price) || potion.price < 0 || !POTION_QUALITIES.includes(quality)) return 'shop.invalid';
+    let result;
+    set(s => {
+      if (s.stones < potion.price) { result = 'shop.insufficient'; return s; }
+      result = 'shop.potionPurchased';
+      return { stones: s.stones - potion.price, potionInventory: addPotionInventory(s.potionInventory, [id], quality) };
+    });
+    return result;
   },
   equipItem: id => {
     const item = shopItems.find(entry => entry.id === id);
     const s = get();
-    if (!item || (!item.default && !s.ownedItems.includes(id))) return 'shop.notOwned';
+    if (!item || !equipmentTypes.includes(item.type)) return 'shop.invalid';
+    if (!item.default && !s.ownedItems.includes(id)) return 'shop.notOwned';
     set({ equippedItems: { ...s.equippedItems, [item.type]: id } });
     return 'shop.applied';
   },
@@ -297,7 +328,7 @@ export const useGameStore = create(persist((set, get) => ({
   },
 }), {
   name: 'hpproject-save-v1',
-  merge: (saved, current) => ({ ...current, ...saved, ...resolvePotionProfile(saved) }),
+  merge: (saved, current) => ({ ...current, ...saved, ...resolvePotionProfile(saved), ...resolveEquipmentProfile(saved) }),
   onRehydrateStorage: () => state => state?.markProfileInitialized(),
   partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed, tutorialProgress: s.tutorialProgress, ownedItems: s.ownedItems, equippedItems: s.equippedItems, potionInventory: s.potionInventory, mageCards: s.mageCards, firstVisitGranted: s.firstVisitGranted, fireHintSeen: s.fireHintSeen }),
 }));

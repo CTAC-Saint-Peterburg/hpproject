@@ -55,7 +55,13 @@ export function WandParticles({ tip, getEffectState = useGameStore.getState }) {
     const event = s.spellCast;
     if (event && event.sequence !== seen.current) {
       seen.current = event.sequence;
-      const profile = spellEffect(event.spellId);
+      const preset = spellEffect(event.spellId);
+      // Potion impacts share the same burst, ring and flash with their recipe color.
+      const profile = event.color ? { ...preset, burst: { ...preset.burst, color: event.color },
+        trail: { ...preset.trail, color: event.color }, flash: { ...preset.flash, color: event.color } } : preset;
+      if (Number.isFinite(event.flashRingRadius) && event.flashRingRadius > 0) {
+        profile.flash = { ...profile.flash, ringRadius: event.flashRingRadius, ringGrowth: 0 };
+      }
       const target = event.target?.kind === 'world' ? [...event.target.position] : event.target?.kind === 'enemy'
         ? enemyPosition(event.target.enemy, event.at, viewport.width, viewport.height)
         : event.target?.kind === 'pot' ? [0, 0, 0] : tip.current.toArray();

@@ -24,6 +24,19 @@ button:disabled { opacity: .45; cursor: default; }
 .shop-preview { height: 90px; display: grid; place-items: center; }
 .shop-preview-wand { display: block; width: 10px; height: 80px; border-radius: 5px; transform: rotate(35deg); border-top: 7px solid var(--color-wand-tip); }
 .shop-preview-pot { display: block; width: 72px; height: 58px; border-radius: 12px 12px 26px 26px; border-top: 8px solid var(--color-pot-rim); }
+.shop-preview-crystal { display:block;width:48px;height:78px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
+.shop-preview-potion { display:block;position:relative;width:24px;height:54px;border-radius:5px 5px 8px 8px;border:1px solid var(--color-border); }
+.shop-preview-potion::before { content:"";position:absolute;left:50%;top:-12px;transform:translateX(-50%);width:13px;height:13px;background:inherit;border:1px solid var(--color-border);border-bottom:0;border-radius:3px 3px 0 0; }
+.shop-preview-potion::after { content:"";position:absolute;left:50%;top:-17px;transform:translateX(-50%);width:15px;height:6px;background:var(--color-potion-stopper);border-radius:2px; }
+.shop-potion-phial { width:34px;height:49px;border-radius:35% 35% 40% 40%; }
+.shop-potion-flask { width:48px;height:43px;border-radius:50% 50% 38% 38%; }
+.shop-potion-flask::before { top:-17px;height:18px; }
+.shop-potion-flask::after { top:-22px; }
+.shop-effects-note { color:var(--color-recipe-upcoming);font-size:var(--type-hint);text-align:center; }
+.shop .shop-feedback { min-height:1.3em;margin:0;color:var(--color-rune); }
+.shop-card .shop-item-type { font-size:var(--type-small); }
+.shop-potion-stock { text-align:center;font-size:var(--type-hint); }
+.shop-potion-stock p { margin:3px 0; }
 .slime-runes { display: flex; gap: 8px; width: max-content; max-width: 85vw; justify-content: center; }
 .slime-rune { width: 76px; padding: 5px; border: 1px solid var(--color-slime-border); border-radius: 10px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 2px 12px var(--color-shadow-medium); }
 .slime-rune svg { display: block; width: 56px; height: 56px; margin: auto; }
@@ -54,11 +67,19 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-coin-face { font-size: var(--type-coin);filter:drop-shadow(0 0 8px var(--color-coin-glow)); }
 .arena-hints { position:absolute;left:16px;top:110px;max-width:290px;background:var(--color-arena-hint);padding:10px;border-radius:8px;pointer-events:none;font-size: var(--type-hint); }
 .arena-hints p { margin:5px 0; } .arena-hints span { display:block; }
-.arena-potions { position:absolute;bottom:14px;left:14px;right:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--color-arena-footer);padding:10px;border-radius:10px; }
+.arena-buffs { position:absolute;bottom:14px;left:14px;right:14px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:var(--color-arena-footer);padding:8px 12px;border-radius:10px;font-size:var(--type-hint);pointer-events:none; }
+.arena-buffs span { white-space:nowrap; }
+.arena-potion-count { display:block;min-width:24px;padding:3px 6px;border-radius:6px;background:var(--color-arena-hint);color:var(--color-rune);font-size:var(--type-small);font-weight:700;text-align:center;white-space:nowrap; }
+.arena-potion-empty { color:var(--color-recipe-upcoming);opacity:.7; }
+.arena-potion-hint { box-sizing:border-box;width:min(240px,65vw);padding:9px 11px;border:1px solid var(--color-coin-border);border-radius:9px;background:var(--color-coin-panel);color:var(--color-text);font-size:var(--type-small);line-height:1.35;text-align:left;box-shadow:0 2px 12px var(--color-shadow-medium); }
+.arena-potion-hint strong { display:block;color:var(--color-rune);font-size:var(--type-compact); }
+.arena-potion-hint p { margin:4px 0 7px; }
+.arena-potion-hint > div { display:flex;gap:8px;align-items:center; }
+.arena-potion-hint .spell-hint { flex:0 0 34px;width:34px;height:34px; }
 .arena-between { position:absolute;right:18px;top:140px;width:min(280px,70vw);padding:18px;border:1px solid var(--color-coin-border);background:var(--color-coin-panel);border-radius:12px; }
 .arena-between p { font-size: var(--type-hint); }.arena-between button { display:block;width:100%;margin-top:10px; }
 .arena-debug { position:absolute;right:12px;top:80px;z-index:30;display:flex;flex-direction:column;gap:10px;padding:18px;background:var(--color-debug-surface);border:1px solid var(--color-debug-border);border-radius:10px; }
-@media(max-width:650px){.arena-top{font-size: var(--type-compact);gap:7px;}.arena-top button{padding:6px;font-size: var(--type-small);}.arena-hints{top:130px;max-width:180px;font-size: var(--type-small);}.arena-potions button{font-size: var(--type-small);padding:7px;}.arena-between{top:270px;padding:10px;}}
+@media(max-width:650px){.arena-top{font-size: var(--type-compact);gap:7px;}.arena-top button{padding:6px;font-size: var(--type-small);}.arena-hints{top:130px;max-width:180px;font-size: var(--type-small);}.arena-buffs{font-size:var(--type-small);gap:8px;}.arena-between{top:270px;padding:10px;}}
 
 
 .app canvas { touch-action: none; }

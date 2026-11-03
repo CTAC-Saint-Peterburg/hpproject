@@ -1,6 +1,9 @@
 [
   {
     "id": "frost",
+    "model": "vial",
+    "price": 350,
+    "purchaseQuality": "basic",
     "name": "potions.frost.name",
     "description": "potions.frost.description",
     "icon": "❄️",
@@ -12,6 +15,9 @@
   },
   {
     "id": "flame",
+    "model": "phial",
+    "price": 600,
+    "purchaseQuality": "basic",
     "name": "potions.flame.name",
     "description": "potions.flame.description",
     "icon": "🔥",
@@ -23,6 +29,9 @@
   },
   {
     "id": "echo",
+    "model": "flask",
+    "price": 1000,
+    "purchaseQuality": "basic",
     "name": "potions.echo.name",
     "description": "potions.echo.description",
     "icon": "✨",
@@ -40,6 +49,9 @@
   },
   {
     "id": "healing",
+    "model": "vial",
+    "price": 1400,
+    "purchaseQuality": "basic",
     "name": "potions.healing.name",
     "description": "potions.healing.description",
     "icon": "💚",

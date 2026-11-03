@@ -1,7 +1,9 @@
 {
   "field": {
-    "width": 16,
-    "depth": 10
+    "width": 20,
+    "depth": 13,
+    "frontBorderDepth": 1.2,
+    "frontBorderHeight": 0.6
   },
   "crystal": {
     "maxHp": 100,
@@ -919,6 +921,9 @@
     }
   ],
   "visuals": {
-    "potionFlightSeconds": 0.8
+    "potionFlightSeconds": 0.55,
+    "potionSpacing": 2.0,
+    "potionArcHeight": 1.7,
+    "potionLanding": [0, 0.03, 2.0]
   }
 }

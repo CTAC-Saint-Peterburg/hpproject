@@ -3,15 +3,17 @@ import test from 'node:test';
 import { DoubleSide, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Vector2, Vector3 } from 'three';
 import { arenaRoomLayout, createArenaRoomGeometry } from '../src/modules/Room/arenaRoomGeometry.js';
 import { createBrewingRoomGeometry, ROOM } from '../src/modules/Room/roomGeometry.js';
+import { arenaBaseCameraPose, arenaFrontBorder, potionRackPosition } from '../src/modules/Defense/arenaLayout.js';
+import { defenseConfig as config } from '../src/static/themedConfigs.js';
 
 const aspects = [9 / 21, 9 / 16, 16 / 9, 21 / 9, 32 / 9];
 const triangles = geometry => (geometry.index?.count ?? geometry.getAttribute('position').count) / 3;
 
-function originalArenaCamera(aspect) {
-  const scale = Math.max(1, 1.35 / aspect);
+function arenaCamera(aspect) {
+  const pose = arenaBaseCameraPose(aspect);
   const camera = new PerspectiveCamera(50, aspect, .1, 1000);
-  camera.position.set(0, 12 * scale, 11 * scale);
-  camera.lookAt(0, 0, 0);
+  camera.position.fromArray(pose.position);
+  camera.lookAt(new Vector3(...pose.target));
   camera.updateProjectionMatrix();
   camera.updateMatrixWorld(true);
   return camera;
@@ -20,14 +22,16 @@ function originalArenaCamera(aspect) {
 function withArena(aspect, run) {
   const layout = arenaRoomLayout(aspect);
   const room = createArenaRoomGeometry(aspect);
-  const source = createBrewingRoomGeometry(layout.halfWidth, { ...layout, variant: 'arena' });
+  const source = createBrewingRoomGeometry(layout.halfWidth, { variant: 'arena',
+    frontZ: layout.frontZ - layout.backOffset, wallTopY: layout.wallTopY, floorY: layout.floorY });
+  for (const geometry of Object.values(source)) geometry.translate(0, 0, layout.backOffset);
   const material = new MeshBasicMaterial({ side: DoubleSide });
   const meshes = geometries => Object.values(geometries).map(geometry => {
     const mesh = new Mesh(geometry, material);
     mesh.updateMatrixWorld(true);
     return mesh;
   });
-  try { run({ layout, room, source, meshes: meshes(room), sourceMeshes: meshes(source), camera: originalArenaCamera(aspect) }); }
+  try { run({ layout, room, source, meshes: meshes(room), sourceMeshes: meshes(source), camera: arenaCamera(aspect) }); }
   finally {
     [...Object.values(room), ...Object.values(source)].forEach(geometry => geometry.dispose());
     material.dispose();
@@ -37,7 +41,7 @@ function withArena(aspect, run) {
 test('arena decoration keeps finite textureless geometry and prunes its unseen triangle budget', () => {
   for (const aspect of aspects) {
     withArena(aspect, ({ room, source, layout, camera }) => {
-      assert.deepEqual(layout.cameraPosition, camera.position.toArray(), 'room layout must match the unchanged arena camera');
+      assert.deepEqual(layout.cameraPosition, camera.position.toArray(), 'room layout must match the shared enlarged arena camera');
       assert.equal(layout.floorY, -.4);
       const total = Object.values(room).reduce((sum, geometry) => sum + triangles(geometry), 0);
       const before = Object.values(source).reduce((sum, geometry) => sum + triangles(geometry), 0);
@@ -59,18 +63,23 @@ test('arena decoration keeps finite textureless geometry and prunes its unseen t
   }
 });
 
-test('castle walls never cross table, crystal, coin or enemy rays from the original inclined camera', () => {
+test('castle walls never cross enlarged table, crystal, coin, potion rack or enemy rays', () => {
   for (const aspect of aspects) {
     withArena(aspect, ({ camera, meshes }) => {
       const targets = [[0, .18, 0], [0, 1.1, 0], [0, 1.95, 0], [0, 1.6, 2.3], [0, .4, 0]];
-      // Full board footprint includes the original wooden border, which is not moved.
-      for (const x of [-8.2, -4, 0, 4, 8.2]) {
-        for (const z of [-5.2, -2.5, 0, 2.5, 5.2]) targets.push([x, .1, z]);
+      const w = config.field.width, d = config.field.depth, front = arenaFrontBorder();
+      for (const x of [-w / 2 - .2, -w / 4, 0, w / 4, w / 2 + .2]) {
+        for (const z of [-d / 2 - .2, -d / 4, 0, d / 4, front.z + front.depth / 2]) targets.push([x, .1, z]);
       }
-      for (const x of [-7.5, 0, 7.5]) {
-        for (const z of [-4.5, 0, 4.5]) {
+      for (const x of [-w / 2 + .5, 0, w / 2 - .5]) {
+        for (const z of [-d / 2 + .5, 0, d / 2 - .5]) {
           for (const y of [.2, 1, 2.5]) targets.push([x, y, z]);
         }
+      }
+      const inventory = { frost: 1, flame: 1, echo: 1, healing: 1 };
+      for (const id of Object.keys(inventory)) {
+        const feet = potionRackPosition(id, inventory);
+        targets.push(feet, [feet[0], feet[1] + .5, feet[2]], [feet[0], feet[1] + 1, feet[2]]);
       }
       const ray = new Raycaster();
       for (const position of targets) {

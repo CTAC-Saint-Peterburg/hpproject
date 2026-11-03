@@ -37,6 +37,66 @@
     "emissive": "@colors.shopWandvioletEmissive"
   },
   {
+    "id": "wand_force_minor",
+    "type": "wand",
+    "name": "shop.items.wand_force_minor",
+    "description": "shop.wandDamageDescription",
+    "price": 450,
+    "color": "@colors.shopWandForceMinorColor",
+    "emissive": "@colors.shopWandForceMinorEmissive",
+    "effects": { "damageBonus": 4 }
+  },
+  {
+    "id": "wand_force_medium",
+    "type": "wand",
+    "name": "shop.items.wand_force_medium",
+    "description": "shop.wandDamageDescription",
+    "price": 1100,
+    "color": "@colors.shopWandForceMediumColor",
+    "emissive": "@colors.shopWandForceMediumEmissive",
+    "effects": { "damageBonus": 9 }
+  },
+  {
+    "id": "wand_force_major",
+    "type": "wand",
+    "name": "shop.items.wand_force_major",
+    "description": "shop.wandDamageDescription",
+    "price": 2400,
+    "color": "@colors.shopWandForceMajorColor",
+    "emissive": "@colors.shopWandForceMajorEmissive",
+    "effects": { "damageBonus": 16 }
+  },
+  {
+    "id": "wand_execution",
+    "type": "wand",
+    "name": "shop.items.wand_execution",
+    "description": "shop.wandExecutionDescription",
+    "price": 6500,
+    "color": "@colors.shopWandExecutionColor",
+    "emissive": "@colors.shopWandExecutionEmissive",
+    "effects": { "instantKillChance": 0.08 }
+  },
+  {
+    "id": "wand_splash",
+    "type": "wand",
+    "name": "shop.items.wand_splash",
+    "description": "shop.wandSplashDescription",
+    "price": 3200,
+    "color": "@colors.shopWandSplashColor",
+    "emissive": "@colors.shopWandSplashEmissive",
+    "effects": { "splashRadius": 2.2, "splashMultiplier": 0.5 }
+  },
+  {
+    "id": "wand_noob",
+    "type": "wand",
+    "name": "shop.items.wand_noob",
+    "description": "shop.wandNoobDescription",
+    "price": 18000,
+    "color": "@colors.shopWandNoobColor",
+    "emissive": "@colors.shopWandNoobEmissive",
+    "effects": { "autoCounter": true }
+  },
+  {
     "id": "pot_default",
     "type": "pot",
     "name": "shop.items.pot_default",
@@ -68,5 +128,38 @@
     "description": "shop.potDescription",
     "price": 110,
     "color": "@colors.shopPotroseColor"
+  },
+  {
+    "id": "crystal_default",
+    "type": "crystal",
+    "name": "shop.items.crystal_default",
+    "description": "shop.crystalDescription",
+    "price": 0,
+    "color": "@colors.crystal",
+    "default": true
+  },
+  {
+    "id": "crystal_emerald",
+    "type": "crystal",
+    "name": "shop.items.crystal_emerald",
+    "description": "shop.crystalDescription",
+    "price": 300,
+    "color": "@colors.shopCrystalEmeraldColor"
+  },
+  {
+    "id": "crystal_solar",
+    "type": "crystal",
+    "name": "shop.items.crystal_solar",
+    "description": "shop.crystalDescription",
+    "price": 550,
+    "color": "@colors.shopCrystalSolarColor"
+  },
+  {
+    "id": "crystal_ice",
+    "type": "crystal",
+    "name": "shop.items.crystal_ice",
+    "description": "shop.crystalDescription",
+    "price": 750,
+    "color": "@colors.shopCrystalIceColor"
   }
 ]
