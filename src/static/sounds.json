@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "master": { "enabled": true, "volume": 0.7 },
+  "transition": { "fadeOutSeconds": 0.08, "maxEffects": 8 },
+  "sounds": [
+    { "name": "getcoin", "code": "defense.coinReward", "file": "getcoin.ogg", "value": 0.7, "fadePrevious": true, "loop": false },
+    { "name": "spincoin", "code": "defense.coinToss", "file": "spincoin.ogg", "value": 0.65, "fadePrevious": true, "loop": false },
+    { "name": "spell1", "code": "spell.1", "file": "spell1fire.ogg", "value": 0.65, "fadePrevious": true, "loop": false },
+    { "name": "spell2", "code": "spell.2", "file": "spell2frost.ogg", "value": 0.55, "fadePrevious": true, "loop": false },
+    { "name": "spell3", "code": "spell.3", "file": "spell3standart.ogg", "value": 0.5, "fadePrevious": true, "loop": false },
+    { "name": "spell4", "code": "spell.4", "file": "spell4standart.ogg", "value": 0.5, "fadePrevious": true, "loop": false },
+    { "name": "spell5", "code": "spell.5", "file": "spell5.ogg", "value": 0.55, "fadePrevious": true, "loop": false },
+    { "name": "spell6", "code": "spell.6", "file": "spell6electric.ogg", "value": 0.55, "fadePrevious": true, "loop": false },
+    { "name": "spell7", "code": "spell.7", "file": "spell7rise.ogg", "value": 0.5, "fadePrevious": true, "loop": false },
+    { "name": "spell8", "code": "spell.8", "file": "spell8pulse.ogg", "value": 0.5, "fadePrevious": true, "loop": false },
+    { "name": "spell9", "code": "spell.9", "file": "spell9wind.ogg", "value": 0.48, "fadePrevious": true, "loop": false },
+    { "name": "spell10", "code": "spell.10", "file": "spell10cascade.ogg", "value": 0.55, "fadePrevious": true, "loop": false },
+    { "name": "yessound", "code": "ui.select", "file": "yessound.ogg", "value": 0.45, "fadePrevious": true, "loop": false },
+    { "name": "ambientpotions", "code": "menu.ambient", "file": "ambientpotions.ogg", "value": 0.25, "fadePrevious": false, "loop": true },
+    { "name": "potiongood", "code": "brewing.recipeAdvance", "file": "potiongood.ogg", "value": 0.6, "fadePrevious": true, "loop": false }
+  ]
+}

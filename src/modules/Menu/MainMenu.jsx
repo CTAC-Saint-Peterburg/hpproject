@@ -8,6 +8,7 @@ import pkg from '../../../package.json';
 import SpellTraining from './SpellTraining';
 import Shop from './Shop';
 import DefenseSetup from '../Defense/DefenseSetup';
+import AudioSettings from '../Audio/AudioSettings.jsx';
 
 export default function MainMenu() {
  const { t, i18n } = useTranslation();
@@ -28,11 +29,13 @@ export default function MainMenu() {
  <button onClick={() => setPage('shop')}>{t('shop.title')}</button>
  <button onClick={() => setPage('training')}>{t('menu.training')}</button>
  <button onClick={() => setPage('achievements')}>{t('menu.achievements')}</button>
+ <button onClick={() => setPage('settings')}>{t('menu.settings')}</button>
  <button onClick={() => setPage('help')}>{t('menu.help')}</button></>}
  {page === 'achievements' && <Collection />}
  {page === 'defense' && <DefenseSetup />}
  {page === 'help' && <><h2>{t('menu.help')}</h2><p>{t('help.heat')}</p><p>{t('help.ingredients')}</p><p>{t('help.rules')}</p></>}
  {page === 'shop' && <Shop />}
+ {page === 'settings' && <AudioSettings />}
  {page !== 'main' && <button onClick={() => setPage('main')}>{t('menu.back')}</button>}
  </section>;
 }

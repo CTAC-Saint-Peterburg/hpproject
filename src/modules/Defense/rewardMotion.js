@@ -5,6 +5,8 @@ export const REWARD_COIN_DELAY_SECONDS = REWARD_FLASH_SECONDS;
 export const REWARD_COIN_FLIGHT_SECONDS = 1;
 export const REWARD_COIN_STAGGER_SECONDS = .065;
 
+export const rewardCoinStartTime = event => event.time + REWARD_COIN_DELAY_SECONDS;
+
 const clamp = value => Math.max(0, Math.min(1, value));
 const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };
 
