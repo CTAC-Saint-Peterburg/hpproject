@@ -140,10 +140,11 @@ test('simultaneous giant kills split into two standard fire enemies each before 
     assert.ok(children.every(enemy => enemy.type === 'fire' && enemy.maxHp === config.enemies.fire.hp));
     assert.ok(children.every(enemy => !giants.some(parent => parent.id === enemy.id)));
     assert.equal(f.s().phase, 'wave'); assert.deepEqual(f.profile.mageCards, {});
-    assert.equal(f.profile.stones, giant.reward * 2, 'children are not paid on spawn');
+    assert.equal(f.profile.stones, 0); assert.equal(f.s().pendingStones, giant.reward * 2, 'children add no temporary reward on spawn');
     f.store.setState({ enemies: children.map(enemy => ({ ...enemy, hp: .1, burnUntil: 100, burnDps: 100 })) });
     f.step(.05);
-    assert.equal(f.s().phase, 'clear'); assert.equal(f.profile.stones, giant.reward * 2 + 4 * config.enemies.fire.reward);
+    assert.equal(f.s().phase, 'clear'); assert.equal(f.profile.stones, 0);
+    assert.equal(f.s().pendingStones, giant.reward * 2 + 4 * config.enemies.fire.reward + config.waves[0].stonesReward);
     assert.equal(f.profile.mageCards[config.waves[0].cardId], 1);
     f.step(.1); assert.equal(f.profile.mageCards[config.waves[0].cardId], 1);
   }

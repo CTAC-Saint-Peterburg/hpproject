@@ -74,7 +74,9 @@ export function createGameAudioBinding({ gameStore, defenseStore, settingsStore,
       if (event.stones > 0) pendingRewards.set(event.id, event);
     }
     highestRewardId = latestReward(state);
+    const activeRewardIds = new Set((state.rewardEvents ?? []).map(event => event.id));
     for (const [id, event] of pendingRewards) {
+      if (!activeRewardIds.has(id)) { pendingRewards.delete(id); continue; }
       if (state.time + 1e-9 < rewardCoinStartTime(event)) continue;
       pendingRewards.delete(id);
       play('defense.coinReward');

@@ -32,17 +32,19 @@ export function addPotionInventory(inventory, ids, quality = 'fine') {
   return next;
 }
 
-export function consumePotionEntry(inventory, ids) {
-  if (!Array.isArray(ids) || ids.length !== 3 || new Set(ids).size !== 3 ||
+export function consumePotionEntry(inventory, ids, slots = 3) {
+  const maxSlots = slots === 4 ? 4 : 3;
+  if (!Array.isArray(ids) || ids.length < 3 || ids.length > maxSlots || new Set(ids).size !== ids.length ||
       ids.some(id => !POTION_IDS.includes(id) || potionCount(inventory, id) < 1)) return null;
   const next = normalizePotionInventory(inventory), consumed = {};
-  // Save the rarest bottles until last. Entry still requires three different recipes.
+  // Save the rarest bottles until last. Upgrades duplicate this consumed quality
+  // inside the arena; they never remove extra bottles from the profile.
   for (const id of ids) {
     const quality = POTION_QUALITIES.find(key => next[id][key] > 0);
     next[id][quality]--;
     consumed[id] = quality;
   }
-  return { inventory: next, consumed };
+  return { inventory: next, consumed, qualities: consumed };
 }
 
 export function resolvePotionProfile(saved) {

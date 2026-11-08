@@ -19,8 +19,8 @@ export function rewardVisualDuration(event) {
   return count ? REWARD_COIN_DELAY_SECONDS + REWARD_COIN_FLIGHT_SECONDS + (count - 1) * REWARD_COIN_STAGGER_SECONDS : REWARD_FLASH_SECONDS;
 }
 
-// The wallet is authoritative already. This amount is only withheld from the
-// displayed counter until the last visual coin reaches it, never re-awarded.
+// Rewards already belong to this wave's temporary pot. Withhold only their
+// display until the last visual coin arrives; banking happens at wave settlement.
 export function pendingRewardStones(events, time) {
   let pending = 0;
   for (let i = 0; i < events.length; i++) {

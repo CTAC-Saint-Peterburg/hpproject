@@ -153,7 +153,7 @@ button:disabled { opacity: .45; cursor: default; }
 .pot-rune-heat { color: var(--color-spell-effects-spells1-color); }
 .pot-rune-cool { color: var(--color-spell-effects-spells2-color); }
 .pot-rune-stir { color: var(--color-spell-effects-spells5-color); }
-.arena-wallet { white-space: nowrap; padding: 3px 6px; border-radius: 6px; transform-origin: center; }
+.arena-wallet { white-space: nowrap; padding: 3px 6px; border:1px dashed var(--color-coin-border);border-radius: 6px;color:var(--color-rune);background:var(--color-arena-hint);transform-origin: center; }
 .arena-wallet-collected { animation: wallet-collected .4s ease-out; }
 @keyframes wallet-collected { 0% { transform: scale(1.12); background: var(--color-coin-panel); color: var(--color-coin-glow); } 100% { transform: scale(1); } }
 .arena-coin-hint .spell-hint { flex: 0 0 34px; }

@@ -161,5 +161,33 @@
     "description": "shop.crystalDescription",
     "price": 750,
     "color": "@colors.shopCrystalIceColor"
+  },
+  {
+    "id": "upgrade_potion_slot",
+    "type": "upgrade",
+    "name": "shop.items.upgrade_potion_slot",
+    "description": "shop.potionSlotDescription",
+    "price": 3000,
+    "color": "@colors.potionsHealingColor",
+    "effects": { "potionSlots": 4 }
+  },
+  {
+    "id": "upgrade_potion_copies_2",
+    "type": "upgrade",
+    "name": "shop.items.upgrade_potion_copies_2",
+    "description": "shop.potionCopiesDescription",
+    "price": 4500,
+    "color": "@colors.potionsFrostColor",
+    "effects": { "potionCopies": 2 }
+  },
+  {
+    "id": "upgrade_potion_copies_3",
+    "type": "upgrade",
+    "name": "shop.items.upgrade_potion_copies_3",
+    "description": "shop.potionCopiesDescription",
+    "price": 9000,
+    "requires": "upgrade_potion_copies_2",
+    "color": "@colors.potionsFlameColor",
+    "effects": { "potionCopies": 3 }
   }
 ]

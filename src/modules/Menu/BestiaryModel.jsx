@@ -84,6 +84,23 @@ function CrystalModel({ color }) {
   </group>;
 }
 
+function UpgradeModel({ id, color }) {
+  const item = shopItems.find(item => item.id === id);
+  const count = item?.effects?.potionSlots ?? item?.effects?.potionCopies ?? 3;
+  const geometry = useMemo(() => createPotionGeometry('vial'), []);
+  useEffect(() => () => { geometry.body.dispose(); geometry.stopper.dispose(); }, [geometry]);
+  return <group>
+    <mesh position={[0, -.6, 0]}><boxGeometry args={[1.85, .12, .7]} /><meshStandardMaterial color={theme.colors.button} /></mesh>
+    <mesh position={[0, -.2, -.31]}><boxGeometry args={[1.85, .8, .08]} /><meshStandardMaterial color={theme.colors.button} /></mesh>
+    <mesh position={[0, .52, -.31]}><boxGeometry args={[.7, .1, .1]} /><meshStandardMaterial color={theme.colors.border} /></mesh>
+    {[-.3, .3].map(x => <mesh key={x} position={[x, .36, -.31]}><boxGeometry args={[.1, .3, .1]} /><meshStandardMaterial color={theme.colors.border} /></mesh>)}
+    {Array.from({ length: count }, (_, index) => <group key={index} position={[(index - (count - 1) / 2) * .44, -.53, 0]} scale={.83}>
+      <mesh geometry={geometry.body}><meshStandardMaterial color={color} flatShading roughness={.5} /></mesh>
+      <mesh geometry={geometry.stopper}><meshStandardMaterial color={theme.colors.qualityBasic} flatShading /></mesh>
+    </group>)}
+  </group>;
+}
+
 export default function BestiaryModel({ model }) {
   const color = bestiaryColor(model);
   if (model.kind === 'arenaEnemy') return <ArenaEnemyModel type={model.type} color={color} />;
@@ -93,6 +110,7 @@ export default function BestiaryModel({ model }) {
   if (model.kind === 'coin') return <CoinModel currency={model.id === 'stones'} />;
   if (model.kind === 'pot') return <group rotation={[CAULDRON.tilt, 0, 0]}><CauldronModel color={color} warmth={0} /></group>;
   if (model.kind === 'crystal') return <CrystalModel color={color} />;
+  if (model.kind === 'upgrade') return <UpgradeModel id={model.id} color={color} />;
   if (model.kind === 'wand') {
     const item = shopItems.find(item => item.id === model.id);
     return <mesh rotation={[0, 0, -.2]}><boxGeometry args={[.1, 2.5, .02]} />

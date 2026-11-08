@@ -7,8 +7,10 @@ import { shopItems, potionTypes } from '../../static/themedConfigs';
 import brewing from '../../static/brewing.json';
 import { addPotionInventory, consumePotionEntry, resolvePotionProfile, POTION_IDS, POTION_QUALITIES } from './potionInventory';
 import { ingredientFlightSeconds } from '../Ingredients/ingredientAnimation';
+import { arenaLoadoutSettings } from './arenaUpgrades';
 
 const equipmentTypes = ['wand', 'pot', 'crystal'];
+const permanentTypes = [...equipmentTypes, 'upgrade'];
 const defaultEquipment = Object.fromEntries(equipmentTypes.map(type => [type,
   shopItems.find(item => item.type === type && item.default)?.id ?? type + '_default']));
 
@@ -18,7 +20,7 @@ const canSpawnEnemy = (state, type, now) => type === 'enemyslime'
   : [-1, 1].some(side => !state.enemies.some(enemy => enemy.side === side));
 
 export function resolveEquipmentProfile(saved = {}) {
-  const validItems = new Map(shopItems.filter(item => equipmentTypes.includes(item.type)).map(item => [item.id, item]));
+  const validItems = new Map(shopItems.filter(item => permanentTypes.includes(item.type)).map(item => [item.id, item]));
   const previous = Array.isArray(saved?.ownedItems) ? saved.ownedItems : [];
   const ownedItems = [...new Set([...Object.values(defaultEquipment), ...previous.filter(id => validItems.has(id))])];
   const owned = new Set(ownedItems);
@@ -99,10 +101,10 @@ export const useGameStore = create(persist((set, get) => ({
   addPotions: (ids, quality = 'fine') => set(s => ({ potionInventory: addPotionInventory(s.potionInventory, ids, quality) })),
   consumeEntryPotions: ids => {
     const s = get();
-    const entry = consumePotionEntry(s.potionInventory, ids);
+    const entry = consumePotionEntry(s.potionInventory, ids, arenaLoadoutSettings(s).slots);
     if (!entry) return false;
     set({ potionInventory: entry.inventory });
-    return true;
+    return entry;
   },
   awardMageCard: id => {
     if (!/^mage_(10|[1-9])$/.test(id)) return;
@@ -111,12 +113,13 @@ export const useGameStore = create(persist((set, get) => ({
   ...resolveEquipmentProfile(),
   buyItem: id => {
     const item = shopItems.find(entry => entry.id === id);
-    if (!item || !equipmentTypes.includes(item.type) || !Number.isInteger(item.price) || item.price < 0) return 'shop.invalid';
+    if (!item || !permanentTypes.includes(item.type) || !Number.isInteger(item.price) || item.price < 0) return 'shop.invalid';
     let result;
     set(s => {
       if (item.default || s.ownedItems.includes(id)) { result = 'shop.owned'; return s; }
+      if (item.requires && !s.ownedItems.includes(item.requires)) { result = 'shop.upgradeRequirement'; return s; }
       if (s.stones < item.price) { result = 'shop.insufficient'; return s; }
-      result = 'shop.purchased';
+      result = item.type === 'upgrade' ? 'shop.upgradePurchased' : 'shop.purchased';
       return { stones: s.stones - item.price, ownedItems: [...s.ownedItems, id] };
     });
     return result;

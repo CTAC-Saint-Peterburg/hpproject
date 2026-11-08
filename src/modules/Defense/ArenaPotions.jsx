@@ -9,6 +9,7 @@ import SpellHint from '../Pot/SpellHint';
 import { useDefenseStore } from './DefenseStore';
 import { potionRackPosition } from './arenaLayout';
 import { writePotionFlightPose } from './potionMotion';
+import { potionEffect } from './potionEffects';
 
 function FlyingPotion({ flight, time }) {
   const root = useRef();
@@ -25,7 +26,7 @@ function FlyingPotion({ flight, time }) {
   });
   if (!potion) return null;
   return <group ref={root} position={[flight.from[0], flight.from[1] + .5, flight.from[2]]}>
-    <PotionModel potion={potion} position={[0, -.5, 0]} raycast={() => null} />
+    <PotionModel potion={potion} quality={flight.quality} position={[0, -.5, 0]} raycast={() => null} />
   </group>;
 }
 
@@ -35,6 +36,7 @@ export default function ArenaPotions({ gestureRef }) {
   return <>
     {potionTypes.filter(potion => Object.hasOwn(state.inventory, potion.id)).map(potion => {
       const count = state.inventory[potion.id] ?? 0;
+      const effect = potionEffect(potion, state.potionQualities[potion.id]);
       const selected = state.pendingPotion === potion.id;
       return <group key={potion.id} position={potionRackPosition(potion.id, state.inventory)} onClick={event => {
         if (gestureRef?.current || event.delta > 4) return;
@@ -46,7 +48,7 @@ export default function ArenaPotions({ gestureRef }) {
           <meshBasicMaterial color={selected ? theme.colors.coinSelected : theme.colors.arenaWoodLine} />
         </mesh>
         {count > 0 && <>
-          <PotionModel potion={potion} selected={selected} />
+          <PotionModel potion={potion} quality={effect.quality} selected={selected} />
           <mesh position={[0, .5, 0]}>
             <boxGeometry args={[.85, 1.08, .85]} />
             <meshBasicMaterial visible={false} />
@@ -60,7 +62,8 @@ export default function ArenaPotions({ gestureRef }) {
         {selected && <Html center position={[0, 1.65, 0]} zIndexRange={[6, 0]} style={{ pointerEvents: 'none' }}>
           <div className="arena-potion-hint">
             <strong>{t(potion.name)}</strong>
-            <p>{t(potion.description)}</p>
+            <p>{t('arena.potionQuality', {quality: t('potion.quality.' + effect.quality), multiplier: effect.multiplier})}</p>
+            <p>{t(potion.description, effect)}</p>
             <div><SpellHint spellId={3} labelKey="arena.potionHint" /><span>{t('arena.potionHint')}</span></div>
           </div>
         </Html>}

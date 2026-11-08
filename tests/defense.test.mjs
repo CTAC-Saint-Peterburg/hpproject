@@ -47,20 +47,20 @@ test('counterspells, cooldown, kill currency and one card per cleared wave',()=>
  f.store.setState({time:2});assert.equal(f.s().cast(2),true);
  assert.equal(f.s().cast(2),false);assert.equal(f.s().enemies[0].hp,24);
  f.store.setState({time:3});f.s().cast(2);
- assert.equal(f.s().phase,'clear');assert.equal(f.profile.stones,5);assert.equal(f.profile.mageCards.mage_1,1);
+ assert.equal(f.s().phase,'clear');assert.equal(f.profile.stones,0);assert.equal(f.s().pendingStones,5+config.waves[0].stonesReward);assert.equal(f.profile.mageCards.mage_1,1);
  f.s().finishWave();assert.equal(f.profile.mageCards.mage_1,1);
- const score=f.s().score;f.s().next();assert.equal(f.s().wave,1);assert.equal(f.s().score,score);
+ const pending=f.s().pendingStones;f.s().next();assert.equal(f.s().wave,1);assert.equal(f.s().pendingStones,0);assert.equal(f.profile.stones,pending);
  assert.equal(f.profile.entries,1);
 });
-test('coin resolves once, doubles or clears points, keeps currency and auto advances',()=>{
+test('coin resolves once, settles this wave stones and auto advances',()=>{
  for(const heads of [true,false]){
   const f=fixture(()=>heads?.01:.99);f.start();
-  f.store.setState({phase:'clear',score:150,enemies:[],queue:[]});f.profile.stones=40;
+  f.store.setState({phase:'clear',pendingStones:150,enemies:[],queue:[]});f.profile.stones=40;
   assert.equal(f.s().cast(1),false);f.s().select('coin');
   assert.equal(f.s().cast(5),true);assert.equal(f.s().coinResult,heads);
-  assert.equal(f.s().score,150);assert.equal(f.s().cast(5),false);assert.equal(f.profile.stones,40);
+  assert.equal(f.s().pendingStones,150);assert.equal(f.s().cast(5),false);assert.equal(f.profile.stones,40);
   assert.equal(f.s().fx.spellId,5);assert.deepEqual(f.s().fx.target,[0,1.6,2.3]);
-  f.step(f.s().coinToss.duration+.05);assert.equal(f.s().coinResolved,true);assert.equal(f.s().score,heads?300:0);
+  f.step(f.s().coinToss.duration+.05);assert.equal(f.s().coinResolved,true);assert.equal(f.s().pendingStones,0);assert.equal(f.profile.stones,40+(heads?300:0));
   f.step(config.coin.resultSeconds+.1);assert.equal(f.s().phase,'wave');assert.equal(f.s().wave,1);assert.equal(f.profile.entries,1);
  }
 });
@@ -102,7 +102,7 @@ test('burn kills grant currency once; pause and simultaneous spawn limits work',
  const f=fixture();f.start();
  const enemy={...f.s().enemies[0],hp:.1,burnUntil:10,burnDps:4};
  f.store.setState({enemies:[enemy],queue:[]});f.step(.1);
- assert.equal(f.profile.stones,5);f.step(.5);assert.equal(f.profile.stones,5);
+ assert.equal(f.profile.stones,0);assert.equal(f.s().pendingStones,5+config.waves[0].stonesReward);f.step(.5);assert.equal(f.s().pendingStones,5+config.waves[0].stonesReward);
  f.s().debugWave(10);f.step(20);
  assert.ok(f.s().enemies.length<=config.waves[9].maxConcurrent);
  const time=f.s().time, hp=f.s().hp;f.s().setPaused(true);f.step(10);

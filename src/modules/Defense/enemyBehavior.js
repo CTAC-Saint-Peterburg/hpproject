@@ -16,7 +16,7 @@ export function createArenaEnemy(config, type, group, time, serial, random, posi
     attack: base.attack * (group.attackMultiplier ?? 1), speed: base.speed * (group.speedMultiplier ?? 1),
     critChance: group.critChance ?? base.critChance, specialChance: group.specialChance ?? base.special.chance,
     rageAt: time + base.rageInterval * (.6 + random() * .5), rageUntil: 0, nextAttack: 0,
-    frozenUntil: 0, burnUntil: 0, burnDps: 0,
+    frozenUntil: 0, frozenAt: null, burnUntil: 0, burnDps: 0,
     motion: base.split ? 'walk' : ['walk', 'dash', 'jump'][Math.floor(random() * 3)], seed: random() * Math.PI * 2,
     disorientedUntil: 0, knockbackUntil: 0, wanderAngle: random() * Math.PI * 2, wanderTurnAt: 0,
     windupUntil: 0, nextRangedAt: base.ranged ? time + rangedDelay(base.ranged, random) : 0,
@@ -81,7 +81,20 @@ export function advanceArenaEnemy(original, config, potions, time, dt, random, c
   const enemy = { ...original }, base = config.enemies[enemy.type];
   if (enemy.burnUntil > time) enemy.hp -= enemy.burnDps * dt;
   if (enemy.hp <= 0) return enemy;
-  const slow = enemy.frozenUntil > time ? potions.find(p => p.effect === 'freeze').slowMultiplier : 1;
+  const frozenSpeed = potions.find(p => p.effect === 'freeze').slowMultiplier;
+  const frozenSeconds = Math.min(dt, Math.max(0, enemy.frozenUntil - (time - dt)));
+  // Freeze halts every movement branch, including knockback and disorientation.
+  // Shift active timers so attacks and a ranged warning resume after thawing.
+  if (frozenSeconds > 0 && frozenSpeed === 0) {
+    if (enemy.knockbackTo && enemy.knockbackUntil > time - dt) enemy.knockbackStart += frozenSeconds;
+    for (const field of ['rageAt', 'rageUntil', 'nextAttack', 'knockbackUntil',
+      'disorientedUntil', 'wanderTurnAt', 'windupUntil', 'nextRangedAt']) {
+      if (Number.isFinite(enemy[field]) && enemy[field] > 0) enemy[field] += frozenSeconds;
+    }
+    dt -= frozenSeconds;
+    if (dt <= 1e-9) return enemy;
+  }
+  const slow = enemy.frozenUntil > time ? frozenSpeed : 1;
   const disoriented = enemy.disorientedUntil > time;
   const knockback = original.knockbackUntil > time - dt && enemy.knockbackTo;
   if (knockback) {
@@ -97,12 +110,6 @@ export function advanceArenaEnemy(original, config, potions, time, dt, random, c
     return enemy;
   }
   if (base.ranged) {
-    // A frozen countdown resumes with the same remaining warning after thawing.
-    if (slow === 0) {
-      if (enemy.windupUntil > 0) enemy.windupUntil += dt;
-      enemy.nextRangedAt += dt;
-      return enemy;
-    }
     if (base.movement === 'orbit') {
       const distance = Math.hypot(enemy.x, enemy.z) || .001;
       const radius = Math.min(base.orbit.radius, config.field.width / 2 - 1, config.field.depth / 2 - 1);

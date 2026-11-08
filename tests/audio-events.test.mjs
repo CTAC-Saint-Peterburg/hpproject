@@ -83,7 +83,7 @@ test('defense plays effective cast IDs, ignores cosmetic impacts and uses only t
   f.defenseStore.setState({ phase: 'clear' });
   const toss = { duration: 2 };
   f.defenseStore.setState({ phase: 'coin', coinToss: toss, fx: { id: 3, kind: 'cast', spellId: 7 } });
-  f.defenseStore.setState({ time: 2, coinToss: toss }); f.defenseStore.setState({ coinResolved: true, score: 100 });
+  f.defenseStore.setState({ time: 2, coinToss: toss }); f.defenseStore.setState({ coinResolved: true, pendingStones: 0 });
   assert.deepEqual(f.plays(), ['spell.2', 'defense.coinToss']);
   f.defenseStore.setState({ phase: 'wave', coinToss: null });
   f.defenseStore.setState({ fx: { id: 4, kind: 'cast', spellId: 8 } });
@@ -124,6 +124,18 @@ test('victory and defeat discard reward sounds whose coin streams were removed b
     f.defenseStore.setState({ time: 2 }); f.defenseStore.setState({ paused: true });
     assert.deepEqual(f.plays(), []); f.cleanup();
   }
+});
+
+test('early wave settlement cancels reward cues for streams removed before their start', () => {
+  const f = fixture({}, { phase: 'wave', time: 1 });
+  f.defenseStore.setState({ rewardSerial: 1, rewardEvents: [{ id: 1, time: 1, stones: 5 }] });
+  f.defenseStore.setState({ phase: 'clear', pendingStones: 25 });
+  f.defenseStore.setState({ waveSettled: true, pendingStones: 0, rewardEvents: [] });
+  f.defenseStore.setState({ phase: 'wave', time: 2 });
+  assert.deepEqual(f.plays(), []);
+  f.defenseStore.setState({ rewardSerial: 2, rewardEvents: [{ id: 2, time: 2, stones: 5 }] });
+  f.defenseStore.setState({ time: 2.24 });
+  assert.deepEqual(f.plays(), ['defense.coinReward']); f.cleanup();
 });
 
 test('menu, gameplay, pause, hidden tabs and settings synchronize only changed playback state', () => {

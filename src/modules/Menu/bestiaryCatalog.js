@@ -2,6 +2,7 @@ import { ENEMY_TYPES } from '../../static/enemies.js';
 import { SPAWN_BOTTLES_CORDS } from '../../static/constants.js';
 import { cards, defenseConfig, potionTypes, shopItems } from '../../static/themedConfigs.js';
 import brewing from '../../static/brewing.json' with { type: 'json' };
+import { potionEffect } from '../Defense/potionEffects.js';
 
 const allSpells = Array.from({ length: 10 }, (_, index) => index + 1);
 const entry = (id, category, name, description, interaction, ineffective, spells, model, values = {}) =>
@@ -26,7 +27,7 @@ export const bestiaryEntries = [
     [brewing.liftSpell, brewing.dropSpell], { kind: 'ingredient', id: ingredient.id },
     { bonus: brewing.ingredientTimeBonusSeconds ?? 5 })),
   ...potionTypes.map(potion => entry('potion-' + potion.id, 'items', potion.name, potion.description,
-    'bestiary.potionInteraction', 'bestiary.potionWrong', [3], { kind: 'potion', id: potion.id })),
+    'bestiary.potionInteraction', 'bestiary.potionWrong', [3], { kind: 'potion', id: potion.id }, potionEffect(potion, 'basic'))),
   entry('crystal', 'items', 'bestiary.crystal', 'bestiary.crystalDescription',
     'bestiary.crystalInteraction', 'bestiary.crystalWrong', [1, 2], { kind: 'crystal', id: 'crystal_default' }),
   entry('coin', 'items', 'bestiary.coin', 'arena.coinRules', 'bestiary.coinInteraction',
@@ -42,7 +43,7 @@ export const bestiaryEntries = [
   entry('projectile-sentinel', 'items', 'bestiary.projectile.sentinel', 'bestiary.fastShotDescription',
     'bestiary.fastShotInteraction', 'bestiary.fastShotWrong', [], { kind: 'projectile', type: 'sentinel' }),
   ...shopItems.map(item => entry('equipment-' + item.id, 'items', item.name, item.description,
-    'bestiary.equipment.' + item.type, item.type === 'wand' ? 'bestiary.wandWrong' : 'bestiary.skinWrong',
+    'bestiary.equipment.' + item.type, item.type === 'wand' ? 'bestiary.wandWrong' : item.type === 'upgrade' ? 'bestiary.upgradeWrong' : 'bestiary.skinWrong',
     item.type === 'pot' ? [1, 2, brewing.stirSpell] : item.type === 'crystal' ? [1, 2] : [],
     { kind: item.type, id: item.id }, {
       ...item.effects,

@@ -1,0 +1,8 @@
+{
+  "maxTargets": 5,
+  "qualities": {
+    "basic": { "multiplier": 1, "extraTargets": 0 },
+    "fine": { "multiplier": 1.35, "extraTargets": 1 },
+    "masterwork": { "multiplier": 1.75, "extraTargets": 2 }
+  }
+}

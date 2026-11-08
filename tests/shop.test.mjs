@@ -17,11 +17,11 @@ async function fixture(savedState) {
   return { store, s: () => store.getState(), saved };
 }
 
-test('permanent catalog has three equipment categories and consumables retain separate repeatable prices', () => {
+test('permanent catalog has equipment and upgrades while consumables retain separate repeatable prices', () => {
   assert.equal(new Set(catalog.map(item => item.id)).size, catalog.length);
   for (const item of catalog) {
     assert.ok(Number.isInteger(item.price) && item.price >= 0);
-    assert.ok(['wand', 'pot', 'crystal'].includes(item.type));
+    assert.ok(['wand', 'pot', 'crystal', 'upgrade'].includes(item.type));
     assert.match(item.color, /^#[0-9a-f]{6}$/i);
   }
   for (const type of Object.keys(defaults)) {

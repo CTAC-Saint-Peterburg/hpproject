@@ -1,0 +1,8 @@
+{
+  "pulseAmplitude": 0.025,
+  "pulseFrequency": 2.3,
+  "swayAmplitude": 0.035,
+  "swayFrequency": 1.3,
+  "rageMultiplier": 1.35,
+  "slimeMultiplier": 1.25
+}

@@ -94,9 +94,10 @@ test('execution chance is checked on correct direct hits at the configured thres
     const f = fixture('wand_execution'), enemy = f.make(); f.install([enemy]); f.setRandom(value);
     assert.equal(f.s().cast(2), true);
     if (value < .08) {
-      assert.equal(f.s().enemies.length, 0); assert.equal(f.profile.stones, config.enemies.fire.reward);
+      assert.equal(f.s().enemies.length, 0); assert.equal(f.profile.stones, 0);
+      assert.equal(f.s().pendingStones, config.enemies.fire.reward + config.waves[0].stonesReward);
       assert.equal(f.s().rewardSerial, 1); f.step(.5);
-      assert.equal(f.profile.stones, config.enemies.fire.reward); assert.equal(f.s().rewardSerial, 1);
+      assert.equal(f.profile.stones, 0); assert.equal(f.s().pendingStones, config.enemies.fire.reward + config.waves[0].stonesReward); assert.equal(f.s().rewardSerial, 1);
     } else {
       assert.equal(f.s().enemies[0].hp, 200 - config.player.damage); assert.equal(f.profile.stones, 0);
     }
@@ -130,7 +131,8 @@ test('execution rolls independently across echo targets and still splits a giant
     assert.equal(f.s().cast(2), true);
     const dead = enemies.filter(enemy => !f.s().enemies.some(alive => alive.id === enemy.id));
     if (dead.length > 0 && dead.length < 3) partial++;
-    assert.equal(f.profile.stones, dead.reduce((sum, enemy) => sum + config.enemies[enemy.type].reward, 0));
+    assert.equal(f.profile.stones, 0);
+    assert.equal(f.s().pendingStones, dead.reduce((sum, enemy) => sum + config.enemies[enemy.type].reward, 0) + (dead.length===enemies.length?config.waves[0].stonesReward:0));
     assert.equal(f.s().rewardSerial, dead.length);
   }
   assert.ok(partial > 0, 'echo must allow a kill on one target without executing every target');
@@ -138,8 +140,8 @@ test('execution rolls independently across echo targets and still splits a giant
   assert.equal(f.s().cast(2), true); assert.equal(f.s().enemies.length, 2);
   assert.ok(f.s().enemies.every(enemy => enemy.type === 'fire' && enemy.hp > 0));
   assert.equal(new Set(f.s().enemies.map(enemy => enemy.id)).size, 2);
-  assert.equal(f.profile.stones, config.enemies.giant.reward); assert.equal(f.s().rewardSerial, 1);
-  f.step(.1); assert.equal(f.profile.stones, config.enemies.giant.reward);
+  assert.equal(f.profile.stones, 0); assert.equal(f.s().pendingStones, config.enemies.giant.reward); assert.equal(f.s().rewardSerial, 1);
+  f.step(.1); assert.equal(f.profile.stones, 0); assert.equal(f.s().pendingStones, config.enemies.giant.reward);
 });
 
 test('splash hits every nearby element once at half damage using full 3D distance, after a matching primary hit', () => {
@@ -208,7 +210,7 @@ test('noob wand keeps invalid, pause, selection, potion consumption and coin rul
   const heal = fixture('wand_noob');
   heal.store.setState({ hp: config.crystal.maxHp, inventory: { ...heal.s().inventory, healing: 1 } });
   heal.s().usePotion('healing'); assert.equal(heal.s().cast(9), false); assert.equal(heal.s().inventory.healing, 1);
-  const coin = fixture('wand_noob'); coin.store.setState({ phase: 'clear', score: 100 }); coin.s().select('coin');
-  assert.equal(coin.s().cast(7), true); assert.equal(coin.s().coinResult, false); assert.equal(coin.s().score, 100);
+  const coin = fixture('wand_noob'); coin.store.setState({ phase: 'clear', pendingStones: 100 }); coin.s().select('coin');
+  assert.equal(coin.s().cast(7), true); assert.equal(coin.s().coinResult, false); assert.equal(coin.s().pendingStones, 100);
   assert.equal(coin.s().fx.spellId, 7);
 });

@@ -4,33 +4,42 @@ import { MAX_REWARD_EVENTS, rewardVisualDuration } from './rewardMotion.js';
 import { createArenaEnemy, advanceArenaEnemy, advanceArenaProjectiles, rangedDelay } from './enemyBehavior.js';
 import { potionRackPosition } from './arenaLayout.js';
 import { equippedArenaItem, wandEffects, enemyDistance } from './arenaEquipment.js';
+import { arenaLoadoutSettings } from '../Stores/arenaUpgrades.js';
+import { potionEffect, applyPotionImpact } from './potionEffects.js';
 
 export { config, potionTypes };
 export function defenseState(profile, random = Math.random) {
   return (set, get) => ({
     phase: 'idle', wave: 0, hp: config.crystal.maxHp, time: 0, lastTick: 0, paused: false,
-    enemies: [], projectiles: [], projectileSerial: 0, queue: [], serial: 0, selected: null, score: 0, runStones: 0,
-    inventory: {}, buffs: {}, crystalEffects: {}, pendingPotion: null, potionFlight: null, spawnAt: 0,
+    enemies: [], projectiles: [], projectileSerial: 0, queue: [], serial: 0, selected: null, pendingStones: 0, runStones: 0, waveSettled: false,
+    inventory: {}, potionQualities: {}, potionSlots: 3, potionCopies: 1, buffs: {}, buffEffects: {}, crystalEffects: {}, pendingPotion: null, potionFlight: null, spawnAt: 0,
     coinSelected: false, coinResult: null, coinEnd: 0, debugUsed: false, lastCast: -99,
     coinToss: null, coinStartedAt: 0, coinResolved: false,
     rewardEvents: [], rewardSerial: 0, rewardCollectedSerial: 0,
     message: 'arena.instructions', fx: null, fxSerial: 0,
     wandId: 'wand_default', crystalSkinId: 'crystal_default',
     start: ids => {
-      if (get().phase !== 'idle' || !profile().consumeEntryPotions(ids)) return false;
+      if (get().phase !== 'idle') return false;
+      const { slots, copies } = arenaLoadoutSettings(profile());
+      if (!Array.isArray(ids) || ids.length < 3 || ids.length > slots || new Set(ids).size !== ids.length ||
+        ids.some(id => !potionTypes.some(potion => potion.id === id))) return false;
+      const entry = profile().consumeEntryPotions(ids);
+      if (!entry) return false;
+      const qualities = Object.fromEntries(ids.map(id => [id,
+        potionEffect(potionTypes.find(potion => potion.id === id), entry.qualities?.[id] ?? entry.consumed?.[id]).quality]));
       set({ phase:'wave', wave:0, hp:config.crystal.maxHp, time:0, lastTick:Date.now(), paused:false,
         wandId:equippedArenaItem(profile(),'wand')?.id??'wand_default',
         crystalSkinId:equippedArenaItem(profile(),'crystal')?.id??'crystal_default',
-        enemies:[], projectiles:[], projectileSerial:0, queue:[], serial:0, selected:null, score:0, runStones:0,
-        inventory:Object.fromEntries(ids.map(id=>[id,1])), buffs:{}, crystalEffects:{},
+        enemies:[], projectiles:[], projectileSerial:0, queue:[], serial:0, selected:null, pendingStones:0, runStones:0, waveSettled:false,
+        inventory:Object.fromEntries(ids.map(id=>[id,copies])), potionQualities:qualities, potionSlots:slots, potionCopies:copies, buffs:{}, buffEffects:{}, crystalEffects:{},
         pendingPotion:null, potionFlight:null, coinSelected:false, coinResult:null, debugUsed:false, lastCast:-99, fx:null, fxSerial:0,
         coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,rewardEvents:[],rewardSerial:0,rewardCollectedSerial:0,
         message:'arena.instructions' });
       get().beginWave(0);
       return true;
     },
-    exit: () => set({phase:'idle',enemies:[],projectiles:[],projectileSerial:0,queue:[],buffs:{},crystalEffects:{},pendingPotion:null,potionFlight:null,selected:null,fx:null,
-      coinSelected:false,coinResult:null,coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,rewardEvents:[]}),
+    exit: () => set({phase:'idle',enemies:[],projectiles:[],projectileSerial:0,queue:[],inventory:{},potionQualities:{},buffs:{},buffEffects:{},crystalEffects:{},pendingPotion:null,potionFlight:null,selected:null,fx:null,
+      coinSelected:false,coinResult:null,coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,rewardEvents:[],pendingStones:0,waveSettled:false}),
     setPaused: paused => set({paused,lastTick:Date.now()}),
     select: target => {
       const s=get();
@@ -47,7 +56,7 @@ export function defenseState(profile, random = Math.random) {
       if (!Number.isInteger(index) || index<0 || index>=config.waves.length || get().phase==='idle') return false;
       const wave=config.waves[index];
       const queue=wave.groups.flatMap(group=>Array.from({length:group.count},()=>({...group})));
-      set({phase:'wave',wave:index,enemies:[],projectiles:[],queue,selected:null,spawnAt:get().time,
+      set({phase:'wave',wave:index,enemies:[],projectiles:[],queue,selected:null,spawnAt:get().time,pendingStones:0,waveSettled:false,
         coinSelected:false,coinResult:null,coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,pendingPotion:null,potionFlight:null,message:'arena.instructions'});
       get().spawnFromQueue();
       return true;
@@ -56,6 +65,7 @@ export function defenseState(profile, random = Math.random) {
       const s=get();
       if (!['clear','coin'].includes(s.phase)) return;
       if (s.paused || s.phase === 'coin' && (!s.coinResolved || s.time < s.coinEnd)) return;
+      get().settleWave();
       if (s.wave === config.waves.length-1) set({phase:'won',selected:null,coinSelected:false,coinToss:null,
         coinResult:null,coinResolved:false,coinStartedAt:0,coinEnd:0,rewardEvents:[],message:'arena.victory'});
       else get().beginWave(s.wave+1);
@@ -64,7 +74,18 @@ export function defenseState(profile, random = Math.random) {
       const s=get();
       if (s.phase!=='wave' || s.enemies.length || s.queue.length || s.projectiles.length || s.potionFlight) return;
       if (!s.debugUsed) profile().awardMageCard(config.waves[s.wave].cardId);
-      set({phase:'clear',selected:null,pendingPotion:null,coinSelected:false,message:'arena.waveClear'});
+      const bonus=s.debugUsed?0:Math.max(0,Math.trunc(config.waves[s.wave].stonesReward??0));
+      set({phase:'clear',pendingStones:s.pendingStones+bonus,selected:null,pendingPotion:null,coinSelected:false,message:'arena.waveClear'});
+    },
+    settleWave: (multiplier=1) => {
+      const s=get();
+      if (s.paused || s.waveSettled || !['clear','coin'].includes(s.phase) || s.phase==='coin'&&!s.coinResolved) return 0;
+      const factor=multiplier===2?2:multiplier===0?0:1;
+      const amount=s.debugUsed?0:Math.max(0,Math.trunc(s.pendingStones))*factor;
+      // Mark the wave before updating the profile: subscribers cannot settle it twice.
+      set({pendingStones:0,waveSettled:true,runStones:s.runStones+amount,rewardEvents:[]});
+      if(amount>0)profile().changeStones(amount);
+      return amount;
     },
     createEnemy: (type, group={}) => {
       const s=get();
@@ -80,7 +101,7 @@ export function defenseState(profile, random = Math.random) {
       const s=get();
       if (s.phase!=='wave' || !config.enemies[type] || s.enemies.length>=config.waves[s.wave].maxConcurrent) return false;
       const enemy=get().createEnemy(type);
-      set({enemies:[...s.enemies,enemy],serial:s.serial+1,debugUsed:true,message:'arena.debug'});
+      set({enemies:[...s.enemies,enemy],serial:s.serial+1,debugUsed:true,pendingStones:0,rewardEvents:[],message:'arena.debug'});
       return true;
     },
     debugWave: number => {
@@ -93,7 +114,6 @@ export function defenseState(profile, random = Math.random) {
     awardKills: dead => {
       if (!dead.length) return;
       const s=get(), stones=dead.reduce((sum,e)=>sum+config.enemies[e.type].reward,0);
-      if (!s.debugUsed) profile().changeStones(stones);
       const events=dead.map((enemy,index)=>({id:s.rewardSerial+index+1,time:s.time,
         position:[enemy.x,(enemy.size??1)*.6+(enemy.y??0),enemy.z],color:config.enemies[enemy.type].color,
         stones:s.debugUsed?0:config.enemies[enemy.type].reward}));
@@ -113,7 +133,7 @@ export function defenseState(profile, random = Math.random) {
           if (child) children.push(child);
         }
       }
-      set({score:s.score+stones*10,runStones:s.runStones+(s.debugUsed?0:stones),serial,enemies:[...s.enemies,...children],
+      set({pendingStones:s.pendingStones+(s.debugUsed?0:stones),serial,enemies:[...s.enemies,...children],
         rewardEvents:[...s.rewardEvents,...events].slice(-MAX_REWARD_EVENTS),rewardSerial:s.rewardSerial+events.length});
     },
     usePotion: id => {
@@ -127,9 +147,13 @@ export function defenseState(profile, random = Math.random) {
       if (s.paused || s.phase!=='wave' || !flight || s.time+1e-9<flight.startedAt+flight.duration || s.hp<=0) return false;
       const potion=potionTypes.find(p=>p.id===flight.potionId);
       if (!potion) {set({potionFlight:null});return false;}
-      const heal=potion.effect==='heal';
-      set({potionFlight:null,...(heal?{hp:Math.min(config.crystal.maxHp,s.hp+potion.heal)}:
-        {buffs:{...s.buffs,[potion.effect]:s.time+potion.duration}}),message:heal?'arena.healed':'arena.buffActive',
+      const effect=potionEffect(potion,flight.quality), heal=effect.effect==='heal';
+      const previous=s.buffs[effect.effect]>s.time?s.buffEffects[effect.effect]:null;
+      const activeEffect=previous?.multiplier>effect.multiplier?previous:effect;
+      set({potionFlight:null,enemies:applyPotionImpact(s.enemies,effect,s.time),
+        ...(heal?{hp:Math.min(config.crystal.maxHp,s.hp+effect.heal)}:
+        {buffs:{...s.buffs,[effect.effect]:Math.max(s.buffs[effect.effect]??0,s.time+effect.duration)},
+          buffEffects:{...s.buffEffects,[effect.effect]:activeEffect}}),message:heal?'arena.healed':'arena.buffActive',
         fx:{id:s.fxSerial+1,time:s.time,color:potion.color,target:[flight.to[0],flight.to[1]+.18,flight.to[2]],
           spellId:({freeze:2,burn:1,multicast:6,heal:5})[potion.effect]??3,kind:'potionImpact'},fxSerial:s.fxSerial+1});
       return true;
@@ -164,13 +188,14 @@ export function defenseState(profile, random = Math.random) {
         if (potion.effect==='heal' && s.hp>=config.crystal.maxHp) {set({message:'arena.fullHealth'});return false;}
         const from=potionRackPosition(potion.id,s.inventory);
         set({pendingPotion:null,selected:null,lastCast:s.time,inventory:{...s.inventory,[potion.id]:s.inventory[potion.id]-1},
-          potionFlight:{id:s.fxSerial+1,potionId:potion.id,startedAt:s.time,duration:config.visuals.potionFlightSeconds,
+          potionFlight:{id:s.fxSerial+1,potionId:potion.id,quality:s.potionQualities[potion.id]??'basic',startedAt:s.time,duration:config.visuals.potionFlightSeconds,
             arcHeight:config.visuals.potionArcHeight,from,to:[...config.visuals.potionLanding]},message:'arena.potionFlying',
           fx:{id:s.fxSerial+1,time:s.time,spellId:3,target:[from[0],from[1]+.5,from[2]],kind:'cast'},fxSerial:s.fxSerial+1});
         return true;
       }
       const multi=s.buffs.multicast>s.time;
-      const spells=multi?[...new Set([castSpell,...potionTypes.find(p=>p.effect==='multicast').spells])]:[castSpell];
+      const echo=s.buffEffects.multicast??potionEffect(potionTypes.find(p=>p.effect==='multicast'));
+      const spells=multi?[...new Set([castSpell,...echo.spells])]:[castSpell];
       if (s.selected==='crystal') {
         const effects={...s.crystalEffects};
         if (wand.autoCounter) {
@@ -192,7 +217,6 @@ export function defenseState(profile, random = Math.random) {
         return hit;
       }
       if (!target) {set({message:'arena.selectTarget'});return false;}
-      const echo=potionTypes.find(p=>p.effect==='multicast');
       const targets=[target,...(multi?s.enemies.filter(e=>e.id!==target.id && Math.hypot(e.x-target.x,e.z-target.z)<=echo.chainRadius)
         .sort((a,b)=>Math.hypot(a.x-target.x,a.z-target.z)-Math.hypot(b.x-target.x,b.z-target.z)).slice(0,echo.targets-1):[])];
       const ids=new Set(targets.map(e=>e.id));
@@ -208,16 +232,17 @@ export function defenseState(profile, random = Math.random) {
         const instant=wand.instantKillChance>0 && random()<wand.instantKillChance;
         const critical=!instant && random()<config.waves[s.wave].playerCritChance;
         const damage=(config.player.damage+wand.damageBonus)*(critical?config.player.criticalMultiplier:1)*(direct?1:wand.splashMultiplier);
-        const e={...enemy,hp:instant?0:enemy.hp-damage};
+        let e={...enemy,hp:instant?0:enemy.hp-damage};
         if (instant) executed=true;
         if (base.ranged?.countdown) {
           if (e.windupUntil>s.time) interrupted=true;
           e.windupUntil=0;
           e.nextRangedAt=s.time+rangedDelay(base.ranged,random);
         }
-        if (s.buffs.freeze>s.time) e.frozenUntil=s.time+potionTypes.find(p=>p.effect==='freeze').onHitDuration;
-        if (s.buffs.burn>s.time) {
-          const p=potionTypes.find(p=>p.effect==='burn');e.burnUntil=s.time+p.onHitDuration;e.burnDps=p.dps;
+        for (const kind of ['freeze','burn']) {
+          if (!(s.buffs[kind]>s.time)) continue;
+          const effect=s.buffEffects[kind]??potionEffect(potionTypes.find(p=>p.effect===kind));
+          e=applyPotionImpact([e],{...effect,impactDuration:effect.onHitDuration},s.time)[0];
         }
         return e;
       });
@@ -240,7 +265,8 @@ export function defenseState(profile, random = Math.random) {
       set({time,lastTick:now,rewardEvents,rewardCollectedSerial:s.rewardCollectedSerial+(collected?1:0)});
       if (s.phase==='coin') {
         if (!s.coinResolved && s.coinToss && time>=s.coinStartedAt+s.coinToss.duration) {
-          set({coinResolved:true,score:s.coinResult?s.score*2:0,message:s.coinResult?'arena.coinWin':'arena.coinLose'});
+          set({coinResolved:true,message:s.coinResult?'arena.coinWin':'arena.coinLose'});
+          get().settleWave(s.coinResult?2:0);
         }
         if(time>=s.coinEnd)get().next();
         return;
@@ -257,7 +283,7 @@ export function defenseState(profile, random = Math.random) {
         selected:s.selected==='crystal'?'crystal':s.pendingPotion&&s.selected==='potion:'+s.pendingPotion||alive.some(e=>e.id===s.selected)||projectiles.some(shot=>shot.id===s.selected&&shot.interceptable)?s.selected:null});
       get().awardKills(dead);
       if(combat.hp<=0){set({phase:'lost',enemies:[],projectiles:[],queue:[],selected:null,pendingPotion:null,potionFlight:null,rewardEvents:[],
-        coinSelected:false,coinToss:null,coinResult:null,coinResolved:false,coinEnd:0,message:'arena.defeat'});return;}
+        coinSelected:false,coinToss:null,coinResult:null,coinResolved:false,coinEnd:0,pendingStones:0,waveSettled:false,message:'arena.defeat'});return;}
       get().resolvePotion();
       if(time>=get().spawnAt)get().spawnFromQueue();
       get().finishWave();

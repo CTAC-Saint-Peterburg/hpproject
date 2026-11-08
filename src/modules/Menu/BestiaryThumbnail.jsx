@@ -29,6 +29,12 @@ export default function BestiaryThumbnail({ model }) {
     </> : model.kind === 'coin' ? <>
       <path d="M22 8H43L57 22V43L43 57H22L8 43V22Z" fill="currentColor" />
       <path d="M27 29 34 25 42 30 40 40 29 44 21 37 23 23 36 18" fill="none" stroke="var(--color-arena-wood-line)" strokeWidth="3" />
+    </> : model.kind === 'upgrade' ? <>
+      <path d="M22 18V9H42V18M7 24H57V56H7Z" fill="none" stroke="var(--color-border)" strokeWidth="4" strokeLinejoin="round" />
+      {[15, 27, 39].map(x => <g key={x} fill="currentColor">
+        <path d={'M' + x + ' 25H' + (x + 7) + 'V34L' + (x + 9) + ' 38V50H' + (x - 2) + 'V38L' + x + ' 34Z'} />
+        <path d={'M' + (x - 1) + ' 22H' + (x + 8) + 'V27H' + (x - 1) + 'Z'} fill="var(--color-potion-stopper)" />
+      </g>)}
     </> : model.kind === 'potion' ? <>
       <path d="M25 12H39V27L48 35V53H16V35L25 27Z" fill="currentColor" />
       <path d="M24 8H40V16H24Z" fill="var(--color-potion-stopper)" />

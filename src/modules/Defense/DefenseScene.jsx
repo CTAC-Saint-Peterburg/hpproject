@@ -58,7 +58,7 @@ export default function DefenseScene(){
  const draw=useRef(null),[stroke,setStroke]=useState([]);
  const gestureRef=useRef(false);
  const walletRef=useRef(null);
- const pendingStones=pendingRewardStones(s.rewardEvents,s.time);
+ const visualPending=pendingRewardStones(s.rewardEvents,s.time);
  const activePotions=potionTypes.filter(potion=>s.buffs[potion.effect]>s.time);
  useEffect(()=>{
   const timer=setInterval(()=>useDefenseStore.getState().tick(Date.now()),50);
@@ -104,9 +104,9 @@ export default function DefenseScene(){
  </div>
  <header className="arena-top"><strong>{t('arena.wave',{wave:s.wave+1})}</strong>
  <div><span>{t('arena.crystal')} {Math.ceil(s.hp)}/{config.crystal.maxHp}</span><div className="arena-health"><i style={{width:100*s.hp/config.crystal.maxHp+'%'}}/></div></div>
- <span>{t('arena.points',{score:s.score})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
+ <span>{t('arena.balance',{stones})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
    className={s.rewardCollectedSerial?'arena-wallet arena-wallet-collected':'arena-wallet'} aria-live="polite">
-   💎 {Math.max(0,stones-pendingStones)} (+{Math.max(0,s.runStones-pendingStones)})</span>
+   {t('arena.pending',{stones:Math.max(0,s.pendingStones-visualPending)})}</span>
  <button onClick={()=>s.setPaused(!s.paused)}>{t(s.paused?'arena.resume':'arena.pause')}</button><button onClick={s.exit}>{t('menu.return')}</button></header>
  {showFps&&<div className="fps">{fps}</div>}
  <aside className="arena-hints"><p>{t(s.message)}</p>
@@ -116,10 +116,11 @@ export default function DefenseScene(){
  {s.debugUsed&&<p>{t('arena.debug')}</p>}</aside>
  {activePotions.length>0&&<footer className="arena-buffs">{activePotions.map(p=><span key={p.id}>{p.icon} {t(p.name)} · {t('time.seconds',{value:Math.ceil(s.buffs[p.effect]-s.time)})}</span>)}</footer>}
  {s.phase==='clear'&&!s.coinSelected&&<aside className="arena-between"><h2>{t(s.debugUsed?'arena.debug':'arena.waveClear')}</h2><p>{t('arena.coinRules')}</p>
+ <p>{t('arena.waveReward',{stones:s.debugUsed?0:config.waves[s.wave].stonesReward??0})}</p><p>{t('arena.pending',{stones:s.pendingStones})}</p>
  <p>{t('arena.coinChance',{value:Math.round(config.coin.winChance*100)})}</p>
  <button onClick={()=>s.select('coin')}>{t('arena.selectCoin')}</button><button onClick={s.next}>{t(s.wave===9?'arena.finish':'arena.next')}</button></aside>}
  {s.paused&&!['won','lost'].includes(s.phase)&&<div className="result"><h2>{t('arena.paused')}</h2><button onClick={()=>s.setPaused(false)}>{t('arena.resume')}</button><button onClick={s.exit}>{t('menu.return')}</button></div>}
- {['won','lost'].includes(s.phase)&&<div className="result"><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2><p>{t('arena.points',{score:s.score})}</p>
+ {['won','lost'].includes(s.phase)&&<div className="result"><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2>{s.phase==='lost'&&<p>{t('arena.pendingLost')}</p>}
  <p>{t('arena.earned',{stones:s.runStones})}</p><button onClick={s.exit}>{t('arena.restock')}</button></div>}
  {debug&&<aside className="arena-debug"><strong>{t('arena.debugTitle')}</strong>
  <label>{t('arena.waveLabel')}<select value={wave} onChange={e=>setWave(Number(e.target.value))}>{config.waves.map(w=><option key={w.id} value={w.id}>{w.id}</option>)}</select></label>
