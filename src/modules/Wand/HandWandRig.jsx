@@ -6,7 +6,7 @@ import { Wand } from './Wand';
 import { settings } from './effectSettings';
 import { createHandMotion, stepHandMotion } from './handMotion';
 
-export default function HandWandRig({ tip, aimTarget, getEffectState }) {
+export default function HandWandRig({ tip, aimTarget, getEffectState, position = settings.handRig.position }) {
   const joint = useRef();
   const motion = useRef(createHandMotion());
   const initialized = useRef(false);
@@ -21,7 +21,7 @@ export default function HandWandRig({ tip, aimTarget, getEffectState }) {
     const config = settings.handRig;
     const dt = Math.min(delta, .1);
     const pose = stepHandMotion(motion.current, pointer, dt, config);
-    const base = config.position, influence = config.tracking.positionInfluence;
+    const base = position, influence = config.tracking.positionInfluence;
     joint.current.position.set(base[0] + pose.x * influence[0], base[1] + pose.y * influence[1] + pose.bob, base[2]);
     if (aimTarget) vectors.target.copy(aimTarget.current);
     else vectors.target.set(pose.x * config.brewingAim[0], pose.y * config.brewingAim[1], config.brewingAim[2]);

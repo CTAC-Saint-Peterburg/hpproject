@@ -12,6 +12,11 @@ const equipmentTypes = ['wand', 'pot', 'crystal'];
 const defaultEquipment = Object.fromEntries(equipmentTypes.map(type => [type,
   shopItems.find(item => item.type === type && item.default)?.id ?? type + '_default']));
 
+const nonnegativeSeconds = (value, fallback) => Number.isFinite(value) ? Math.max(0, value) : fallback;
+const canSpawnEnemy = (state, type, now) => type === 'enemyslime'
+  ? !state.enemies.some(enemy => enemy.type === 'enemyslime') && (state.slimeRespawnAt === null || now >= state.slimeRespawnAt)
+  : [-1, 1].some(side => !state.enemies.some(enemy => enemy.side === side));
+
 export function resolveEquipmentProfile(saved = {}) {
   const validItems = new Map(shopItems.filter(item => equipmentTypes.includes(item.type)).map(item => [item.id, item]));
   const previous = Array.isArray(saved?.ownedItems) ? saved.ownedItems : [];
@@ -27,7 +32,7 @@ export function resolveEquipmentProfile(saved = {}) {
 export const useGameStore = create(persist((set, get) => ({
 
   enemies: [], projectiles: [], selectedEnemyId: null, enemiesSpawned: 0,
-  nextEnemyAt: null, enemySerial: 0,
+  nextEnemyAt: null, enemySerial: 0, slimeRespawnAt: null,
   selectEnemy: id => {
     const s = get();
     if (s.status !== 'playing' || s.paused || !s.enemies.some(enemy => enemy.id === id)) return;
@@ -40,6 +45,10 @@ export const useGameStore = create(persist((set, get) => ({
     const slime = type === 'enemyslime';
     if (slime && s.enemies.some(enemy => enemy.type === 'enemyslime')) {
       if (forced) set({ message: 'messages.slimePresent' });
+      return false;
+    }
+    if (slime && s.slimeRespawnAt !== null && now < s.slimeRespawnAt) {
+      if (forced) set({ message: 'messages.slimeCooldown', messageValues: { seconds: Math.ceil((s.slimeRespawnAt - now) / 1000) } });
       return false;
     }
     const freeSide = slime ? [0] : [-1, 1].filter(side => !s.enemies.some(enemy => enemy.side === side));
@@ -72,7 +81,7 @@ export const useGameStore = create(persist((set, get) => ({
       ...(impacts.length ? { message: 'messages.impact', messageValues: { delta: (temperatureDelta >= 0 ? '+' : '') + temperatureDelta } } : {}) });
     s = get();
     const config = s.mission.enemySpawn;
-    const allowed = (config?.allowed || []).filter(type => ENEMY_TYPES[type]);
+    const allowed = (config?.allowed || []).filter(type => ENEMY_TYPES[type] && canSpawnEnemy(s, type, now));
     if (!allowed.length || s.nextEnemyAt === null || now < s.nextEnemyAt) return;
     const budget = Math.max(1, Math.min(10, Math.trunc(config.rarity || 1)));
     if (s.enemiesSpawned >= budget) return;
@@ -150,7 +159,7 @@ export const useGameStore = create(persist((set, get) => ({
     const delay = Math.max(0, now - s.pausedAt);
     const shift = time => time == null ? time : time + delay;
     set({ paused: false, pausedAt: null, lastTick: now,
-      deadline: shift(s.deadline), nextEnemyAt: shift(s.nextEnemyAt),
+      deadline: shift(s.deadline), nextEnemyAt: shift(s.nextEnemyAt), slimeRespawnAt: shift(s.slimeRespawnAt),
       stirUntil: s.stirUntil ? shift(s.stirUntil) : 0,
       ingredientFlight: s.ingredientFlight ? { ...s.ingredientFlight, startedAt: shift(s.ingredientFlight.startedAt) } : null,
       ingredientRefills: Object.fromEntries(Object.entries(s.ingredientRefills).map(([id, at]) => [id, shift(at)])),
@@ -200,6 +209,7 @@ export const useGameStore = create(persist((set, get) => ({
         if (index < 0) { set({ currentSpell: null, message: 'messages.slimeWrong' }); return; }
         const remainingSpells = enemy.remainingSpells.filter((_, i) => i !== index);
         set({ enemies: remainingSpells.length ? s.enemies.map(item => item.id === enemy.id ? { ...item, remainingSpells } : item) : s.enemies.filter(item => item.id !== enemy.id),
+          ...(!remainingSpells.length ? { slimeRespawnAt: Date.now() + nonnegativeSeconds(brewing.slimeRespawnCooldownSeconds, 30) * 1000 } : {}),
           selectedEnemyId: remainingSpells.length ? enemy.id : null, currentSpell: null,
           spellCast: cast, spellCastSerial: cast.sequence, message: remainingSpells.length ? 'messages.slimeHit' : 'messages.defeated' });
         return;
@@ -253,12 +263,12 @@ export const useGameStore = create(persist((set, get) => ({
       ingredientFlight: null, ingredientFlightSerial: 0, ingredientRefills: {},
       score: 0, mistakes: 0, rating: 0, reward: 0, message: '', debugUsed: false,
       remaining: mission.timeLimit ?? null, deadline: mission.timeLimit ? now + mission.timeLimit * 1000 : null,
-      lastTick: now, enemies: [], projectiles: [], selectedEnemyId: null, enemiesSpawned: 0, enemySerial: 0,
+      lastTick: now, enemies: [], projectiles: [], selectedEnemyId: null, enemiesSpawned: 0, enemySerial: 0, slimeRespawnAt: null,
       nextEnemyAt: mission.enemySpawn?.allowed?.length ? now +
         (mission.enemySpawn.spawnWindow ?? mission.timeLimit ?? 150) * 1000 /
         (Math.max(1, Math.min(10, Math.trunc(mission.enemySpawn.rarity || 1))) + 1) : null });
   },
-  exitToMenu: () => set({ ingredientFlight: null, ingredientRefills: {}, runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, currentSpell: null, spellCast: null, isPotSelected: false, heatLevel: 0, selectedIngredientId: null, heldIngredientId: null, agitation: 0, stirUntil: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null }),
+  exitToMenu: () => set({ ingredientFlight: null, ingredientRefills: {}, runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, currentSpell: null, spellCast: null, isPotSelected: false, heatLevel: 0, selectedIngredientId: null, heldIngredientId: null, agitation: 0, stirUntil: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null, slimeRespawnAt: null }),
   tick: now => {
     const s = get();
     if (!s.startGame || s.status !== 'playing' || s.paused) return;
@@ -291,7 +301,9 @@ export const useGameStore = create(persist((set, get) => ({
         message: id !== stage.id ? 'messages.wrongIngredient' : s.potTemperature < stage.temperature.min || s.potTemperature > stage.temperature.max ? 'messages.wrongTemperature' : 'messages.wrongStirring' });
       return;
     }
-    set({ currentStage: s.currentStage + 1, score: s.score + stage.points_add, message: 'messages.accepted', heldIngredientId: null, selectedIngredientId: null, currentSpell: null });
+    const deadline = s.deadline === null ? null : s.deadline + nonnegativeSeconds(brewing.ingredientTimeBonusSeconds, 5) * 1000;
+    set({ currentStage: s.currentStage + 1, score: s.score + stage.points_add, message: 'messages.accepted', heldIngredientId: null, selectedIngredientId: null, currentSpell: null,
+      deadline, remaining: deadline === null ? null : Math.max(0, (deadline - Date.now()) / 1000) });
     if (get().currentStage === s.mission.stages.length) get().finish(true);
   },
   debugAdvance: () => {
@@ -324,7 +336,7 @@ export const useGameStore = create(persist((set, get) => ({
     set({ status: won ? 'won' : 'lost', spellCast: null, rating, resultQuality, reward, stones: s.stones + reward, potionInventory,
       heldIngredientId: null, selectedIngredientId: null, stirUntil: 0,
       ingredientFlight: null, ingredientRefills: {},
-      completed, records, unlocked: [...unlocked], heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null });
+      completed, records, unlocked: [...unlocked], heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null, slimeRespawnAt: null });
   },
 }), {
   name: 'hpproject-save-v1',

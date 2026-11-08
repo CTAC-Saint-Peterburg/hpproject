@@ -81,7 +81,7 @@
   },
   "level_02": {
     "name": "missions.level_02",
-    "timeLimit": 120,
+    "timeLimit": 150,
     "stonesReward": 50,
     "stages": [
       {
@@ -163,7 +163,7 @@
   },
   "level_03": {
     "name": "missions.level_03",
-    "timeLimit": 90,
+    "timeLimit": 120,
     "stonesReward": 75,
     "stages": [
       {
@@ -245,7 +245,7 @@
   },
   "level_04": {
     "name": "missions.level_04",
-    "timeLimit": 120,
+    "timeLimit": 150,
     "stonesReward": 100,
     "stages": [
       {

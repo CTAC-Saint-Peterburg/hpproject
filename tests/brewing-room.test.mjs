@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { DoubleSide, Mesh, MeshBasicMaterial, Raycaster, Vector3 } from 'three';
+import { readFileSync } from 'node:fs';
+import { DoubleSide, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Vector3 } from 'three';
 import { ROOM, createBrewingRoomGeometry } from '../src/modules/Room/roomGeometry.js';
 import { createWorkshopPropsGeometry } from '../src/modules/Room/workshopPropsGeometry.js';
 import { SPAWN_BOTTLES_CORDS } from '../src/static/constants.js';
 import { enemyPosition } from '../src/static/enemies.js';
+import { writeBrewingHandFrame } from '../src/modules/Wand/brewingHandFrame.js';
 
-const camera = new Vector3(0, 0, 10);
+const scene = JSON.parse(readFileSync(new URL('../src/static/brewing.json', import.meta.url), 'utf8')).scene;
+const camera = new Vector3(...scene.cameraPosition);
 const triangleCount = geometry => (geometry.index?.count ?? geometry.getAttribute('position').count) / 3;
 
 function withRoom(halfWidth, run) {
@@ -71,12 +74,17 @@ test('flagstone floor covers the camera-facing room and keeps the existing groun
 
 test('walls and furniture never occlude existing gameplay targets on narrow, wide and ultrawide views', () => {
   for (const aspect of [9 / 16, 16 / 9, 21 / 9, 32 / 9]) {
-    const height = 2 * 10 * Math.tan(Math.PI / 6);
+    const height = 2 * camera.z * Math.tan(scene.cameraFov * Math.PI / 360);
     const width = height * aspect;
     const halfWidth = Math.min(ROOM.maxHalfWidth, Math.max(ROOM.minHalfWidth, width * .74));
+    const view = new PerspectiveCamera(scene.cameraFov, aspect, .1, 1000);
+    view.position.copy(camera);
+    view.updateMatrixWorld(true);
+    const handPosition = new Vector3();
+    writeBrewingHandFrame(handPosition, view, aspect, scene.handRig);
     const targets = [
       ['cauldron', [0, 0, 0]],
-      ['hand', [-.64, -.92, 3.68]],
+      ['hand', handPosition.toArray()],
       ['recipe text', [-4.05, 1, 0]],
       ['recipe marker', [-4.25, 1, 0]],
       ['ingredient flight apex', [0, 1.8, 0]],

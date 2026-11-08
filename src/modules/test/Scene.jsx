@@ -13,6 +13,7 @@ import Enemies from '../Enemies/Enemies';
 import { FrameCounter } from '../GameHud';
 import { theme } from '../../static/theme';
 import IngredientFlight from '../Ingredients/IngredientFlight';
+import brewing from '../../static/brewing.json';
 
 export default function Scene() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -37,7 +38,7 @@ export default function Scene() {
       path.current = []; setTrail([]);
     }
   };
-  return <Canvas dpr={[1, 1.5]} frameloop={s.paused ? 'never' : 'always'} camera={{ position: [0, 0, 10], fov: 60 }}>
+  return <Canvas dpr={[1, 1.5]} frameloop={s.paused ? 'never' : 'always'} camera={{ position: brewing.scene.cameraPosition, fov: brewing.scene.cameraFov }}>
     <color attach="background" args={[theme.colors.roomBackground]} />
     <FrameCounter />
     <Enemies />

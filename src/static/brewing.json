@@ -1,5 +1,17 @@
 {
+  "scene": {
+    "cameraPosition": [0, 0, 9.2],
+    "cameraFov": 60,
+    "handRig": {
+      "screenAnchor": [0.6, -0.58],
+      "depth": 2,
+      "scale": 0.32,
+      "mobileAspect": 1.2
+    }
+  },
   "ingredientSize": 0.55,
+  "ingredientTimeBonusSeconds": 5,
+  "slimeRespawnCooldownSeconds": 30,
   "liftSpell": 3,
   "dropSpell": 4,
   "stirSpell": 5,

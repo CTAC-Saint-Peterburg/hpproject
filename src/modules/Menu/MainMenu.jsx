@@ -9,6 +9,7 @@ import SpellTraining from './SpellTraining';
 import Shop from './Shop';
 import DefenseSetup from '../Defense/DefenseSetup';
 import AudioSettings from '../Audio/AudioSettings.jsx';
+import Bestiary from './Bestiary';
 
 export default function MainMenu() {
  const { t, i18n } = useTranslation();
@@ -17,7 +18,7 @@ export default function MainMenu() {
  const languageSelect = <label>{t('language')}<select value={i18n.resolvedLanguage} onChange={e => i18n.changeLanguage(e.target.value)}>
  {Object.entries(languages).map(([code,name]) => <option key={code} value={code}>{name}</option>)}</select></label>;
  if (page === 'training') return <section className="menu training-menu">{languageSelect}<SpellTraining onBack={() => setPage('main')} /></section>;
- return <section className="menu"><h1>{t('app.title')}</h1><p>{t('app.version', {version:pkg.version})}</p>
+ return <section className={'menu' + (page === 'bestiary' ? ' bestiary-menu' : '')}><h1>{t('app.title')}</h1><p>{t('app.version', {version:pkg.version})}</p>
  {languageSelect}
  {page === 'main' && <>
  {s.showFirstVisitWelcome && <article role="status"><p>{t('firstVisit.welcome')}</p><button onClick={s.dismissFirstVisit}>{t('collection.close')}</button></article>}
@@ -27,6 +28,7 @@ export default function MainMenu() {
  <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.play')}</button>
  <button onClick={() => setPage('defense')}>{t('arena.title')}</button>
  <button onClick={() => setPage('shop')}>{t('shop.title')}</button>
+ <button onClick={() => setPage('bestiary')}>{t('bestiary.title')}</button>
  <button onClick={() => setPage('training')}>{t('menu.training')}</button>
  <button onClick={() => setPage('achievements')}>{t('menu.achievements')}</button>
  <button onClick={() => setPage('settings')}>{t('menu.settings')}</button>
@@ -35,6 +37,7 @@ export default function MainMenu() {
  {page === 'defense' && <DefenseSetup />}
  {page === 'help' && <><h2>{t('menu.help')}</h2><p>{t('help.heat')}</p><p>{t('help.ingredients')}</p><p>{t('help.rules')}</p></>}
  {page === 'shop' && <Shop />}
+ {page === 'bestiary' && <Bestiary />}
  {page === 'settings' && <AudioSettings />}
  {page !== 'main' && <button onClick={() => setPage('main')}>{t('menu.back')}</button>}
  </section>;
