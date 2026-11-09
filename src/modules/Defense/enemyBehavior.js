@@ -1,3 +1,5 @@
+import { advanceEnemyCarry } from './enemyCarry.js';
+
 // All motion and attack timers use arena simulation time, including projectiles.
 export function rangedDelay(ranged, random) {
   return ranged.interval ?? ranged.intervalMin + random() * (ranged.intervalMax - ranged.intervalMin);
@@ -81,6 +83,7 @@ export function advanceArenaEnemy(original, config, potions, time, dt, random, c
   const enemy = { ...original }, base = config.enemies[enemy.type];
   if (enemy.burnUntil > time) enemy.hp -= enemy.burnDps * dt;
   if (enemy.hp <= 0) return enemy;
+  if (advanceEnemyCarry(enemy, config, time, dt)) return enemy;
   const frozenSpeed = potions.find(p => p.effect === 'freeze').slowMultiplier;
   const frozenSeconds = Math.min(dt, Math.max(0, enemy.frozenUntil - (time - dt)));
   // Freeze halts every movement branch, including knockback and disorientation.
@@ -107,6 +110,11 @@ export function advanceArenaEnemy(original, config, potions, time, dt, random, c
   if (disoriented) {
     const behavior = config.afterAttack.disorientation;
     if (slow > 0) wander(enemy, config, time, dt, enemy.speed * slow * behavior.speedMultiplier, behavior.turnInterval, random);
+    return enemy;
+  }
+  if (base.movement === 'bomber') {
+    wander(enemy, config, time, dt, enemy.speed * slow, base.wanderTurnInterval, random);
+    enemy.y = Math.sin(time * 2 + enemy.seed) * .03;
     return enemy;
   }
   if (base.ranged) {

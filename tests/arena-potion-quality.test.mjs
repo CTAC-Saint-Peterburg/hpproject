@@ -132,7 +132,7 @@ test('echo quality expands duration, chain radius and number of actual damaged t
     const enemies = [0, 1, 2, 3, 7.5, 9.5].map(x => f.make('moss', { x, z: 0 }));
     f.store.setState({ enemies });
     f.s().select(enemies[0].id);
-    assert.equal(f.s().cast(3), true, 'Echo adds the moss counterspell to this normally incorrect gesture');
+    assert.equal(f.s().cast(7), true, 'Echo adds the moss counterspell to a normally incorrect non-utility gesture');
     const damaged = f.s().enemies.filter(enemy => enemy.hp < 1000);
     assert.equal(damaged.length, effect.targets);
     assert.equal(f.s().enemies.find(enemy => enemy.id === enemies[5].id).hp, 1000);

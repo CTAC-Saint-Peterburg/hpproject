@@ -34,9 +34,10 @@ export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
   const frozen = enemy.frozenUntil > time;
   const color = frozen ? theme.colors.frozenEnemy : base.color;
   const sentinel = base.movement === 'sentinel';
+  const bomber = base.movement === 'bomber';
   const pulseTime = frozen ? enemy.frozenAt ?? 0 : time;
-  const pulse = windup ? 1.1 + Math.sin(pulseTime * 11) * .18 : rage ? .7 : sentinel ? .6 : .18;
-  const spells = Array.isArray(base.counterSpells) ? base.counterSpells : [base.counterSpell];
+  const pulse = windup ? 1.1 + Math.sin(pulseTime * 11) * .18 : rage ? .7 : bomber ? .95 : sentinel ? .6 : .18;
+  const spells = bomber ? [3] : Array.isArray(base.counterSpells) ? base.counterSpells : [base.counterSpell];
   const health = Math.max(0, Math.min(100, 100 * enemy.hp / Math.max(1, enemy.maxHp)));
   return <group position={[enemy.x, enemy.size * .6 + enemy.y, enemy.z]}>
     <mesh ref={body} geometry={geometry} scale={scale}
@@ -51,10 +52,12 @@ export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
       <div className={'arena-enemy-label' + (windup ? ' arena-enemy-windup' : '')}>
         <div className="arena-health"><i style={{ width: health + '%' }} /></div>
         <span>{Math.ceil(enemy.hp)}/{Math.ceil(enemy.maxHp)} {rage ? '💢' : ''}</span>
-        <div className="arena-counter-runes" aria-label={Array.isArray(base.counterSpells) ? t('arena.anyAttack') : undefined}>
+        <div className="arena-counter-runes" aria-label={bomber ? t('arena.bomberAnySpell') : Array.isArray(base.counterSpells) ? t('arena.anyAttack') : undefined}>
           {spells.map(id => <ArenaRune key={id} id={id} />)}
         </div>
-        {Array.isArray(base.counterSpells) && selected && <span className="arena-enemy-status">{t('arena.anyAttack')}</span>}
+        {enemy.carried && <span className="arena-enemy-status"><ArenaRune id={config.enemyCarry?.dropSpell ?? 4} />{t('arena.enemyCarried')}</span>}
+        {bomber && <span className="arena-enemy-status">{t('arena.bomberAnySpell')}</span>}
+        {!bomber && Array.isArray(base.counterSpells) && selected && <span className="arena-enemy-status">{t('arena.anyAttack')}</span>}
         {disoriented && <span className="arena-enemy-status">{t('arena.disoriented', { seconds: Math.ceil(enemy.disorientedUntil - time) })}</span>}
         {windup && <span className="arena-enemy-status">{t('arena.windup', { seconds: Math.ceil(enemy.windupUntil - time) })}</span>}
       </div>

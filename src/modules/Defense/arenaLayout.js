@@ -20,3 +20,11 @@ export function potionRackPosition(id, inventory) {
   return [(Math.max(0, index) - (ids.length - 1) / 2) * defenseConfig.visuals.potionSpacing,
     border.top + .01, border.z];
 }
+
+// Keep the status crystal beside the rack even after empty bottles disappear.
+export function crystalStatusPosition(inventory) {
+  const ids = potionTypes.filter(potion => Object.hasOwn(inventory, potion.id)).map(potion => potion.id);
+  const border = arenaFrontBorder();
+  const firstX = ids.length ? potionRackPosition(ids[0], inventory)[0] : 0;
+  return [Math.max(-border.width / 2 + .6, firstX - 1.6), border.top + .01, border.z];
+}

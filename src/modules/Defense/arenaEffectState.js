@@ -6,7 +6,7 @@ export function arenaEffectState(state, ringRotation = [-Math.PI / 2, 0, 0]) {
     sequence: fx.id,
     spellId: fx.spellId,
     at: fx.time,
-    ...(fx.kind === 'potionImpact' ? { color: fx.color } : {}),
+    ...(fx.color ? { color: fx.color } : {}),
     ...(fx.splashRadius > 0 ? { flashRingRadius: fx.splashRadius } : {}),
     target: {
       kind: 'world',

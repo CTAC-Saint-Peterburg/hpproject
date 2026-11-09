@@ -170,11 +170,14 @@ test('echo and splash form a union without double damage, and bonus damage also 
   } finally { item.effects = original; }
 });
 
-test('noob wand turns every valid enemy gesture into its counterspell, including echo companions', () => {
+test('noob wand preserves levitation and turns other enemy gestures into counterspells, including echo companions', () => {
   for (let spell = 1; spell <= 10; spell++) {
     const f = fixture('wand_noob'), enemy = f.make(); f.install([enemy]);
-    assert.equal(f.s().cast(spell), true); assert.equal(f.s().enemies[0].hp, 176); assert.equal(f.s().fx.spellId, 2);
-    assert.equal(f.s().cast(spell), false); assert.equal(f.s().enemies[0].hp, 176);
+    assert.equal(f.s().cast(spell), true);
+    assert.equal(f.s().enemies[0].hp, spell === 3 ? 200 : 176);
+    assert.equal(f.s().fx.spellId, spell === 3 ? 3 : 2);
+    assert.equal(!!f.s().enemies[0].carried, spell === 3);
+    assert.equal(f.s().cast(spell), false); assert.equal(f.s().enemies[0].hp, spell === 3 ? 200 : 176);
   }
   const f = fixture('wand_noob');
   f.install(['fire', 'frost', 'moss'].map((type, index) => f.make(type, { x: 2 + index * .3 })));

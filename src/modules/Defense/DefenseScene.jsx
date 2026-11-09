@@ -20,6 +20,8 @@ import ArenaEnemy from './ArenaEnemy';
 import ArenaProjectiles from './ArenaProjectiles';
 import ArenaPotions from './ArenaPotions';
 import ArenaCrystal from './ArenaCrystal';
+import ArenaCrystalStatus from './ArenaCrystalStatus';
+import ArenaEnemyCarry from './ArenaEnemyCarry';
 import { arenaBaseCameraPose, arenaFrontBorder } from './arenaLayout';
 
 const initialCameraPosition=arenaBaseCameraPose(16/9).position;
@@ -41,6 +43,8 @@ function Board({walletRef,gestureRef}){
  <mesh position={[0,front.y,front.z]}><boxGeometry args={[front.width,front.height,front.depth]}/><meshStandardMaterial color={theme.colors.arenaWoodBorder} roughness={.8}/></mesh>
  </group>
  <ArenaPotions gestureRef={gestureRef}/>
+ <ArenaCrystalStatus gestureRef={gestureRef}/>
+ <ArenaEnemyCarry/>
  <ArenaCrystal selected={s.selected==='crystal'} effects={s.crystalEffects} gestureRef={gestureRef}/>
  {s.enemies.map(enemy=><ArenaEnemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time} gestureRef={gestureRef}/>)}
  <ArenaProjectiles projectiles={s.projectiles} selected={s.selected} time={s.time} gestureRef={gestureRef}/>

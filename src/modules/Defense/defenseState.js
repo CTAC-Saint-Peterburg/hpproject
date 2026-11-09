@@ -6,6 +6,9 @@ import { potionRackPosition } from './arenaLayout.js';
 import { equippedArenaItem, wandEffects, enemyDistance } from './arenaEquipment.js';
 import { arenaLoadoutSettings } from '../Stores/arenaUpgrades.js';
 import { potionEffect, applyPotionImpact } from './potionEffects.js';
+import { canCarryEnemy, beginEnemyCarry, dropCarriedEnemy, clampCarriedPosition } from './enemyCarry.js';
+import { crystalThreats, applyCrystalDisorientation } from './arenaTactics.js';
+import { bomberSpawnAllowed, explodeBomber } from './arenaBomber.js';
 
 export { config, potionTypes };
 export function defenseState(profile, random = Math.random) {
@@ -18,6 +21,7 @@ export function defenseState(profile, random = Math.random) {
     rewardEvents: [], rewardSerial: 0, rewardCollectedSerial: 0,
     message: 'arena.instructions', fx: null, fxSerial: 0,
     wandId: 'wand_default', crystalSkinId: 'crystal_default',
+    carriedEnemyId: null, lastDisorient: -99, nextBomberAt: 0,
     start: ids => {
       if (get().phase !== 'idle') return false;
       const { slots, copies } = arenaLoadoutSettings(profile());
@@ -31,6 +35,7 @@ export function defenseState(profile, random = Math.random) {
         wandId:equippedArenaItem(profile(),'wand')?.id??'wand_default',
         crystalSkinId:equippedArenaItem(profile(),'crystal')?.id??'crystal_default',
         enemies:[], projectiles:[], projectileSerial:0, queue:[], serial:0, selected:null, pendingStones:0, runStones:0, waveSettled:false,
+        carriedEnemyId:null,lastDisorient:-99,nextBomberAt:0,
         inventory:Object.fromEntries(ids.map(id=>[id,copies])), potionQualities:qualities, potionSlots:slots, potionCopies:copies, buffs:{}, buffEffects:{}, crystalEffects:{},
         pendingPotion:null, potionFlight:null, coinSelected:false, coinResult:null, debugUsed:false, lastCast:-99, fx:null, fxSerial:0,
         coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,rewardEvents:[],rewardSerial:0,rewardCollectedSerial:0,
@@ -38,7 +43,7 @@ export function defenseState(profile, random = Math.random) {
       get().beginWave(0);
       return true;
     },
-    exit: () => set({phase:'idle',enemies:[],projectiles:[],projectileSerial:0,queue:[],inventory:{},potionQualities:{},buffs:{},buffEffects:{},crystalEffects:{},pendingPotion:null,potionFlight:null,selected:null,fx:null,
+    exit: () => set({phase:'idle',enemies:[],projectiles:[],projectileSerial:0,queue:[],inventory:{},potionQualities:{},buffs:{},buffEffects:{},crystalEffects:{},pendingPotion:null,potionFlight:null,selected:null,fx:null,carriedEnemyId:null,lastDisorient:-99,nextBomberAt:0,
       coinSelected:false,coinResult:null,coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,rewardEvents:[],pendingStones:0,waveSettled:false}),
     setPaused: paused => set({paused,lastTick:Date.now()}),
     select: target => {
@@ -57,6 +62,8 @@ export function defenseState(profile, random = Math.random) {
       const wave=config.waves[index];
       const queue=wave.groups.flatMap(group=>Array.from({length:group.count},()=>({...group})));
       set({phase:'wave',wave:index,enemies:[],projectiles:[],queue,selected:null,spawnAt:get().time,pendingStones:0,waveSettled:false,
+        ...(wave.restoreCrystalHp?{hp:config.crystal.maxHp,crystalEffects:{}}:{}),
+        carriedEnemyId:null,lastDisorient:-99,nextBomberAt:get().time+config.bomberSpawn.checkInterval,
         coinSelected:false,coinResult:null,coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,pendingPotion:null,potionFlight:null,message:'arena.instructions'});
       get().spawnFromQueue();
       return true;
@@ -72,10 +79,10 @@ export function defenseState(profile, random = Math.random) {
     },
     finishWave: () => {
       const s=get();
-      if (s.phase!=='wave' || s.enemies.length || s.queue.length || s.projectiles.length || s.potionFlight) return;
+      if (s.phase!=='wave' || s.enemies.some(enemy=>config.enemies[enemy.type]?.hostile!==false) || s.queue.length || s.projectiles.length || s.potionFlight) return;
       if (!s.debugUsed) profile().awardMageCard(config.waves[s.wave].cardId);
       const bonus=s.debugUsed?0:Math.max(0,Math.trunc(config.waves[s.wave].stonesReward??0));
-      set({phase:'clear',pendingStones:s.pendingStones+bonus,selected:null,pendingPotion:null,coinSelected:false,message:'arena.waveClear'});
+      set({phase:'clear',pendingStones:s.pendingStones+bonus,enemies:[],carriedEnemyId:null,selected:null,pendingPotion:null,coinSelected:false,message:'arena.waveClear'});
     },
     settleWave: (multiplier=1) => {
       const s=get();
@@ -93,15 +100,39 @@ export function defenseState(profile, random = Math.random) {
     },
     spawnFromQueue: () => {
       const s=get(), wave=config.waves[s.wave];
-      if (s.phase!=='wave' || !s.queue.length || s.enemies.length>=wave.maxConcurrent) return;
+      if (s.phase!=='wave' || !s.queue.length || s.enemies.filter(enemy=>config.enemies[enemy.type]?.hostile!==false).length>=wave.maxConcurrent) return;
       const [group,...queue]=s.queue, enemy=get().createEnemy(group.type,group);
       if (enemy) set({queue,enemies:[...s.enemies,enemy],serial:s.serial+1,spawnAt:s.time+wave.spawnInterval});
     },
     debugSpawn: type => {
       const s=get();
-      if (s.phase!=='wave' || !config.enemies[type] || s.enemies.length>=config.waves[s.wave].maxConcurrent) return false;
+      if (s.phase!=='wave' || !config.enemies[type]) return false;
+      if (config.enemies[type].movement==='bomber'
+        ? s.enemies.some(enemy=>config.enemies[enemy.type]?.movement==='bomber')
+        : s.enemies.filter(enemy=>config.enemies[enemy.type]?.hostile!==false).length>=config.waves[s.wave].maxConcurrent) return false;
       const enemy=get().createEnemy(type);
       set({enemies:[...s.enemies,enemy],serial:s.serial+1,debugUsed:true,pendingStones:0,rewardEvents:[],message:'arena.debug'});
+      return true;
+    },
+    trySpawnBomber: () => {
+      const s=get(), spawn=config.bomberSpawn;
+      if (!spawn.enabled || s.phase!=='wave' || s.paused || s.time<s.nextBomberAt) return false;
+      const allowed=bomberSpawnAllowed(s,config);
+      set({nextBomberAt:s.time+spawn.checkInterval});
+      if (!allowed || random()>=spawn.chance) return false;
+      const enemy=get().createEnemy('bomber');
+      if (!enemy) return false;
+      set({enemies:[...s.enemies,enemy],serial:s.serial+1,nextBomberAt:s.time+spawn.cooldown});
+      return true;
+    },
+    moveCarriedEnemy: (x,z) => {
+      const s=get();
+      if (s.paused || s.phase!=='wave' || !Number.isFinite(x) || !Number.isFinite(z)) return false;
+      const enemy=s.enemies.find(enemy=>enemy.id===s.carriedEnemyId && enemy.carried && enemy.hp>0);
+      if (!enemy) return false;
+      const position=clampCarriedPosition(enemy,x,z,config);
+      if (Math.hypot(position.x-enemy.x,position.z-enemy.z)<.001) return true;
+      set({enemies:s.enemies.map(item=>item.id===enemy.id?{...item,...position}:item)});
       return true;
     },
     debugWave: number => {
@@ -134,6 +165,7 @@ export function defenseState(profile, random = Math.random) {
         }
       }
       set({pendingStones:s.pendingStones+(s.debugUsed?0:stones),serial,enemies:[...s.enemies,...children],
+        carriedEnemyId:dead.some(enemy=>enemy.id===s.carriedEnemyId)?null:s.carriedEnemyId,
         rewardEvents:[...s.rewardEvents,...events].slice(-MAX_REWARD_EVENTS),rewardSerial:s.rewardSerial+events.length});
     },
     usePotion: id => {
@@ -174,12 +206,36 @@ export function defenseState(profile, random = Math.random) {
       const wand=wandEffects(s.wandId);
       const target=s.enemies.find(e=>e.id===s.selected);
       const projectile=s.projectiles.find(shot=>shot.id===s.selected && shot.interceptable);
+      const carried=s.enemies.find(enemy=>enemy.id===s.carriedEnemyId && enemy.carried);
+      if (spell===config.enemyCarry.dropSpell && carried) {
+        const dropped=dropCarriedEnemy(carried,config,s.time);
+        set({carriedEnemyId:null,enemies:s.enemies.map(enemy=>enemy.id===carried.id?dropped:enemy),lastCast:s.time,message:'arena.enemyDropped',
+          fx:{id:s.fxSerial+1,time:s.time,spellId:spell,target:[dropped.x,dropped.y+dropped.size*.6,dropped.z],kind:'cast'},fxSerial:s.fxSerial+1});
+        return true;
+      }
+      if (target && config.enemies[target.type].movement==='bomber') {
+        const blast=explodeBomber(s.enemies,target,config);
+        set({enemies:blast.enemies,selected:null,lastCast:s.time,message:'arena.bomberExploded',
+          fx:{id:s.fxSerial+1,time:s.time,spellId:spell,color:config.enemies[target.type].color,
+            target:[target.x,target.y+target.size*.6,target.z],splashRadius:blast.radius,kind:'cast'},fxSerial:s.fxSerial+1});
+        get().awardKills(blast.dead);get().finishWave();
+        return true;
+      }
+      if (target && spell===config.enemyCarry.liftSpell) {
+        if (!canCarryEnemy(target,config)) {set({message:'arena.cannotLift'});return false;}
+        if (carried && carried.id!==target.id) {set({message:'arena.dropFirst'});return false;}
+        if (carried) return false;
+        set({enemies:s.enemies.map(enemy=>enemy.id===target.id?beginEnemyCarry(enemy,config,s.time):enemy),carriedEnemyId:target.id,lastCast:s.time,message:'arena.enemyLifted',
+          fx:{id:s.fxSerial+1,time:s.time,spellId:spell,target:[target.x,target.y+target.size*.6,target.z],kind:'cast'},fxSerial:s.fxSerial+1});
+        return true;
+      }
       let castSpell=spell;
       if (wand.autoCounter) {
         if (s.pendingPotion && s.selected==='potion:'+s.pendingPotion) castSpell=3;
         else if (target) castSpell=config.enemies[target.type].counterSpell;
         else if (projectile) castSpell=projectile.counterSpell;
-        else if (s.selected==='crystal') castSpell=s.crystalEffects.burn?2:s.crystalEffects.freeze?1:spell;
+        else if (s.selected==='crystal' && spell!==config.crowdControl.spell) castSpell=s.crystalEffects.burn?2:s.crystalEffects.freeze?1:
+          crystalThreats(s.enemies,config).length>=config.crowdControl.minimumEnemies?config.crowdControl.spell:spell;
       }
       if (s.pendingPotion && s.selected==='potion:'+s.pendingPotion) {
         if (castSpell!==3) {set({message:'arena.potionGesture'});return false;}
@@ -197,6 +253,13 @@ export function defenseState(profile, random = Math.random) {
       const echo=s.buffEffects.multicast??potionEffect(potionTypes.find(p=>p.effect==='multicast'));
       const spells=multi?[...new Set([castSpell,...echo.spells])]:[castSpell];
       if (s.selected==='crystal') {
+        if (castSpell===config.crowdControl.spell) {
+          if (crystalThreats(s.enemies,config).length<config.crowdControl.minimumEnemies) {set({message:'arena.needCrowd'});return false;}
+          if (s.time-s.lastDisorient<config.crowdControl.cooldown) {set({message:'arena.disorientWait'});return false;}
+          set({enemies:applyCrystalDisorientation(s.enemies,config,s.time),lastDisorient:s.time,lastCast:s.time,message:'arena.disorientApplied',
+            fx:{id:s.fxSerial+1,time:s.time,spellId:castSpell,target:'crystal',splashRadius:config.crowdControl.radius,kind:'cast'},fxSerial:s.fxSerial+1});
+          return true;
+        }
         const effects={...s.crystalEffects};
         if (wand.autoCounter) {
           if (effects.burn && !spells.includes(2)) spells.push(2);
@@ -283,9 +346,10 @@ export function defenseState(profile, random = Math.random) {
         selected:s.selected==='crystal'?'crystal':s.pendingPotion&&s.selected==='potion:'+s.pendingPotion||alive.some(e=>e.id===s.selected)||projectiles.some(shot=>shot.id===s.selected&&shot.interceptable)?s.selected:null});
       get().awardKills(dead);
       if(combat.hp<=0){set({phase:'lost',enemies:[],projectiles:[],queue:[],selected:null,pendingPotion:null,potionFlight:null,rewardEvents:[],
-        coinSelected:false,coinToss:null,coinResult:null,coinResolved:false,coinEnd:0,pendingStones:0,waveSettled:false,message:'arena.defeat'});return;}
+        carriedEnemyId:null,coinSelected:false,coinToss:null,coinResult:null,coinResolved:false,coinEnd:0,pendingStones:0,waveSettled:false,message:'arena.defeat'});return;}
       get().resolvePotion();
       if(time>=get().spawnAt)get().spawnFromQueue();
+      get().trySpawnBomber();
       get().finishWave();
     },
   });

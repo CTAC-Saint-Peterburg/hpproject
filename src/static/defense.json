@@ -31,6 +31,29 @@
     "winChance": 0.5,
     "resultSeconds": 1.8
   },
+  "enemyCarry": {
+    "liftSpell": 3,
+    "dropSpell": 4,
+    "height": 2,
+    "dropSeconds": 0.35,
+    "crystalClearance": 0.3
+  },
+  "crowdControl": {
+    "spell": 5,
+    "minimumEnemies": 3,
+    "radius": 3,
+    "targets": 3,
+    "duration": 10,
+    "cooldown": 8
+  },
+  "bomberSpawn": {
+    "enabled": true,
+    "threshold": 6,
+    "chance": 0.35,
+    "checkInterval": 5,
+    "cooldown": 20,
+    "maxConcurrent": 1
+  },
   "enemies": {
     "fire": {
       "name": "arena.enemy.fire",
@@ -254,6 +277,33 @@
         "damage": 2,
         "interceptable": false
       }
+    },
+    "bomber": {
+      "name": "arena.enemy.bomber",
+      "color": "@colors.defenseEnemiesBomberColor",
+      "shape": "cube",
+      "movement": "bomber",
+      "hostile": false,
+      "hp": 1,
+      "attack": 0,
+      "speed": 2.2,
+      "size": 0.5,
+      "reward": 0,
+      "counterSpell": 1,
+      "counterSpells": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "attackInterval": 1,
+      "rageInterval": 999999,
+      "rageDuration": 0,
+      "rageSpeed": 1,
+      "critChance": 0,
+      "criticalMultiplier": 1,
+      "special": { "chance": 0, "effect": "extra", "damage": 0, "dps": 0, "duration": 0 },
+      "wanderTurnInterval": 0.7,
+      "explosion": {
+        "baseRadius": 1.4,
+        "radiusMultiplier": 3,
+        "damage": 100
+      }
     }
   },
   "waves": [
@@ -261,6 +311,7 @@
       "id": 1,
       "cardId": "mage_1",
       "stonesReward": 20,
+      "restoreCrystalHp": true,
       "maxConcurrent": 3,
       "spawnInterval": 1.8,
       "playerCritChance": 0.08,
@@ -282,6 +333,7 @@
       "id": 2,
       "cardId": "mage_2",
       "stonesReward": 30,
+      "restoreCrystalHp": true,
       "maxConcurrent": 3,
       "spawnInterval": 1.7,
       "playerCritChance": 0.09,
@@ -314,6 +366,7 @@
       "id": 3,
       "cardId": "mage_3",
       "stonesReward": 40,
+      "restoreCrystalHp": true,
       "maxConcurrent": 4,
       "spawnInterval": 1.6,
       "playerCritChance": 0.1,
@@ -357,6 +410,7 @@
       "id": 4,
       "cardId": "mage_4",
       "stonesReward": 50,
+      "restoreCrystalHp": true,
       "maxConcurrent": 4,
       "spawnInterval": 1.5,
       "playerCritChance": 0.11,
@@ -422,6 +476,7 @@
       "id": 5,
       "cardId": "mage_5",
       "stonesReward": 60,
+      "restoreCrystalHp": true,
       "maxConcurrent": 5,
       "spawnInterval": 1.4,
       "playerCritChance": 0.12,
@@ -498,6 +553,7 @@
       "id": 6,
       "cardId": "mage_6",
       "stonesReward": 70,
+      "restoreCrystalHp": true,
       "maxConcurrent": 5,
       "spawnInterval": 1.3,
       "playerCritChance": 0.13,
@@ -585,6 +641,7 @@
       "id": 7,
       "cardId": "mage_7",
       "stonesReward": 80,
+      "restoreCrystalHp": true,
       "maxConcurrent": 6,
       "spawnInterval": 1.2,
       "playerCritChance": 0.14,
@@ -672,6 +729,7 @@
       "id": 8,
       "cardId": "mage_8",
       "stonesReward": 90,
+      "restoreCrystalHp": true,
       "maxConcurrent": 6,
       "spawnInterval": 1.1,
       "playerCritChance": 0.15000000000000002,
@@ -759,6 +817,7 @@
       "id": 9,
       "cardId": "mage_9",
       "stonesReward": 100,
+      "restoreCrystalHp": false,
       "maxConcurrent": 7,
       "spawnInterval": 1,
       "playerCritChance": 0.16,
@@ -846,6 +905,7 @@
       "id": 10,
       "cardId": "mage_10",
       "stonesReward": 110,
+      "restoreCrystalHp": false,
       "maxConcurrent": 7,
       "spawnInterval": 0.9,
       "playerCritChance": 0.16999999999999998,

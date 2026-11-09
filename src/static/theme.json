@@ -175,7 +175,8 @@
     "defenseEnemiesGiantColor": "#9a7154",
     "defenseEnemiesFlyerFireColor": "#ff9362",
     "defenseEnemiesFlyerFrostColor": "#80cfff",
-    "defenseEnemiesSentinelColor": "#f2544b"
+    "defenseEnemiesSentinelColor": "#f2544b",
+    "defenseEnemiesBomberColor": "#ba65ff"
   },
   "fonts": {
     "body": "system-ui, sans-serif",

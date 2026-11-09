@@ -267,9 +267,10 @@ test('only attacking spells cancel a sentinel windup, and freezing preserves its
     const enemy = f.make('sentinel', { x: 4, z: 0, hp: 100, maxHp: 100, windupUntil: 6, nextRangedAt: 100 });
     f.store.setState({ enemies: [enemy], selected: enemy.id });
     const attacking = [1, 2, 6].includes(spell);
-    assert.equal(f.s().cast(spell), attacking);
+    assert.equal(f.s().cast(spell), attacking || spell === 3);
     assert.equal(f.s().enemies[0].hp, attacking ? 100 - config.player.damage : 100);
     assert.equal(f.s().enemies[0].windupUntil, attacking ? 0 : 6);
+    assert.equal(!!f.s().enemies[0].carried, spell === 3, 'levitation pauses the warning without attacking or cancelling it');
     if (attacking) assert.ok(f.s().enemies[0].nextRangedAt > f.s().time);
   }
   const f = fixture();

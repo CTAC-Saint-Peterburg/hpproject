@@ -110,6 +110,15 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-buffs span { white-space:nowrap; }
 .arena-potion-count { display:block;min-width:24px;padding:3px 6px;border-radius:6px;background:var(--color-arena-hint);color:var(--color-rune);font-size:var(--type-small);font-weight:700;text-align:center;white-space:nowrap; }
 .arena-potion-empty { color:var(--color-recipe-upcoming);opacity:.7; }
+.arena-crystal-status { box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:4px;width:min(150px,32vw);padding:7px 8px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-arena-hint);color:var(--color-text);font-size:var(--type-small);line-height:1.25;text-align:center; }
+.arena-crystal-status strong { font-size:var(--type-small); }
+.arena-crystal-status > div { display:flex;align-items:center;justify-content:center;gap:5px;width:100%; }
+.arena-crystal-status .spell-hint { flex:0 0 25px;width:25px;height:25px;color:inherit; }
+.arena-crystal-status small { color:var(--color-recipe-upcoming);font-size:var(--type-tiny); }
+.arena-crystal-status-selected { border-color:var(--color-crystal-selected); }
+.arena-crystal-status-burn { color:var(--color-crystal-burn); }
+.arena-crystal-status-freeze { color:var(--color-crystal-freeze); }
+.arena-crystal-status-crowd { color:var(--color-rune); }
 .arena-potion-hint { box-sizing:border-box;width:min(240px,65vw);padding:9px 11px;border:1px solid var(--color-coin-border);border-radius:9px;background:var(--color-coin-panel);color:var(--color-text);font-size:var(--type-small);line-height:1.35;text-align:left;box-shadow:0 2px 12px var(--color-shadow-medium); }
 .arena-potion-hint strong { display:block;color:var(--color-rune);font-size:var(--type-compact); }
 .arena-potion-hint p { margin:4px 0 7px; }

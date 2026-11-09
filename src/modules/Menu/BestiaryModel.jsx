@@ -24,7 +24,7 @@ function ArenaEnemyModel({ type, color }) {
   const geometry = useGeometry(createArenaEnemyGeometry, shape);
   const scale = shape === 'slime' ? [enemy.size * 1.3, enemy.size * .7, enemy.size] : enemy.size;
   return <mesh geometry={geometry} scale={scale}>
-    <meshStandardMaterial color={color} emissive={color} emissiveIntensity={type === 'sentinel' ? .6 : .18} roughness={.4} flatShading={shape !== 'slime'} />
+    <meshStandardMaterial color={color} emissive={color} emissiveIntensity={type === 'bomber' ? .95 : type === 'sentinel' ? .6 : .18} roughness={.4} flatShading={shape !== 'slime'} />
   </mesh>;
 }
 

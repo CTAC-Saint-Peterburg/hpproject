@@ -7,6 +7,8 @@ import { potionEffect } from '../Defense/potionEffects.js';
 const allSpells = Array.from({ length: 10 }, (_, index) => index + 1);
 const entry = (id, category, name, description, interaction, ineffective, spells, model, values = {}) =>
   ({ id, category, name, description, interaction, ineffective, spells, model, values });
+const carryTypes = new Set(['fire', 'frost', 'sentinel']);
+const crowd = defenseConfig.crowdControl;
 
 export const bestiaryEntries = [
   ...Object.entries(ENEMY_TYPES).map(([type, enemy]) => ({
@@ -18,8 +20,12 @@ export const bestiaryEntries = [
     dynamicSpells: type === 'enemyslime',
   })),
   ...Object.entries(defenseConfig.enemies).map(([type, enemy]) => entry('defense-' + type, 'defense', enemy.name,
-    'bestiary.arena.' + type, 'bestiary.enemyInteraction', 'bestiary.arenaWrong',
-    enemy.counterSpells ?? [enemy.counterSpell], { kind: 'arenaEnemy', type })),
+    'bestiary.arena.' + type,
+    type === 'bomber' ? 'bestiary.bomberInteraction' : carryTypes.has(type) ? 'bestiary.carryInteraction' : 'bestiary.enemyInteraction',
+    type === 'bomber' ? 'bestiary.bomberWrong' : carryTypes.has(type) ? 'bestiary.carryWrong' : 'bestiary.arenaWrong',
+    enemy.counterSpells ?? [enemy.counterSpell], { kind: 'arenaEnemy', type },
+    type === 'bomber' ? { radius: Math.round(enemy.explosion.baseRadius * enemy.explosion.radiusMultiplier * 100) / 100,
+      damage: enemy.explosion.damage, threshold: defenseConfig.bomberSpawn.threshold } : {})),
   entry('cauldron', 'items', 'bestiary.cauldron', 'bestiary.cauldronDescription',
     'bestiary.cauldronInteraction', 'bestiary.cauldronWrong', [1, 2, brewing.stirSpell], { kind: 'pot', id: 'pot_default' }),
   ...SPAWN_BOTTLES_CORDS.map(ingredient => entry('ingredient-' + ingredient.id, 'items', 'ingredients.' + ingredient.id,
@@ -29,7 +35,8 @@ export const bestiaryEntries = [
   ...potionTypes.map(potion => entry('potion-' + potion.id, 'items', potion.name, potion.description,
     'bestiary.potionInteraction', 'bestiary.potionWrong', [3], { kind: 'potion', id: potion.id }, potionEffect(potion, 'basic'))),
   entry('crystal', 'items', 'bestiary.crystal', 'bestiary.crystalDescription',
-    'bestiary.crystalInteraction', 'bestiary.crystalWrong', [1, 2], { kind: 'crystal', id: 'crystal_default' }),
+    'bestiary.crystalInteraction', 'bestiary.crystalWrong', [1, 2, crowd.spell], { kind: 'crystal', id: 'crystal_default' },
+    { count: crowd.targets, minimum: crowd.minimumEnemies, radius: crowd.radius, duration: crowd.duration, cooldown: crowd.cooldown }),
   entry('coin', 'items', 'bestiary.coin', 'arena.coinRules', 'bestiary.coinInteraction',
     'bestiary.coinWrong', allSpells, { kind: 'coin' }),
   ...[['brewingCold', 'enemycold'], ['brewingFire', 'enemyfire']].map(([type, enemy]) =>
@@ -44,7 +51,7 @@ export const bestiaryEntries = [
     'bestiary.fastShotInteraction', 'bestiary.fastShotWrong', [], { kind: 'projectile', type: 'sentinel' }),
   ...shopItems.map(item => entry('equipment-' + item.id, 'items', item.name, item.description,
     'bestiary.equipment.' + item.type, item.type === 'wand' ? 'bestiary.wandWrong' : item.type === 'upgrade' ? 'bestiary.upgradeWrong' : 'bestiary.skinWrong',
-    item.type === 'pot' ? [1, 2, brewing.stirSpell] : item.type === 'crystal' ? [1, 2] : [],
+    item.type === 'pot' ? [1, 2, brewing.stirSpell] : item.type === 'crystal' ? [1, 2, crowd.spell] : [],
     { kind: item.type, id: item.id }, {
       ...item.effects,
       chance: Math.round((item.effects?.instantKillChance ?? 0) * 100),
