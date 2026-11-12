@@ -4,6 +4,7 @@ import { useGameStore } from '../Stores/GameStore';
 import { useDefenseStore } from '../Defense/DefenseStore';
 import { config } from '../Defense/defenseState';
 import { useCheatUiStore } from './cheatUiStore';
+import { useInputStore } from '../Input/inputStore';
 
 export default function CheatsMenu() {
   const { t } = useTranslation();
@@ -16,6 +17,7 @@ export default function CheatsMenu() {
   const brewing = !inArena && game.startGame && game.status === 'playing';
   useEffect(() => {
     const key = e => {
+      if (useInputStore.getState().mode !== 'desktop') return;
       if (e.repeat) return;
       if (e.code === 'F10') {
         e.preventDefault(); e.stopImmediatePropagation();
@@ -34,6 +36,7 @@ export default function CheatsMenu() {
     else dialog.current.close();
   }, [open]);
   const run = (label, action) => {
+    if (useInputStore.getState().mode !== 'desktop') return;
     const success = action() !== false;
     setFeedback({ label, success });
   };

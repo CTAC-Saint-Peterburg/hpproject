@@ -4,6 +4,8 @@ import { config } from './defenseState';
 import { useDefenseStore } from './DefenseStore';
 import { theme } from '../../static/theme';
 import ArenaRune from './ArenaRune';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
 function Projectile({ shot, selected, time, gestureRef }) {
   const { t } = useTranslation();
@@ -26,10 +28,11 @@ function Projectile({ shot, selected, time, gestureRef }) {
       </mesh>}
     </group>
     {shot.interceptable && <>
-      <mesh onClick={event => { if (gestureRef?.current || event.delta > 4) return; event.stopPropagation(); useDefenseStore.getState().select(shot.id); }}>
+      <mesh onClick={event => { if (!isSelectionClick(event, gestureRef?.current)) return; event.stopPropagation(); useDefenseStore.getState().select(shot.id); }}>
         <boxGeometry args={[hitSize, hitSize, hitSize]} />
         {/* Hidden material skips drawing while preserving the generous raycast volume. */}
         <meshBasicMaterial visible={false} />
+        <TouchHitArea size={36} />
       </mesh>
       <Html center position={[0, size + .35, 0]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
         <div className={'arena-projectile-label' + (selected ? ' arena-projectile-selected' : '')}>

@@ -8,8 +8,10 @@ import { useGameStore } from '../Stores/GameStore';
 import { enemyPosition, ENEMY_TYPES } from '../../static/enemies';
 import { spellLessons } from '../../static/spellLessons';
 import { effects } from '../../static/themedConfigs';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
-export default function Slime({ enemy, selected }) {
+export default function Slime({ enemy, selected, gestureRef }) {
   const { t } = useTranslation();
   const group = useRef();
   const body = useRef();
@@ -20,6 +22,10 @@ export default function Slime({ enemy, selected }) {
   const { viewport } = useThree();
   const color = ENEMY_TYPES.enemyslime.color;
   const trail = effects.slimeTrail;
+  const select = event => {
+    if (!isSelectionClick(event, gestureRef?.current)) return;
+    event.stopPropagation(); useGameStore.getState().selectEnemy(enemy.id);
+  };
   useFrame(() => {
     if (!group.current) return;
     const state = useGameStore.getState();
@@ -53,7 +59,8 @@ export default function Slime({ enemy, selected }) {
       <sphereGeometry args={[1, 12, 8]} /><meshBasicMaterial color={trail.color} transparent depthWrite={false} />
     </mesh>)}
     <group ref={group}>
-      <mesh ref={body} onClick={event => { event.stopPropagation(); useGameStore.getState().selectEnemy(enemy.id); }}>
+      <TouchHitArea onClick={select} minWorldRadius={.55} />
+      <mesh ref={body} onClick={select}>
         <sphereGeometry args={[1, 24, 16]} />
         <meshStandardMaterial color={color} transparent opacity={.58} roughness={.2} emissive={color} emissiveIntensity={.18} depthWrite={false} />
         {selected && <mesh scale={1.06} raycast={() => null}><sphereGeometry args={[1, 24, 16]} />

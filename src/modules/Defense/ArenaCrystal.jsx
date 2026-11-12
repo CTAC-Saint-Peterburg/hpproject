@@ -3,6 +3,8 @@ import { useFrame } from '@react-three/fiber';
 import { theme } from '../../static/theme';
 import { shopItems } from '../../static/themedConfigs';
 import { useDefenseStore } from './DefenseStore';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
 export default function ArenaCrystal({ selected, effects = {}, gestureRef }) {
   const mesh = useRef();
@@ -19,7 +21,7 @@ export default function ArenaCrystal({ selected, effects = {}, gestureRef }) {
       <meshStandardMaterial color={theme.colors.crystalBase} metalness={.5} roughness={.4} />
     </mesh>
     <mesh ref={mesh} position={[0, 1.1, 0]} onClick={event => {
-      if (gestureRef?.current || event.delta > 4) return;
+      if (!isSelectionClick(event, gestureRef?.current)) return;
       event.stopPropagation();
       useDefenseStore.getState().select('crystal');
     }}>
@@ -29,6 +31,7 @@ export default function ArenaCrystal({ selected, effects = {}, gestureRef }) {
         <octahedronGeometry args={[.85, 0]} />
         <meshBasicMaterial color={theme.colors.crystalSelected} wireframe />
       </mesh>}
+      <TouchHitArea size={44} />
     </mesh>
     <pointLight position={[0, 2, 0]} color={color} intensity={10} distance={8} />
   </group>;

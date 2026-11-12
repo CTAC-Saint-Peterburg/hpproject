@@ -10,6 +10,8 @@ import { useDefenseStore } from './DefenseStore';
 import { potionRackPosition } from './arenaLayout';
 import { writePotionFlightPose } from './potionMotion';
 import { potionEffect } from './potionEffects';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
 function FlyingPotion({ flight, time }) {
   const root = useRef();
@@ -39,7 +41,7 @@ export default function ArenaPotions({ gestureRef }) {
       const effect = potionEffect(potion, state.potionQualities[potion.id]);
       const selected = state.pendingPotion === potion.id;
       return <group key={potion.id} position={potionRackPosition(potion.id, state.inventory)} onClick={event => {
-        if (gestureRef?.current || event.delta > 4) return;
+        if (!isSelectionClick(event, gestureRef?.current)) return;
         event.stopPropagation();
         useDefenseStore.getState().usePotion(potion.id);
       }}>
@@ -49,6 +51,7 @@ export default function ArenaPotions({ gestureRef }) {
         </mesh>
         {count > 0 && <>
           <PotionModel potion={potion} quality={effect.quality} selected={selected} />
+          <TouchHitArea size={32} position={[0, .5, 0]} />
           <mesh position={[0, .5, 0]}>
             <boxGeometry args={[.85, 1.08, .85]} />
             <meshBasicMaterial visible={false} />

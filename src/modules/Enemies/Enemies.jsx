@@ -5,12 +5,18 @@ import { BackSide } from 'three';
 import { useGameStore } from '../Stores/GameStore';
 import { ENEMY_TYPES, enemyPosition } from '../../static/enemies';
 import Slime from './Slime';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
-function Enemy({ enemy, selected }) {
+function Enemy({ enemy, selected, gestureRef }) {
   const group = useRef();
   const cube = useRef();
   const { viewport } = useThree();
   const config = ENEMY_TYPES[enemy.type];
+  const select = event => {
+    if (!isSelectionClick(event, gestureRef?.current)) return;
+    event.stopPropagation(); useGameStore.getState().selectEnemy(enemy.id);
+  };
   useFrame(() => {
     if (!group.current) return;
     const state = useGameStore.getState();
@@ -20,7 +26,8 @@ function Enemy({ enemy, selected }) {
     cube.current.rotation.set(age * 0.2, age * 0.35, Math.sin(age) * 0.08);
   });
   return <group ref={group}>
-    <mesh ref={cube} onClick={e => { e.stopPropagation(); useGameStore.getState().selectEnemy(enemy.id); }}>
+    <TouchHitArea onClick={select} />
+    <mesh ref={cube} onClick={select}>
       <boxGeometry args={[0.55, 0.55, 0.55]} />
       <meshStandardMaterial color={config.color} emissive={config.color} emissiveIntensity={2} toneMapped={false} />
       <mesh scale={1.45} raycast={() => null}><boxGeometry args={[0.55, 0.55, 0.55]} />
@@ -51,14 +58,14 @@ function Projectile({ shot }) {
   </mesh>;
 }
 
-export default function Enemies() {
+export default function Enemies({ gestureRef }) {
   const enemies = useGameStore(s => s.enemies);
   const projectiles = useGameStore(s => s.projectiles);
   const selected = useGameStore(s => s.selectedEnemyId);
   return <group>
     {enemies.map(enemy => enemy.type === 'enemyslime'
-      ? <Slime key={enemy.id} enemy={enemy} selected={selected === enemy.id} />
-      : <Enemy key={enemy.id} enemy={enemy} selected={selected === enemy.id} />)}
+      ? <Slime key={enemy.id} enemy={enemy} selected={selected === enemy.id} gestureRef={gestureRef} />
+      : <Enemy key={enemy.id} enemy={enemy} selected={selected === enemy.id} gestureRef={gestureRef} />)}
     {projectiles.map(shot => <Projectile key={shot.id} shot={shot} />)}
   </group>;
 }

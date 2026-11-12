@@ -1,8 +1,9 @@
 import { theme } from '../../static/theme';
 import { useTranslation } from 'react-i18next';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGameStore } from '../Stores/GameStore';
 import { matchesLesson, resampleStroke, spellLessons } from '../../static/spellLessons';
+import { appendBoundedPoint } from '../Input/pointerInput';
 
 export default function SpellTraining({ onBack }) {
   const { t } = useTranslation();
@@ -12,21 +13,47 @@ export default function SpellTraining({ onBack }) {
   const [stroke, setStroke] = useState([]);
   const [message, setMessage] = useState('training.start');
   const drawing = useRef(null);
+  const board = useRef(null);
   const lesson = spellLessons[index];
   const repeats = progress[lesson.id] || 0;
   const completed = spellLessons.filter(item => progress[item.id] >= 2).length;
-  const point = e => {
-    const rect = e.currentTarget.getBoundingClientRect();
+  const point = (e, element = e.currentTarget) => {
+    const rect = element.getBoundingClientRect();
     return [(e.clientX - rect.left) / rect.width, (e.clientY - rect.top) / rect.height];
   };
+  const release = () => {
+    const active = drawing.current; drawing.current = null;
+    if (active && board.current?.hasPointerCapture(active.id)) board.current.releasePointerCapture(active.id);
+  };
+  useEffect(() => {
+    const element = board.current;
+    const cancel = () => {
+      const active = drawing.current;
+      if (!active) return;
+      drawing.current = null;
+      if (element?.hasPointerCapture(active.id)) element.releasePointerCapture(active.id);
+      setStroke([]); setMessage('training.cancelled');
+    };
+    const visibility = () => { if (document.hidden) cancel(); };
+    window.addEventListener('blur', cancel); document.addEventListener('visibilitychange', visibility);
+    return () => {
+      window.removeEventListener('blur', cancel); document.removeEventListener('visibilitychange', visibility);
+      const active = drawing.current; drawing.current = null;
+      if (active && element?.hasPointerCapture(active.id)) element.releasePointerCapture(active.id);
+    };
+  }, []);
+  const cancel = event => {
+    if (!drawing.current || drawing.current.id !== event.pointerId) return;
+    release(); setStroke([]); setMessage('training.cancelled');
+  };
   const choose = next => {
-    drawing.current = null; setIndex(next); setStroke([]);
+    release(); setIndex(next); setStroke([]);
     setMessage('training.direction');
   };
   const finish = e => {
     if (!drawing.current || drawing.current.id !== e.pointerId) return;
     const points = [...drawing.current.points, point(e)];
-    drawing.current = null;
+    release();
     setStroke(points);
     if (matchesLesson(points, lesson)) {
       record(lesson.id);
@@ -43,17 +70,19 @@ export default function SpellTraining({ onBack }) {
       {spellLessons.map((item, i) => <option key={item.id} value={i}>{i + 1}. {t(item.name)} · {progress[item.id] || 0}/2</option>)}
     </select></label>
     <h3>{t(lesson.name)} · {t('training.repeats', {count: repeats})}</h3><p>{t(lesson.effect, {id: lesson.id})}</p>
-    <svg className="training-board" viewBox="0 0 600 600" role="img" aria-label={t('training.trace', {name: t(lesson.name)})}
+    <svg ref={board} className="training-board" viewBox="0 0 600 600" role="img" aria-label={t('training.trace', {name: t(lesson.name)})}
       onPointerDown={e => {
-        if (drawing.current || e.button !== 0) return;
+        if (drawing.current || e.button !== 0 || e.isPrimary === false) return;
         e.currentTarget.setPointerCapture(e.pointerId);
         drawing.current = { id: e.pointerId, points: [point(e)] }; setStroke([...drawing.current.points]);
       }}
       onPointerMove={e => {
         if (!drawing.current || drawing.current.id !== e.pointerId) return;
-        drawing.current.points.push(point(e)); setStroke([...drawing.current.points]);
+        const samples = e.nativeEvent.getCoalescedEvents?.();
+        for (const sample of samples?.length ? samples : [e]) appendBoundedPoint(drawing.current.points, point(sample, e.currentTarget));
+        setStroke([...drawing.current.points]);
       }} onPointerUp={finish}
-      onPointerCancel={() => { drawing.current = null; setStroke([]); setMessage('training.cancelled'); }}>
+      onPointerCancel={cancel} onLostPointerCapture={cancel}>
       <defs><pattern id="rune-grid" width="30" height="30" patternUnits="userSpaceOnUse"><path d="M30 0H0V30" fill="none" stroke={theme.colors.trainingGrid} strokeOpacity=".15" /></pattern>
         <marker id="rune-arrow" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0L8 4L0 8" fill="none" stroke={theme.colors.trainingRune} strokeWidth="1.5" /></marker></defs>
       <rect width="600" height="600" fill="url(#rune-grid)" />
@@ -65,7 +94,7 @@ export default function SpellTraining({ onBack }) {
     </svg>
     <p role="status" aria-live="polite">{t(message)}</p>
     {completed === 10 && <p>{t('training.finished')}</p>}
-    <div className="training-actions"><button onClick={() => { drawing.current = null; setStroke([]); setMessage('training.cleared'); }}>{t('training.clear')}</button>
+    <div className="training-actions"><button onClick={() => { release(); setStroke([]); setMessage('training.cleared'); }}>{t('training.clear')}</button>
       <button disabled={index === 0} onClick={() => choose(index - 1)}>{t('training.previous')}</button>
       <button disabled={index === spellLessons.length - 1} onClick={() => choose(index + 1)}>{t('training.next')}</button>
       <button onClick={onBack}>{t('menu.return')}</button>

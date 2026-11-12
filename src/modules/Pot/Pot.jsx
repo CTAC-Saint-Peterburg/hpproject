@@ -12,8 +12,10 @@ import SpellHint from './SpellHint';
 import CauldronModel from './CauldronModel';
 import { CAULDRON } from './cauldronGeometry';
 import { PotMist } from './PotMist';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
-export const Pot = ({ bottleRadar = [] }) => {
+export const Pot = ({ bottleRadar = [], gestureRef }) => {
   const { t } = useTranslation();
   const s = useGameStore();
   const appearance = shopItems.find(item => item.id === s.equippedItems.pot && item.type === 'pot');
@@ -36,9 +38,14 @@ export const Pot = ({ bottleRadar = [] }) => {
     if (bottle) state.beginIngredientDrop(bottle.id, bottle.currentPos);
   });
   const warmth = Math.max(0, (s.potTemperature - 20) / 90);
+  const select = event => {
+    if (!isSelectionClick(event, gestureRef?.current)) return;
+    event.stopPropagation(); if (s.status === 'playing') s.togglePotSelected();
+  };
   return <group>
     <group ref={bowl} rotation={[CAULDRON.tilt, 0, 0]}
-      onClick={e => { e.stopPropagation(); if (s.status === 'playing') s.togglePotSelected(); }}>
+      onClick={select}>
+      <TouchHitArea onClick={select} minWorldRadius={.65} />
       <CauldronModel color={appearance?.color || theme.colors.potDefault} warmth={warmth} selected={s.isPotSelected} />
       <PotMist warmth={warmth} position={[0, CAULDRON.mouthY, 0]} />
       {s.status === 'playing' && <Html center position={[0, -.04, .82]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>

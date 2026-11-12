@@ -1,5 +1,7 @@
 # React + Vite
 
+Пункт 36: [план упаковки игры в Android APK/AAB](ANDROID_PACKAGING_PLAN.md).
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

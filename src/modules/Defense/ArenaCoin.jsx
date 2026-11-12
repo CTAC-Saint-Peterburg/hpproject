@@ -8,6 +8,8 @@ import { getCoinGeometries } from './coinGeometry';
 import { coinPose } from './coinMotion';
 import { theme } from '../../static/theme';
 import SpellHint from '../Pot/SpellHint';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
 export default function ArenaCoin({ selected, result, time, toss, startedAt = 0, resolved = false, gestureRef }) {
   const { t } = useTranslation();
@@ -22,10 +24,11 @@ export default function ArenaCoin({ selected, result, time, toss, startedAt = 0,
     visual.current.rotation.set(...pose.rotation);
   });
   return <group ref={root} position={[0, 1.6, 2.3]} onClick={event => {
-    if (gestureRef?.current || event.delta > 4) return;
+    if (!isSelectionClick(event, gestureRef?.current)) return;
     event.stopPropagation();
     if (!toss && !resolved) useDefenseStore.getState().select('coin');
   }}>
+    <TouchHitArea size={40} enabled={!toss && !resolved} />
     <group ref={visual}>
       <mesh geometry={geometries.body}>
         <meshStandardMaterial color={selected ? theme.colors.coinSelected : theme.colors.coin} roughness={.42} metalness={.65}

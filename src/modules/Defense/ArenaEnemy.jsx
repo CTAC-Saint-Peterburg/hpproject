@@ -9,6 +9,8 @@ import { theme } from '../../static/theme';
 import ArenaRune from './ArenaRune';
 import { getArenaEnemyGeometry } from './arenaEnemyGeometry';
 import { writeEnemyMotion } from './enemyMotion';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
 export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
   const { t } = useTranslation();
@@ -41,12 +43,13 @@ export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
   const health = Math.max(0, Math.min(100, 100 * enemy.hp / Math.max(1, enemy.maxHp)));
   return <group position={[enemy.x, enemy.size * .6 + enemy.y, enemy.z]}>
     <mesh ref={body} geometry={geometry} scale={scale}
-      onClick={event => { if (gestureRef?.current || event.delta > 4) return; event.stopPropagation(); useDefenseStore.getState().select(enemy.id); }}>
+      onClick={event => { if (!isSelectionClick(event, gestureRef?.current)) return; event.stopPropagation(); useDefenseStore.getState().select(enemy.id); }}>
       <meshStandardMaterial color={color} emissive={frozen ? theme.colors.frozenEnemy : enemy.burnUntil > time ? theme.colors.burningEnemy : base.color}
         emissiveIntensity={disoriented ? .08 : pulse} roughness={.4} flatShading={shape !== 'slime'} />
       {selected && <mesh geometry={geometry} scale={1.1} raycast={() => null}>
         <meshBasicMaterial color={theme.colors.enemySelected} side={BackSide} />
       </mesh>}
+      <TouchHitArea size={40} />
     </mesh>
     <Html center position={[0, enemy.size + .45, 0]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
       <div className={'arena-enemy-label' + (windup ? ' arena-enemy-windup' : '')}>

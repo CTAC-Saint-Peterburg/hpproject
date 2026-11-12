@@ -7,6 +7,8 @@ import { theme } from '../../static/theme';
 import { crystalStatusPosition } from './arenaLayout';
 import { crystalThreats } from './arenaTactics';
 import SpellHint from '../Pot/SpellHint';
+import TouchHitArea from '../Input/TouchHitArea';
+import { isSelectionClick } from '../Input/selectionClick';
 
 export default function ArenaCrystalStatus({ gestureRef }) {
   const { t } = useTranslation();
@@ -19,10 +21,11 @@ export default function ArenaCrystalStatus({ gestureRef }) {
   const crowded = crystalThreats(state.enemies, config).length >= config.crowdControl.minimumEnemies;
   const cooldown = Math.max(0, (state.lastDisorient ?? -Infinity) + config.crowdControl.cooldown - state.time);
   return <group position={crystalStatusPosition(state.inventory)} onClick={event => {
-    if (gestureRef?.current || event.delta > 4) return;
+    if (!isSelectionClick(event, gestureRef?.current)) return;
     event.stopPropagation();
     useDefenseStore.getState().select('crystal');
   }}>
+    <TouchHitArea size={32} position={[0, .43, 0]} />
     <mesh position={[0, .05, 0]}>
       <cylinderGeometry args={[.35, .4, .1, 6]} />
       <meshStandardMaterial color={theme.colors.crystalBase} roughness={.65} />

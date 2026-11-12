@@ -4,16 +4,19 @@ import { theme } from '../../static/theme';
 import { createBrewingRoomGeometry, ROOM } from './roomGeometry';
 import { createArenaRoomGeometry } from './arenaRoomGeometry';
 import { createWorkshopPropsGeometry } from './workshopPropsGeometry';
+import { brewingRoomOptions } from './brewingRoomLayout';
 
 const ignoreRaycast = () => null;
 
 export default memo(function CastleRoom({ variant = 'brewing', lighting = true, furniture = true }) {
   const viewportWidth = useThree(state => state.viewport.width);
   const aspect = useThree(state => state.size.width / state.size.height);
+  const cameraDepth = useThree(state => variant === 'arena' ? 0 : state.camera.position.z);
+  const cameraFov = useThree(state => variant === 'arena' ? 0 : state.camera.fov);
   const halfWidth = variant === 'arena' ? 0 : Math.min(ROOM.maxHalfWidth, Math.max(ROOM.minHalfWidth, viewportWidth * .74));
   const room = useMemo(() => variant === 'arena'
     ? createArenaRoomGeometry(aspect)
-    : createBrewingRoomGeometry(halfWidth), [variant, aspect, halfWidth]);
+    : createBrewingRoomGeometry(halfWidth, brewingRoomOptions(cameraDepth, cameraFov)), [variant, aspect, halfWidth, cameraDepth, cameraFov]);
   const props = useMemo(() => furniture && variant === 'brewing' ? createWorkshopPropsGeometry() : null, [variant, furniture]);
   useEffect(() => () => Object.values(room).forEach(geometry => geometry.dispose()), [room]);
   useEffect(() => () => props?.dispose(), [props]);

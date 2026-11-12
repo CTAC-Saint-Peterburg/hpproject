@@ -1,66 +1,90 @@
 import { useThree } from '@react-three/fiber';
 import { useEffect, useRef } from 'react';
+import { createPointerInput, isTouchInput } from '../Input/pointerInput';
+import { useInputStore } from '../Input/inputStore';
+import { useGameStore } from '../Stores/GameStore';
+import { projectedIngredientHit } from '../Ingredients/ingredientPointer';
 
-export function MouseTracker({ onUpdate, onPosChange }) {
-  const { gl } = useThree();
-  const callbacks = useRef({ onUpdate, onPosChange });
-  useEffect(() => { callbacks.current = { onUpdate, onPosChange }; }, [onUpdate, onPosChange]);
+export function MouseTracker({ onStroke, onCast, onPosChange, carryInput, positions, gestureRef, enabled }) {
+  const { gl, camera } = useThree();
+  const callbacks = useRef({ onStroke, onCast, onPosChange, enabled });
+  useEffect(() => { callbacks.current = { onStroke, onCast, onPosChange, enabled }; }, [onStroke, onCast, onPosChange, enabled]);
+  const reset = useRef(() => {});
+  useEffect(() => {
+    if (!enabled) reset.current();
+  }, [enabled]);
   useEffect(() => {
     const canvas = gl.domElement;
-    let activePointer = null;
-    let lastPosition = null;
-    const publish = (event, isDown, cancelled = false) => {
-      const rect = canvas.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
-      const x = (event.clientX - rect.left) / rect.width * 2 - 1;
-      const y = 1 - (event.clientY - rect.top) / rect.height * 2;
-      lastPosition = { x, y, isDown, cancelled, aspectRatio: rect.width / rect.height };
-      callbacks.current.onUpdate?.(lastPosition);
-      callbacks.current.onPosChange?.({ x, y });
+    let activeCapture = null;
+    let controller;
+    const stopDrag = () => { carryInput.current.dragging = false; };
+    const release = () => {
+      const id = activeCapture;
+      activeCapture = null;
+      if (id !== null && canvas.hasPointerCapture?.(id)) canvas.releasePointerCapture(id);
     };
+    const resetSession = () => { controller.reset(); stopDrag(); release(); };
+    const mode = () => useInputStore.getState().mode;
+    controller = createPointerInput({
+      isEnabled: () => callbacks.current.enabled,
+      getMode: mode,
+      isNearHeld: (point, _event, rect) => {
+        const id = useGameStore.getState().heldIngredientId;
+        return id !== null && projectedIngredientHit(point, positions.current.get(id), camera, rect);
+      },
+      onPosition: (point, event, role) => {
+        const touch = controller.getSession()?.touch ?? isTouchInput(event, mode());
+        carryInput.current.touch = touch;
+        if (!touch || role === 'drag') {
+          carryInput.current.point = point;
+          callbacks.current.onPosChange?.(point);
+        }
+      },
+      onDrag: point => {
+        carryInput.current.dragging = true;
+        carryInput.current.heldId = useGameStore.getState().heldIngredientId;
+        carryInput.current.point = point;
+      },
+      onStroke: points => callbacks.current.onStroke?.(points),
+      onCast: stroke => callbacks.current.onCast?.(stroke),
+      onSuppressClick: (suppressed, pointerId) => { gestureRef.current = { suppressed, pointerId }; },
+      onCancel: stopDrag,
+    });
+    reset.current = resetSession;
+    const rect = () => canvas.getBoundingClientRect();
     const down = event => {
-      if (event.button !== 0 || event.isPrimary === false || activePointer !== null) return;
-      activePointer = event.pointerId;
-      canvas.setPointerCapture(event.pointerId);
-      publish(event, true);
+      const session = controller.down(event, rect());
+      if (!session) return;
+      activeCapture = session.id;
+      canvas.setPointerCapture?.(session.id);
     };
-    const move = event => {
-      if (event.isPrimary === false || (activePointer !== null && event.pointerId !== activePointer)) return;
-      // Native pointer samples avoid losing fast corners at low render FPS.
-      const samples = activePointer !== null ? event.getCoalescedEvents?.() : null;
-      if (samples?.length) for (const sample of samples) publish(sample, true);
-      else publish(event, activePointer !== null);
-    };
+    const move = event => controller.move(event, rect());
     const up = event => {
-      if (activePointer !== event.pointerId) return;
-      activePointer = null;
-      publish(event, false);
-      if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+      if (!controller.up(event, rect())) return;
+      stopDrag(); release();
     };
-    const cancel = event => {
-      if (activePointer !== event.pointerId) return;
-      activePointer = null; publish(event, false, true);
-    };
-    const blur = () => {
-      if (activePointer === null) return;
-      const id = activePointer; activePointer = null;
-      if (canvas.hasPointerCapture(id)) canvas.releasePointerCapture(id);
-      if (lastPosition) callbacks.current.onUpdate?.({ ...lastPosition, isDown: false, cancelled: true });
-    };
+    const cancel = event => { if (controller.cancel(event)) { stopDrag(); release(); } };
+    const hidden = () => { if (document.hidden) resetSession(); };
     canvas.addEventListener('pointerdown', down);
     canvas.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-    window.addEventListener('blur', blur);
     canvas.addEventListener('pointercancel', cancel);
     canvas.addEventListener('lostpointercapture', cancel);
+    window.addEventListener('pointerup', up);
+    window.addEventListener('blur', resetSession);
+    document.addEventListener('visibilitychange', hidden);
+    const unsubscribe = useInputStore.subscribe((state, previous) => {
+      if (state.mode !== previous.mode) resetSession();
+    });
     return () => {
+      resetSession(); unsubscribe(); reset.current = () => {};
       canvas.removeEventListener('pointerdown', down);
       canvas.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      window.removeEventListener('blur', blur);
       canvas.removeEventListener('pointercancel', cancel);
       canvas.removeEventListener('lostpointercapture', cancel);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('blur', resetSession);
+      document.removeEventListener('visibilitychange', hidden);
     };
-  }, [gl]);
+  }, [gl, camera, carryInput, positions, gestureRef]);
   return null;
 }

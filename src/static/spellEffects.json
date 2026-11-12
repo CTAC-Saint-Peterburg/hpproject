@@ -48,7 +48,19 @@
   "drawing": {
     "color": "@colors.spellEffectsDrawingColor",
     "lineWidth": 3,
-    "opacity": 0.85
+    "opacity": 0.95,
+    "glowWidth": 12,
+    "glowOpacity": 0.3,
+    "fadeSeconds": 0.16,
+    "particleCapacity": 96,
+    "particleSpacing": 4,
+    "particleLifetime": 0.36,
+    "particleSize": 1.7,
+    "particleSpread": 26,
+    "particleOpacity": 0.95,
+    "maxParticlesPerUpdate": 12,
+    "maxRenderPoints": 512,
+    "maxDpr": 1.5
   },
   "spells": {
     "1": {

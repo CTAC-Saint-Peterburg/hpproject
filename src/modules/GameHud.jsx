@@ -5,6 +5,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGameStore } from './Stores/GameStore';
 import { isPotBlocked } from '../static/enemies';
 import PotionResult from './Pot/PotionResult';
+import { useInputStore } from './Input/inputStore';
 
 export function FrameCounter() {
   const sample = useRef({ time: 0, frames: 0 });
@@ -23,12 +24,13 @@ export default function GameHud() {
   const { t } = useTranslation();
   const s = useGameStore();
   const showFps = useCheatUiStore(s => s.showFps);
+  const inputMode = useInputStore(s => s.mode);
   useEffect(() => {
     const handler = e => {
       if (e.repeat || e.target.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
       if (e.code === 'Escape') s.exitToMenu();
       if (e.code === 'KeyP' && !e.altKey && !e.ctrlKey && !e.metaKey) s.setPaused(!s.paused);
-      if (e.altKey && e.shiftKey) {
+      if (e.altKey && e.shiftKey && useInputStore.getState().mode === 'desktop') {
         if (e.code === 'Equal') { e.preventDefault(); s.changeStones(100); }
         if (e.code === 'Minus') { e.preventDefault(); s.changeStones(-100); }
         if (e.code === 'KeyP') { e.preventDefault(); s.addPotions(['frost','flame','echo','healing']); }
@@ -54,7 +56,7 @@ export default function GameHud() {
   const stage = s.mission?.stages[s.currentStage];
   return <>
     <div className="wallet">💎 {s.stones} {t('hud.stones')}</div>
-    {showFps && <div className="fps">{s.fps}</div>}
+    {showFps && inputMode === 'desktop' && <div className="fps">{s.fps}</div>}
     {s.startGame && <>
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
       <div className="hud">
