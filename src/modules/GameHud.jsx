@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import TrainerCrystal from './Cheats/TrainerCrystal';
 import { useEffect, useRef } from 'react';
 import { useCheatUiStore } from './Cheats/cheatUiStore';
 import { useFrame } from '@react-three/fiber';
@@ -24,7 +25,6 @@ export default function GameHud() {
   const { t } = useTranslation();
   const s = useGameStore();
   const showFps = useCheatUiStore(s => s.showFps);
-  const inputMode = useInputStore(s => s.mode);
   useEffect(() => {
     const handler = e => {
       if (e.repeat || e.target.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
@@ -55,8 +55,8 @@ export default function GameHud() {
   }, [s.startGame, s.status, s.paused]);
   const stage = s.mission?.stages[s.currentStage];
   return <>
-    <div className="wallet">💎 {s.stones} {t('hud.stones')}</div>
-    {showFps && inputMode === 'desktop' && <div className="fps">{s.fps}</div>}
+    <div className="wallet"><TrainerCrystal /> {s.stones} {t('hud.stones')}</div>
+    {showFps && <div className="fps">{s.fps}</div>}
     {s.startGame && <>
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
       <div className="hud">

@@ -1,3 +1,4 @@
+import TrainerCrystal from '../Cheats/TrainerCrystal';
 import { theme } from '../../static/theme';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
@@ -62,7 +63,6 @@ export default function DefenseScene(){
  const s=useDefenseStore(),stones=useGameStore(state=>state.stones),fps=useGameStore(state=>state.fps);
  const showFps=useCheatUiStore(s=>s.showFps);
  const mode=useInputStore(state=>state.mode);
- const [debug,setDebug]=useState(false),[wave,setWave]=useState(1),[enemyType,setEnemyType]=useState('fire');
  const [stroke,setStroke]=useState([]);
  const gestureRef=useRef({suppressed:false,pointerId:null});
  const inputBridge=useRef({role:null,touch:false,point:{x:0,y:0}});
@@ -101,7 +101,6 @@ export default function DefenseScene(){
    if(e.code==='Escape')state.exit();
    if(e.code==='KeyP'&&!e.altKey)state.setPaused(!state.paused);
    if(useInputStore.getState().mode==='touch')return;
-   if(e.code==='F9'){e.preventDefault();setDebug(value=>!value);}
    if(e.altKey&&e.shiftKey){
     const digit=/^Digit([1-9])$/.exec(e.code);
     const type=digit?Object.keys(config.enemies)[Number(digit[1])-1]:null;
@@ -132,11 +131,11 @@ export default function DefenseScene(){
  </div>
  <header className="arena-top"><strong>{t('arena.wave',{wave:s.wave+1})}</strong>
  <div><span>{t('arena.crystal')} {Math.ceil(s.hp)}/{config.crystal.maxHp}</span><div className="arena-health"><i style={{width:100*s.hp/config.crystal.maxHp+'%'}}/></div></div>
- <span>{t('arena.balance',{stones})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
+ <span><TrainerCrystal /> {t('arena.balance',{stones})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
    className={s.rewardCollectedSerial?'arena-wallet arena-wallet-collected':'arena-wallet'} aria-live="polite">
    {t('arena.pending',{stones:Math.max(0,s.pendingStones-visualPending)})}</span>
  <button onClick={()=>s.setPaused(!s.paused)}>{t(s.paused?'arena.resume':'arena.pause')}</button><button onClick={s.exit}>{t('menu.return')}</button></header>
- {showFps&&mode==='desktop'&&<div className="fps">{fps}</div>}
+ {showFps&&<div className="fps">{fps}</div>}
  <aside className="arena-hints"><p>{t(s.message)}</p>
  <p>{t('arena.enemiesLeft',{count:s.enemies.length+s.queue.length})}</p>
  {s.projectiles.length>0&&<p>{t('arena.projectilesLeft',{count:s.projectiles.length})}</p>}
@@ -150,10 +149,6 @@ export default function DefenseScene(){
  {s.paused&&!['won','lost'].includes(s.phase)&&<div className="result"><h2>{t('arena.paused')}</h2><button onClick={()=>s.setPaused(false)}>{t('arena.resume')}</button><button onClick={s.exit}>{t('menu.return')}</button></div>}
  {['won','lost'].includes(s.phase)&&<div className="result"><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2>{s.phase==='lost'&&<p>{t('arena.pendingLost')}</p>}
  <p>{t('arena.earned',{stones:s.runStones})}</p><button onClick={s.exit}>{t('arena.restock')}</button></div>}
- {debug&&mode==='desktop'&&<aside className="arena-debug"><strong>{t('arena.debugTitle')}</strong>
- <label>{t('arena.waveLabel')}<select value={wave} onChange={e=>setWave(Number(e.target.value))}>{config.waves.map(w=><option key={w.id} value={w.id}>{w.id}</option>)}</select></label>
- <button onClick={()=>s.debugWave(wave)}>{t('arena.jumpWave')}</button>
- <label>{t('arena.enemyLabel')}<select value={enemyType} onChange={e=>setEnemyType(e.target.value)}>{Object.entries(config.enemies).map(([id,e])=><option key={id} value={id}>{t(e.name)}</option>)}</select></label>
- <button onClick={()=>s.debugSpawn(enemyType)}>{t('arena.spawn')}</button><button onClick={()=>setDebug(false)}>{t('collection.close')}</button></aside>}
+
  </section>;
 }

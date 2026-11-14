@@ -21,7 +21,8 @@ const canSpawnEnemy = (state, type, now) => type === 'enemyslime'
 
 export function resolveEquipmentProfile(saved = {}) {
   const validItems = new Map(shopItems.filter(item => permanentTypes.includes(item.type)).map(item => [item.id, item]));
-  const previous = Array.isArray(saved?.ownedItems) ? saved.ownedItems : [];
+  const previous = Array.isArray(saved?.ownedItems) ? saved.ownedItems
+    : Object.entries(saved?.ownedItems ?? {}).filter(([, value]) => value === 1).map(([id]) => id);
   const ownedItems = [...new Set([...Object.values(defaultEquipment), ...previous.filter(id => validItems.has(id))])];
   const owned = new Set(ownedItems);
   const equippedItems = Object.fromEntries(equipmentTypes.map(type => {
@@ -95,6 +96,22 @@ export const useGameStore = create(persist((set, get) => ({
   },
 
   tutorialProgress: {},
+  resetProgress: () => {
+    get().exitToMenu();
+    set({ stones: 0, unlocked: [], records: {}, completed: [], tutorialProgress: {}, mageCards: {},
+      selectedLevel: 'level_01', fireHintSeen: false, ...resolveEquipmentProfile(),
+      ...resolvePotionProfile({}), showFirstVisitWelcome: false });
+  },
+  unlockEverything: () => set(s => ({
+    ownedItems: shopItems.filter(item => permanentTypes.includes(item.type)).map(item => item.id),
+    completed: Object.keys(missions), records: Object.fromEntries(Object.keys(missions).map(id => [id, 3])),
+    unlocked: achievements.map(item => item.id),
+    tutorialProgress: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, 2])),
+    mageCards: Object.fromEntries(Array.from({ length: 10 }, (_, i) => ['mage_' + (i + 1), Math.max(1, s.mageCards['mage_' + (i + 1)] || 0)])),
+    potionInventory: Object.fromEntries(POTION_IDS.map(id => [id, Object.fromEntries(POTION_QUALITIES.map(quality =>
+      [quality, Math.max(99, s.potionInventory[id]?.[quality] || 0)]))])),
+    firstVisitGranted: true, showFirstVisitWelcome: false,
+  })),
   ...resolvePotionProfile(), mageCards: {},
   markProfileInitialized: () => set({ firstVisitGranted: true }),
   dismissFirstVisit: () => set({ showFirstVisitWelcome: false }),
@@ -345,6 +362,8 @@ export const useGameStore = create(persist((set, get) => ({
   name: 'hpproject-save-v1',
   merge: (saved, current) => ({ ...current, ...saved, ...resolvePotionProfile(saved), ...resolveEquipmentProfile(saved) }),
   onRehydrateStorage: () => state => state?.markProfileInitialized(),
-  partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed, tutorialProgress: s.tutorialProgress, ownedItems: s.ownedItems, equippedItems: s.equippedItems, potionInventory: s.potionInventory, mageCards: s.mageCards, firstVisitGranted: s.firstVisitGranted, fireHintSeen: s.fireHintSeen }),
+  partialize: s => ({ stones: s.stones, unlocked: s.unlocked, records: s.records, completed: s.completed, tutorialProgress: s.tutorialProgress,
+    ownedItems: Object.fromEntries(shopItems.filter(item => permanentTypes.includes(item.type)).map(item => [item.id, s.ownedItems.includes(item.id) ? 1 : 0])),
+    equippedItems: s.equippedItems, potionInventory: s.potionInventory, mageCards: s.mageCards, firstVisitGranted: s.firstVisitGranted, fireHintSeen: s.fireHintSeen }),
 }));
 

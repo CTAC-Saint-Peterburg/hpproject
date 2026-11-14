@@ -5,6 +5,48 @@ import { shopItems as catalog, potionTypes } from '../src/static/themedConfigs.j
 import { potionCount } from '../src/modules/Stores/potionInventory.js';
 
 const defaults = { wand: 'wand_default', pot: 'pot_default', crystal: 'crystal_default' };
+
+test('binary ownership round-trips and migrates legacy purchases without accepting zero flags', async () => {
+  const { s, saved } = await fixture({ ownedItems: ['wand_ruby'], equippedItems: { wand: 'wand_ruby' }, stones: 300 });
+  s().changeStones(1);
+  const data = JSON.parse(saved.get('hpproject-save-v1')).state;
+  assert.equal(data.ownedItems.wand_ruby, 1);
+  assert.equal(data.ownedItems.wand_noob, 0);
+  assert.ok(Object.values(data.ownedItems).every(value => value === 0 || value === 1));
+  const restored = await fixture(data);
+  assert.ok(restored.s().ownedItems.includes('wand_ruby'));
+  assert.ok(!restored.s().ownedItems.includes('wand_noob'));
+  assert.equal(restored.s().equippedItems.wand, 'wand_ruby');
+  assert.equal(restored.s().stones, 301);
+});
+
+test('unlock grants catalog, progress, cards and quality stock; reset persists an empty profile', async () => {
+  const { s, saved } = await fixture({ stones: 432, mageCards: { mage_1: 5 } });
+  saved.set('hpproject-input-v1', 'unchanged');
+  saved.set('other-app', 'untouched');
+  s().unlockEverything();
+  assert.ok(catalog.every(item => s().ownedItems.includes(item.id)));
+  assert.equal(Object.keys(s().mageCards).length, 10);
+  assert.equal(s().mageCards.mage_1, 5);
+  assert.ok(s().completed.length > 0);
+  assert.ok(Object.values(s().records).every(value => value === 3));
+  for (const potion of potionTypes) assert.equal(potionCount(s().potionInventory, potion.id), 297);
+  const restored = await fixture(JSON.parse(saved.get('hpproject-save-v1')).state);
+  assert.deepEqual(new Set(restored.s().ownedItems), new Set(s().ownedItems));
+  s().beginMission('level_01');
+  s().resetProgress();
+  assert.equal(s().startGame, false);
+  assert.equal(s().stones, 0);
+  assert.deepEqual(s().ownedItems, Object.values(defaults));
+  assert.deepEqual(s().mageCards, {});
+  assert.deepEqual(s().completed, []);
+  assert.deepEqual(s().potionInventory, {});
+  const reset = await fixture(JSON.parse(saved.get('hpproject-save-v1')).state);
+  assert.deepEqual(reset.s().potionInventory, {});
+  assert.equal(reset.s().stones, 0);
+  assert.equal(saved.get('hpproject-input-v1'), 'unchanged');
+  assert.equal(saved.get('other-app'), 'untouched');
+});
 let serial = 0;
 async function fixture(savedState) {
   const saved = new Map();

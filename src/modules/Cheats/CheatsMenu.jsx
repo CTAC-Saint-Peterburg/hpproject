@@ -9,19 +9,19 @@ import { useInputStore } from '../Input/inputStore';
 export default function CheatsMenu() {
   const { t } = useTranslation();
   const game = useGameStore(), arena = useDefenseStore();
-  const { showFps, toggleFps } = useCheatUiStore();
-  const [open, setOpen] = useState(false), [wave, setWave] = useState(1);
+  const { open, setOpen, toggleOpen, showFps, toggleFps } = useCheatUiStore();
+  const [wave, setWave] = useState(1);
   const [feedback, setFeedback] = useState(null);
   const dialog = useRef(null);
   const inArena = arena.phase !== 'idle';
-  const brewing = !inArena && game.startGame && game.status === 'playing';
+  const brewing = !inArena && game.startGame && game.status === 'playing' && !game.paused;
   useEffect(() => {
     const key = e => {
       if (useInputStore.getState().mode !== 'desktop') return;
       if (e.repeat) return;
-      if (e.code === 'F10') {
+      if (e.code === 'F10' || (e.code === 'F9' && inArena)) {
         e.preventDefault(); e.stopImmediatePropagation();
-        setOpen(value => !value); setFeedback(null);
+        toggleOpen(); setFeedback(null);
       } else if (e.code === 'Escape' && open) {
         e.preventDefault(); e.stopImmediatePropagation(); setOpen(false);
       } else if (e.code === 'F8' && !e.target.isContentEditable && !/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) {
@@ -30,13 +30,12 @@ export default function CheatsMenu() {
     };
     window.addEventListener('keydown', key, true);
     return () => window.removeEventListener('keydown', key, true);
-  }, [open, toggleFps]);
+  }, [open, setOpen, toggleOpen, toggleFps, inArena]);
   useEffect(() => {
     if (open) dialog.current.showModal();
     else dialog.current.close();
   }, [open]);
   const run = (label, action) => {
-    if (useInputStore.getState().mode !== 'desktop') return;
     const success = action() !== false;
     setFeedback({ label, success });
   };
@@ -64,11 +63,15 @@ export default function CheatsMenu() {
     </div></section>
     <section><h3>{t('arena.title')}</h3><div className="cheat-grid">
       {Object.entries(config.enemies).map(([id, enemy], i) => command(enemy.name,
-        () => useDefenseStore.getState().debugSpawn(id), arena.phase !== 'wave', 'Alt Shift ' + (i + 1)))}
+        () => useDefenseStore.getState().debugSpawn(id), arena.phase !== 'wave' || arena.paused, 'Alt Shift ' + (i + 1)))}
     </div><div className="cheat-wave"><label>{t('arena.waveLabel')}<select value={wave} disabled={!inArena}
       onChange={e => setWave(Number(e.target.value))}>{config.waves.map(w => <option key={w.id} value={w.id}>{w.id}</option>)}</select></label>
       {command('arena.jumpWave', () => useDefenseStore.getState().debugWave(wave), !inArena)}</div>
     </section>
+    <section><h3>Сохранение прогресса</h3><div className="cheat-grid">
+      {command('Обнулить прогресс', () => { useDefenseStore.getState().exit(); useGameStore.getState().resetProgress(); })}
+      {command('Открыть всё — 100%', () => { useDefenseStore.getState().exit(); useGameStore.getState().exitToMenu(); useGameStore.getState().unlockEverything(); })}
+    </div><p>Эти кнопки завершают текущую игру и сохраняют изменения сразу. Сброс удаляет покупки, stones, зелья, карточки и достижения. Настройки звука и управления сохраняются.</p></section>
     <p>{t('cheats.rewards')}</p>
     <p role="status" aria-live="polite">{feedback && t(feedback.success ? 'cheats.executed' : 'cheats.failed', { name: t(feedback.label) })}</p>
   </dialog>;

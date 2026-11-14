@@ -8,12 +8,11 @@ import { useDefenseStore } from './modules/Defense/DefenseStore';
 import CheatsMenu from './modules/Cheats/CheatsMenu';
 import GameAudio from './modules/Audio/GameAudio';
 import GlobalInput from './modules/Input/GlobalInput';
-import { useInputStore } from './modules/Input/inputStore';
+import AndroidLifecycle from './modules/Input/AndroidLifecycle';
 export default function App() {
   const runId = useGameStore(s => s.runId);
   const playing = useGameStore(s => s.startGame);
   const defense = useDefenseStore(s => s.phase !== 'idle');
-  const inputMode = useInputStore(s => s.mode);
-  return <main className="app"><GameAudio /><GlobalInput />{defense ? <DefenseScene /> : <>{playing ? <Scene key={runId} /> : <MainMenu />}<GameHud /></>}{inputMode === 'desktop' && <CheatsMenu />}</main>;
+  return <main className="app"><AndroidLifecycle /><GameAudio /><GlobalInput />{defense ? <DefenseScene /> : <>{playing ? <Scene key={runId} /> : <MainMenu />}<GameHud /></>}<CheatsMenu /></main>;
 }
 

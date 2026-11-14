@@ -134,6 +134,8 @@ button:disabled { opacity: .45; cursor: default; }
 
 .cheat-menu { box-sizing: border-box; width: min(760px, calc(100vw - 24px)); max-height: calc(100svh - 24px); overflow: auto; padding: 22px; border: 1px solid var(--color-trainer-border); border-radius: 12px; color: var(--color-white); background: var(--color-trainer-surface); text-align: left; }
 .cheat-menu::backdrop { background: var(--color-trainer-backdrop); }
+.trainer-crystal { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 4px; margin: 0; border: 0; background: transparent; font-size: inherit; touch-action: manipulation; user-select: none; }
+.cheat-menu { overscroll-behavior: contain; touch-action: pan-y; }
 .cheat-menu header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
 .cheat-menu h2 { margin: 0; } .cheat-menu h3 { margin-bottom: 10px; }
 .cheat-menu p { font-size: var(--type-body-small); line-height: 1.5; }

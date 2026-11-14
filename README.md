@@ -1,5 +1,7 @@
 # React + Vite
 
+Версия 3.7.0, ветка master: [сборка Android](mobile/README.md), [trainer и читы](CHEATS.md), [документация](DOCUMENTATION.md).
+
 Пункт 36: [план упаковки игры в Android APK/AAB](ANDROID_PACKAGING_PLAN.md).
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
