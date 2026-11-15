@@ -1,4 +1,5 @@
 {
+  "brewing.stirringLabel": "Stirring",
   "hints.title": "Hints",
   "hints.defaultEnabled": "Show hints when starting a game",
   "hints.description": "Applies to brewing and crystal defense. The ? button hides or shows the hints panel until the next game.",

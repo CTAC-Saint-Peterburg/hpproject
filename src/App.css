@@ -6,11 +6,11 @@ button:hover { background: var(--color-button-hover); } select { max-width: 90vw
 .wallet, .fps, .timer, .hud, .result { position: absolute; z-index: 10; }
 .wallet { right: 16px; top: 16px; background: var(--color-surface); padding: 10px; border-radius: 6px; }
 .fps { left: 12px; top: 12px; width: 44px; height: 44px; display: grid; place-items: center; background: var(--color-black); color: var(--color-white); font: var(--type-fps); pointer-events: none; }
-.timer { top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-surface-veil); padding: 10px; border-radius: 6px; pointer-events: none; }
+.timer { top: 16px; right: 16px; max-width: calc(100% - 32px); box-sizing: border-box; background: var(--color-surface-veil); padding: 10px; border-radius: 6px; pointer-events: none; }
 .hud { bottom: 16px; left: 16px; background: var(--color-surface-veil); padding: 12px; max-width: calc(100% - 56px); text-align: left; pointer-events: none; }
 .hud button { pointer-events: auto; } .hud p { margin: 6px 0; }
 .result { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--color-result-veil); }
-@media(max-width: 600px) { .timer { top: 70px; width: max-content; } .hud { font-size: var(--type-hint); } }
+@media(max-width: 600px) { .hud { font-size: var(--type-hint); } }
 .training-menu { justify-content: flex-start; }
 .bestiary-menu { justify-content:flex-start; }
 .bestiary { width:min(1120px,100%);display:flex;flex-direction:column;align-items:center;gap:14px;flex-shrink:0; }
@@ -76,10 +76,9 @@ button:disabled { opacity: .45; cursor: default; }
 .shop-card .shop-item-type { font-size:var(--type-small); }
 .shop-potion-stock { text-align:center;font-size:var(--type-hint); }
 .shop-potion-stock p { margin:3px 0; }
-.slime-runes { display: flex; gap: 8px; width: max-content; max-width: 85vw; justify-content: center; }
-.slime-rune { width: 76px; padding: 5px; border: 1px solid var(--color-slime-border); border-radius: 10px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 2px 12px var(--color-shadow-medium); }
-.slime-rune svg { display: block; width: 56px; height: 56px; margin: auto; }
-.slime-rune span { display: block; font-size: var(--type-tiny); line-height: 1.2; overflow-wrap: anywhere; }
+.slime-runes { display: flex; gap: 5.6px; width: max-content; max-width: 85vw; justify-content: center; }
+.slime-rune { width: 53.2px; padding: 3.5px; border: .7px solid var(--color-slime-border); border-radius: 7px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 1.4px 8.4px var(--color-shadow-medium); }
+.slime-rune svg { display: block; width: 39.2px; height: 39.2px; margin: auto; }
 .defense-setup,.collection { width: min(1000px,100%); display:flex; flex-direction:column; align-items:center; gap:14px; flex-shrink:0; }
 .potion-grid,.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr)); gap:16px; width:100%; }
 .menu .potion-card { width:auto; box-sizing:border-box; border:1px solid var(--color-potion-border); border-radius:12px; padding:18px; }
@@ -148,9 +147,17 @@ button:disabled { opacity: .45; cursor: default; }
 
 .spell-hint { display: inline-flex; width: 38px; height: 38px; color: var(--color-rune); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; }
 .spell-hint svg { width: 100%; height: 100%; } .spell-hint-start { fill: var(--color-rune-start); }
-.pot-guidance { display: flex; align-items: center; gap: 8px; }
-.agitation { display: flex; flex-direction: column; white-space: nowrap; font-size: var(--type-small); color: var(--color-text); background: var(--color-surface-veil); padding: 6px; border-radius: 6px; }
-.agitation meter { width: 100px; accent-color: var(--color-health); }
+.stirring-indicator { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 24; display: flex; flex-direction: column; align-items: center; gap: 1px; pointer-events: none; color: var(--color-rune); }
+.stirring-icon { position: relative; width: 60px; height: 49.2px; }
+.stirring-icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.stirring-outline { fill: none; stroke: currentColor; }
+.stirring-fill { fill: var(--color-rune-start); }
+.stirring-percent { position: absolute; inset: 0 0 9px; display: grid; place-items: center; font-size: var(--type-stir-percent); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-white); text-shadow: 1px 1px 2px var(--color-black), -1px -1px 2px var(--color-black); }
+.stirring-label { font-size: var(--type-stir-label); font-weight: 600; line-height: 18px; white-space: nowrap; text-shadow: 0 1px 3px var(--color-black); }
+.stirring-label > span { display: inline-block; animation: stirring-letter-wave 1.8s ease-in-out infinite; }
+.stirring-paused .stirring-label > span { animation-play-state: paused; }
+@keyframes stirring-letter-wave { 0%, 40%, 100% { transform: translateY(0); } 20% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .stirring-label > span { animation: none; } }
 .potion-result { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .potion-result-preview { width: 180px; height: 180px; }
 .potion-result p { margin: 0; }

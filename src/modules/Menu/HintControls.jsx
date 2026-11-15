@@ -1,11 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import { useMemo } from 'react';
+import { createRapidTaps } from '../Cheats/rapidTaps';
+import { useCheatUiStore } from '../Cheats/cheatUiStore';
 import { useHintSettings } from './hintSettings';
 
-export function HintToggle({ visible, onToggle, panelId }) {
+export function HintToggle({ visible, onToggle, panelId, trainer = false }) {
   const { t } = useTranslation();
+  const tap = useMemo(() => createRapidTaps(() => useCheatUiStore.getState().setOpen(true)), []);
   return <button className={'hint-toggle' + (visible ? ' hint-toggle-on' : '')}
     aria-pressed={visible} aria-controls={panelId} aria-label={t(visible ? 'hints.hide' : 'hints.show')}
-    title={t(visible ? 'hints.hide' : 'hints.show')} onClick={onToggle}>?</button>;
+    title={t(visible ? 'hints.hide' : 'hints.show')} onClick={() => { onToggle(); if (trainer) tap(); }}>?</button>;
 }
 
 export function HintSettings() {

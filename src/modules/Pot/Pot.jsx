@@ -60,13 +60,6 @@ export const Pot = ({ bottleRadar = [], gestureRef }) => {
       spread={0.7} color={warmth > 0.7 ? theme.colors.fireHot : theme.colors.fireWarm}
       size={0.05 + warmth * 0.05} lifetime={0.8} position={[0, -0.8, 0]} />
     <pointLight position={[0, -0.6, 0.5]} color={theme.colors.fireLight} intensity={warmth * 12} />
-    {s.status === 'playing' && <Html center position={[0, -1.35, 0]} style={{ pointerEvents: 'none' }}>
-      <div className="pot-guidance">
-        <div className="agitation"><span>{t('brewing.agitation', { value: Math.round(s.agitation) })}</span>
-          <meter min="0" max="100" value={s.agitation} aria-label={t('brewing.stir')} />
-        </div>
-      </div>
-    </Html>}
   </group>;
 }
 

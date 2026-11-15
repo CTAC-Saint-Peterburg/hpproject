@@ -9,6 +9,7 @@ import { useFrame } from '@react-three/fiber';
 import { useGameStore } from './Stores/GameStore';
 import { isPotBlocked } from '../static/enemies';
 import PotionResult from './Pot/PotionResult';
+import StirringIndicator from './Pot/StirringIndicator';
 import { useInputStore } from './Input/inputStore';
 
 export function FrameCounter() {
@@ -60,11 +61,12 @@ export default function GameHud() {
   }, [s.startGame, s.status, s.paused]);
   const stage = s.mission?.stages[s.currentStage];
   return <>
-    <div className="wallet"><TrainerCrystal /> {s.stones} {t('hud.stones')}</div>
+    {!s.startGame && <div className="wallet"><TrainerCrystal /> {s.stones} {t('hud.stones')}</div>}
     {showFps && <div className="fps">{s.fps}</div>}
     {s.startGame && <>
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
-      <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="brewing-hints" />
+      <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="brewing-hints" trainer />
+      {s.status === 'playing' && <StirringIndicator value={s.agitation} paused={s.paused} />}
       <div className="hud" id="brewing-hints" hidden={!hintsVisible}>
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>

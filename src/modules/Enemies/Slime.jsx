@@ -75,11 +75,11 @@ export default function Slime({ enemy, selected, gestureRef }) {
           <div className="slime-runes" aria-label={t('slime.spells')}>
             {enemy.remainingSpells.map(id => {
               const lesson = spellLessons.find(item => item.id === id);
-              return <div className="slime-rune" key={id} title={t(lesson.name)}>
+              return <div className="slime-rune" key={id}>
                 <svg viewBox="0 0 100 100" role="img" aria-label={t(lesson.name)}>
                   <path d={lesson.points.map(([x,y],i) => (i ? 'L' : 'M') + x * 100 + ',' + y * 100).join(' ')} fill="none" stroke="currentColor" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" />
                   <circle cx={lesson.points[0][0]*100} cy={lesson.points[0][1]*100} r="4" fill={theme.colors.runeStart} />
-                </svg><span>{t(lesson.name)}</span>
+                </svg>
               </div>;
             })}
           </div>

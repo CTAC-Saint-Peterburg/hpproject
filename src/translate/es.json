@@ -1,4 +1,5 @@
 {
+  "brewing.stirringLabel": "Mezcla",
   "hints.title": "Ayudas",
   "hints.defaultEnabled": "Mostrar ayudas al iniciar una partida",
   "hints.description": "Se aplica a pociones y defensa del cristal. El botón ? oculta o muestra el panel de ayudas hasta la próxima partida.",

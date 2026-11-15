@@ -2,7 +2,7 @@
 
 Справочник текущего интерфейса: [UIdata.md](UIdata.md) — экраны, размеры, цвета, шрифты, состояния и адаптивные правила. Сверяться перед изменениями UI и обновлять вместе с ними.
 
-Версия 4.0.1, ветка master: [сборка Android](mobile/README.md), [trainer и читы](CHEATS.md), [документация](DOCUMENTATION.md). Главное меню — парящий триптих Hyped Pot; в игре книжка menu и ромб pause/play.
+Версия 4.1.0, ветка master: [сборка Android](mobile/README.md), [trainer и читы](CHEATS.md), [документация](DOCUMENTATION.md). Главное меню — парящий триптих Hyped Pot; в игре книжка menu и ромб pause/play.
 
 Пункт 36: [план упаковки игры в Android APK/AAB](ANDROID_PACKAGING_PLAN.md).
 

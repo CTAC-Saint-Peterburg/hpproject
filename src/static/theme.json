@@ -186,6 +186,8 @@
     "spatial": null
   },
   "typography": {
+    "stirPercent": "22px",
+    "stirLabel": "14px",
     "fps": "18px monospace",
     "hotkey": "11px monospace",
     "title": "clamp(24px, 4vw, 42px)",

@@ -1,4 +1,5 @@
 {
+  "brewing.stirringLabel": "Mélange",
   "hints.title": "Astuces",
   "hints.defaultEnabled": "Afficher les astuces au début de la partie",
   "hints.description": "Pour les potions et la défense du cristal. Le bouton ? masque ou affiche le panneau des astuces jusqu’à la prochaine partie.",

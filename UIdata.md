@@ -1,6 +1,6 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **15.11.2026**, версия игры **4.0.1**, пункты **38–39**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+Снимок исходников от **15.11.2026**, версия игры **4.1.0**, пункты **38–39**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
 
 ## Как использовать этот документ
 
@@ -46,7 +46,7 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 | Бестиарий / `Bestiary` | Заголовок, описание, фильтры всё/варка/защита/предметы, количество; список записей с миниатюрой и категорией; карточка записи с 3D-превью, описанием, взаимодействиями, рабочими жестами и неэффективными заклинаниями; пустое состояние |
 | Обучение / `SpellTraining` | Заголовок, вводный текст, прогресс, select десяти заклинаний с /2; название текущего и повторы, эффект; поле обводки; результат, сообщение о завершении всех уроков; очистить, предыдущее, следующее, в меню, перейти к игре |
 | Настройки / `AudioSettings` | Заголовок, описание, checkbox звука, слайдер громкости 0–100 шаг 1 и проценты |
-| Варка / `GameHud` + сцена | Баланс, FPS, таймер; книжка menu и герб pause/play в сцене; температура, огонь, текущий ингредиент и диапазон температуры, диапазон помешивания, очки/ошибки, инструкция по врагам, блокировка слизнем, статус действия; рецепт на доске, подсказки ингредиентов/котла/слизня, шкала помешивания, след жеста |
+| Варка / `GameHud` + сцена | FPS, таймер справа сверху (без баланса stones); книжка menu и герб pause/play в сцене; температура, огонь, текущий ингредиент и диапазон температуры, диапазон помешивания, очки/ошибки, инструкция по врагам, блокировка слизнем, статус действия; рецепт на доске, подсказки ингредиентов/котла/слизня, шкала помешивания, след жеста |
 | Результат варки | Победа/поражение, звёзды и очки, награда, предупреждение debug; при победе с зельем — 3D-бутылочка, название и качество; повторить, в меню |
 | Защита кристалла / `DefenseScene` | Верхняя панель: волна, HP/полоска, баланс/💎, временные stones; книжка menu и герб pause/play за столом; FPS; подсказки слева, враги/снаряды и эффекты кристалла; эффекты зелий снизу; на столе бутылочки/остатки/выбор, мини-кристалл со статусом, подписи врагов и снарядов; межволновое окно, монета, итог боя |
 | Пауза | Парящий ромб-герб показывает pause во время игры, play на паузе; нажатие переключает состояние. Текстовый статус сверху, без полноэкранной завесы. Дублирующие кнопки из HUD и верхней панели арены убраны |
@@ -55,13 +55,21 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 
 ## Меню, каталог, коллекция
 
+### Пункт 40 — 4.1.0
+
+В режиме варки кошелёк stones не отображается (включая паузу и экран результата). В главном меню и защите кристалла баланс сохранён. Таймер занимает его прежнее место: top/right 16px на всех размерах экрана, padding 10px, radius 6px, surfaceVeil, max-width calc(100% - 32px), border-box; центрирование и мобильный перенос вниз удалены.
+
+В варке десять быстрых нажатий по «?» открывают trainer; используется общий createRapidTaps, интервал между нажатиями ≤500мс. Одиночное нажатие по-прежнему переключает подсказки. Десять переключений возвращают их к прежней видимости. В меню и защите секретный вход остался на 💎, F10/F9 работают как раньше. Новых цветовых токенов нет.
+
+У слизня убраны видимые названия заклинаний и title-подсказки; SVG сохраняет aria-label с названием для доступности. Размеры элементов умножены на .7: карточка width 53.2px, padding 3.5px, border .7px, radius 7px; значок 39.2×39.2px; gap 5.6px; тень 0 1.4px 8.4px shadowMedium. SVG viewBox 100×100 и координаты жестов не менялись; stroke и стартовая точка масштабируются вместе с SVG. Общая высота дополнительно уменьшилась за счёт удаления текстовой строки.
+
 ### Исправления и переключатель подсказок — 4.0.1
 
 Книжка варки уменьшена до 76px по высоте, HTML-зона нажатия 52×76px, подпись 13px. Новый центр x=-viewport.width*.27, y=min(viewport.height*.42, viewport.height*(.5-46/screenHeight)); это правее и выше прежнего положения, с отступом центра не менее 46px от верха. Область полёта левого куба остаётся доступной. В защите книжка и герб сдвинуты на z=-field.depth/2+.35 (при текущем поле -6.15), вперёд от стены и выступающей кладки; учитывается объём герба при billboard-повороте.
 
 Новый общий HintToggle — круглая HTML-кнопка «?» слева снизу (left/bottom 16px), 46×46px border-box, обводка 2px currentColor, фон surface, шрифт 28px/700, z-index 25. Включена: runeStart #ffd46b, свечение 12px; выключена: новый токен hintInactive #90949b, свечение 6px. Парение translateY 0→-4px→0 за 3с, отключается при reduced-motion. aria-pressed, aria-controls, локализованные title/label; работает мышью, touch и клавиатурой.
 
-Кнопка управляет именно окнами .hud (варка) и .arena-hints (защита). Они скрываются атрибутом hidden/display:none. Таймер, баланс, HP, объектные руны/подсказки, результаты и кнопки управления остаются. HUD варки теперь bottom 78px; нижняя панель бафов арены left 78px — место под «?». На ≤600px таймер top 110px, статус паузы top 154px, чтобы не перекрывать уменьшенную книжку.
+Кнопка управляет именно окнами .hud (варка) и .arena-hints (защита). Они скрываются атрибутом hidden/display:none. Таймер, HP, объектные руны/подсказки, результаты и кнопки управления остаются. HUD варки bottom 78px; нижняя панель бафов арены left 78px — место под «?». Таймер top/right 16px; на ≤600px статус паузы top 154px. В варке десять быстрых нажатий по «?» также открывают trainer.
 
 В меню настроек под звуком добавлена карточка «Подсказки», повторно использующая .audio-settings/.audio-toggle (ширина до 480px, checkbox 22×22). «Показывать подсказки при начале игры» изначально включено. Настройка сохраняется отдельно: localStorage `hpproject-hints-v1`, поле defaultEnabled boolean. «?» меняет только текущую попытку, не предпочтение. Каждый новый вход/повтор начинает с сохранённого значения; переключение паузы или волны внутри боя выбор не сбрасывает. Все новые подписи переведены на пять языков.
 
@@ -122,16 +130,16 @@ SVG сетка 30×30, trainingGrid opacity .15. Образец: ореол то
 
 | Элемент | Размеры / положение | Оформление |
 | --- | --- | --- |
-| Баланс | absolute top/right 16px, padding 10px, radius 6px, z-index 10 | surface; обычный текст; кнопка 💎 минимум 44×44 |
+| Баланс меню | absolute top/right 16px, padding 10px, radius 6px, z-index 10 | surface; обычный текст; кнопка 💎 минимум 44×44. В варке отсутствует |
 | FPS | left/top 12px, 44×44, z-index 10, grid centered | `18px monospace`, белый на чёрном, pointer-events none |
-| Таймер | top 20px, left 50%, translateX(-50%), padding 10px, radius 6px, z-index 10 | surfaceVeil; на ≤600px top 110px, width max-content |
+| Таймер | top/right 16px, padding 10px, radius 6px, z-index 10, max-width calc(100% - 32px), border-box | surfaceVeil; одно положение на ПК и телефоне |
 | HUD | bottom 78px / left 16px, padding 12px, max-width calc(100% - 56px), z-index 10 | surfaceVeil, text-align left; p margin 6px 0; на ≤600px font-size 13px; кликабельны только кнопки |
 | Итог | inset 0, border-box, padding 24px, column centered, gap 10px, overflow auto | resultVeil; h2 margin 0, прямые p margin 4px 0; z-index 10. Пауза теперь через герб, см. раздел 4.0.0 |
 | Превью результата | 180×180, под ним текст; column gap 6px | Общая PotionModel, цвет зелья и качества; p margin 0 |
 | Общий SpellHint | 38×38, border 1px, radius 8px, inline-flex | surface, border, rune; SVG viewBox 100×100, stroke 7, round; стартовая точка r=5 runeStart |
 | Руны котла | ряд gap 5px; колонка 48px/gap 3px; иконка 30×30, круглая | heat #ff7733, cool #69d9ff, stir #b49aff; фон surfaceVeil; подпись 10px/1.1, nowrap, shadow 0 1px 3px black |
 | Помешивание | column, padding 6px, radius 6px, nowrap; meter width 100px | 11px, text, surfaceVeil; meter accent health; высота/отрисовка meter нативные |
-| Руны слизня | ряд gap 8px, max-width 85vw; каждый блок width 76px + padding 5px + border 1px, radius 10px | slimeVeil, slimeBorder, slimeText; SVG 56×56/stroke 4; подпись 10px/1.2; тень 0 2px 12px shadowMedium |
+| Руны слизня | ряд gap 5.6px, max-width 85vw; каждый блок width 53.2px + padding 3.5px + border .7px, radius 7px | slimeVeil, slimeBorder, slimeText; SVG 39.2×39.2/stroke 4 единицы viewBox; без текста; тень 0 1.4px 8.4px shadowMedium |
 
 Рецепт — Three.js Text на позиции [-3,1,0], максимум четыре строки (действия сейчас + следующие ингредиенты). Межстрочный шаг .45; текст смещён [-1.05,0,0], якорь left/middle; цветной квадрат .16×.16 на [-1.25,0,0]. Размер первой строки .24, затем уменьшается на .03 (нижний предел .12). Текущая строка recipeCurrent #ffd700, следующие recipeUpcoming #a6b8cf. Шрифт spatial=null: конкретный font не передаётся, используется библиотечный, а не system-ui.
 
@@ -470,6 +478,7 @@ body { margin: 0; } #root { width: 100%; min-height: 100svh; } h1 { font-size: v
 
 
 
+
 ### CSS: src/App.css
 
 ```css
@@ -481,11 +490,11 @@ button:hover { background: var(--color-button-hover); } select { max-width: 90vw
 .wallet, .fps, .timer, .hud, .result { position: absolute; z-index: 10; }
 .wallet { right: 16px; top: 16px; background: var(--color-surface); padding: 10px; border-radius: 6px; }
 .fps { left: 12px; top: 12px; width: 44px; height: 44px; display: grid; place-items: center; background: var(--color-black); color: var(--color-white); font: var(--type-fps); pointer-events: none; }
-.timer { top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-surface-veil); padding: 10px; border-radius: 6px; pointer-events: none; }
+.timer { top: 16px; right: 16px; max-width: calc(100% - 32px); box-sizing: border-box; background: var(--color-surface-veil); padding: 10px; border-radius: 6px; pointer-events: none; }
 .hud { bottom: 16px; left: 16px; background: var(--color-surface-veil); padding: 12px; max-width: calc(100% - 56px); text-align: left; pointer-events: none; }
 .hud button { pointer-events: auto; } .hud p { margin: 6px 0; }
 .result { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--color-result-veil); }
-@media(max-width: 600px) { .timer { top: 70px; width: max-content; } .hud { font-size: var(--type-hint); } }
+@media(max-width: 600px) { .hud { font-size: var(--type-hint); } }
 .training-menu { justify-content: flex-start; }
 .bestiary-menu { justify-content:flex-start; }
 .bestiary { width:min(1120px,100%);display:flex;flex-direction:column;align-items:center;gap:14px;flex-shrink:0; }
@@ -551,10 +560,9 @@ button:disabled { opacity: .45; cursor: default; }
 .shop-card .shop-item-type { font-size:var(--type-small); }
 .shop-potion-stock { text-align:center;font-size:var(--type-hint); }
 .shop-potion-stock p { margin:3px 0; }
-.slime-runes { display: flex; gap: 8px; width: max-content; max-width: 85vw; justify-content: center; }
-.slime-rune { width: 76px; padding: 5px; border: 1px solid var(--color-slime-border); border-radius: 10px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 2px 12px var(--color-shadow-medium); }
-.slime-rune svg { display: block; width: 56px; height: 56px; margin: auto; }
-.slime-rune span { display: block; font-size: var(--type-tiny); line-height: 1.2; overflow-wrap: anywhere; }
+.slime-runes { display: flex; gap: 5.6px; width: max-content; max-width: 85vw; justify-content: center; }
+.slime-rune { width: 53.2px; padding: 3.5px; border: .7px solid var(--color-slime-border); border-radius: 7px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 1.4px 8.4px var(--color-shadow-medium); }
+.slime-rune svg { display: block; width: 39.2px; height: 39.2px; margin: auto; }
 .defense-setup,.collection { width: min(1000px,100%); display:flex; flex-direction:column; align-items:center; gap:14px; flex-shrink:0; }
 .potion-grid,.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr)); gap:16px; width:100%; }
 .menu .potion-card { width:auto; box-sizing:border-box; border:1px solid var(--color-potion-border); border-radius:12px; padding:18px; }
@@ -649,6 +657,7 @@ button:disabled { opacity: .45; cursor: default; }
 
 
 
+
 ### CSS: src/modules/Gestures/MagicGestureTrail.css
 
 ```css
@@ -664,6 +673,7 @@ button:disabled { opacity: .45; cursor: default; }
   user-select: none;
 }
 ```
+
 
 
 
@@ -699,7 +709,6 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-buffs { left: 78px; }
 .hud[hidden], .arena-hints[hidden] { display: none; }
 @keyframes hint-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
-@media (max-width: 600px) { .timer { top: 110px; } }
 @media (prefers-reduced-motion: reduce) { .hint-toggle { animation: none; } }
 .scene-pause-crest { width: 76px; height: 76px; }
 .pause-notice { position: absolute; top: 86px; left: 50%; transform: translateX(-50%); padding: 6px 12px; border-radius: 6px; background: var(--color-surface-veil); color: var(--color-rune); z-index: 12; pointer-events: none; font-size: 13px; }
@@ -708,5 +717,3 @@ button:disabled { opacity: .45; cursor: default; }
 @media (max-width: 600px) { .triptych-content { inset: 7px; border-width: 8px; }.triptych-content .menu { padding: 84px 14px 24px; }.pause-notice { top: 154px; }.triptych-content::before { left: -6px; }.triptych-content::after { right: -6px; } }
 @media (prefers-reduced-motion: reduce) { .triptych-content { animation: none; } }
 ```
-
-
