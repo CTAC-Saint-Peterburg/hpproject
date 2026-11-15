@@ -1,0 +1,712 @@
+# UIdata — опись текущего интерфейса
+
+Снимок исходников от **15.11.2026**, версия игры **4.0.1**, пункты **38–39**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+
+## Как использовать этот документ
+
+Перед изменениями UI сверяться с соответствующим разделом, таблицами токенов и точными CSS-правилами в приложении ниже. После изменений обновлять этот файл вместе с исходниками. Если значения расходятся, проверить актуальный код и обновить опись; не возвращать интерфейс к старому состоянию только ради соответствия документу.
+
+- Цвета и типографика: [theme.json](src/static/theme.json), установка CSS-переменных: [theme.js](src/static/theme.js).
+- Общие стили: [index.css](src/index.css), [App.css](src/App.css), [Triptych.css](src/modules/Menu/Triptych.css), след: [MagicGestureTrail.css](src/modules/Gestures/MagicGestureTrail.css).
+- Состав экранов: [App.jsx](src/App.jsx), [MainMenu.jsx](src/modules/Menu/MainMenu.jsx), [GameHud.jsx](src/modules/GameHud.jsx), [DefenseScene.jsx](src/modules/Defense/DefenseScene.jsx).
+- Тексты: `src/translate/{ru,en,es,fr,zh}.json`; названия и значения предметов приходят также из `src/static/*.json`.
+- Нативный Android UI: [MainActivity.kt](mobile/android/MainActivity.kt).
+
+## Единицы, наследование и общая система
+
+Все размеры HTML ниже — CSS px, если не указано иначе. Это не физические пиксели телефона. `%`, `vw`, `svh`, `em`, `rem`, `min()` и `clamp()` сохраняют исходный смысл. SVG имеет собственный viewBox; его координаты масштабируются вместе с изображением. Координаты и размеры Three.js указаны в единицах сцены, без фиксированного соответствия пикселям.
+
+Базовый шрифт: `system-ui, sans-serif`, цвет текста `#f4efff`, фон `#242132`. Собственные шрифты HTML не загружаются. Общий `font-size` и `line-height` корня не заданы: размер зависит от браузера/настроек пользователя (обычно 16px), line-height — `normal`. Для `p` задан 1.5. `font-synthesis: none`, `text-rendering: optimizeLegibility`. `h1` = `clamp(24px, 4vw, 42px)`; `h2`, многие `h3`, жирность заголовков, отступы обычных заголовков/абзацев и нативные контролы частично используют стили браузера. Их нельзя считать фиксированными дизайнерскими значениями.
+
+Нет глобального `box-sizing: border-box`: он задан отдельным контейнерам. В остальных случаях padding и border добавляются к заявленной ширине/высоте. Например, рамка `.spell-hint` 38×38 имеет внешний размер 40×40 при стандартном content-box.
+
+| Общий элемент | Геометрия и поведение | Оформление |
+| --- | --- | --- |
+| `body`, `#root`, `.app` | body margin 0; root width 100%, min-height 100svh; app relative, width 100%, height 100svh, overflow hidden | Фон/текст из корня |
+| Кнопка и select | font inherit, padding 10px 16px, border 1px, radius 6px; select max-width 90vw | Белый текст, фон `#403451`, рамка `#8879a3`; hover `#594771` |
+| Недоступная кнопка | opacity .45, cursor default | Остальные общие стили сохраняются; отдельного disabled-hover нет |
+| Label | flex column, gap 8px | Наследует шрифт/цвет |
+| Стандартная карточка меню | padding 12px; width min(600px, 90%) | `#353044` |
+| Фокус | В бестиарии outline 2px/offset 3px; trainer 2px/2px; настройки звука 2px/4px | `#ffdf94`; в остальных местах нативный фокус |
+| Выбранная карточка | border 2px | `#d9c084`, фон `#4b3d5f` |
+
+Emoji (💎, значки зелий, 🏆, 🔒) рисует системный emoji-шрифт: форма и фактический цвет могут различаться между ОС. `color` на emoji не гарантирует перекраску цветного глифа. Иконки заклинаний — SVG, предметы — CSS-силуэты или 3D-примитивы.
+
+## Карта экранов и элементов
+
+| Экран / компонент | Полный состав функциональных блоков |
+| --- | --- |
+| Вход / `TriptychMenu` | Сложенный парящий триптих, 18 частиц, постоянное название Hyped Pot; нажатие раскрывает две створки и увеличивает центральную панель до полноэкранного меню |
+| Главное меню / `MainMenu` | Hyped Pot (не переводится), версия, выбор языка, приветствие первого посещения с закрытием; select миссии (название, наградное зелье, время/без лимита, звёзды); кнопки одинаковой ширины: играть, защита кристалла, магазин, бестиарий, обучение, достижения, настройки, помощь |
+| Общая оболочка меню | Кошелёк справа сверху, скрытый вход в trainer через 💎, опционально FPS; на вложенных страницах кнопка назад. Обучение использует собственные кнопки возврата и не показывает общий заголовок игры |
+| Помощь | Заголовок и три текстовых блока: нагрев, ингредиенты, правила |
+| Магазин / `Shop` | Заголовок, вводный текст, пояснение эффектов на арене, баланс; фильтр всё/палочки/котлы/кристаллы/зелья/улучшения; сообщение результата; сетка товаров: категория, изображение, название, описание эффекта, запас/качество для зелий, цена, покупка/выбор/уже выбрано/улучшение активно, нехватка средств или требуемое улучшение |
+| Подготовка защиты / `DefenseSetup` | Заголовок, условия входа, слоты и копии, пояснение инвентаря; четыре карточки зелий с описанием, общим количеством, разбивкой качества, качеством следующей бутылки, checkbox; счётчик выбранного, начать, ошибка входа, инструкции боя и монеты |
+| Коллекция / `Collection` | Вкладки достижения и карточки (счётчик /10); достижения с 🏆/🔒 и описанием; карточки магов с цветным ромбом, именем, количеством или условием получения; отдельное окно открытой карточки |
+| Бестиарий / `Bestiary` | Заголовок, описание, фильтры всё/варка/защита/предметы, количество; список записей с миниатюрой и категорией; карточка записи с 3D-превью, описанием, взаимодействиями, рабочими жестами и неэффективными заклинаниями; пустое состояние |
+| Обучение / `SpellTraining` | Заголовок, вводный текст, прогресс, select десяти заклинаний с /2; название текущего и повторы, эффект; поле обводки; результат, сообщение о завершении всех уроков; очистить, предыдущее, следующее, в меню, перейти к игре |
+| Настройки / `AudioSettings` | Заголовок, описание, checkbox звука, слайдер громкости 0–100 шаг 1 и проценты |
+| Варка / `GameHud` + сцена | Баланс, FPS, таймер; книжка menu и герб pause/play в сцене; температура, огонь, текущий ингредиент и диапазон температуры, диапазон помешивания, очки/ошибки, инструкция по врагам, блокировка слизнем, статус действия; рецепт на доске, подсказки ингредиентов/котла/слизня, шкала помешивания, след жеста |
+| Результат варки | Победа/поражение, звёзды и очки, награда, предупреждение debug; при победе с зельем — 3D-бутылочка, название и качество; повторить, в меню |
+| Защита кристалла / `DefenseScene` | Верхняя панель: волна, HP/полоска, баланс/💎, временные stones; книжка menu и герб pause/play за столом; FPS; подсказки слева, враги/снаряды и эффекты кристалла; эффекты зелий снизу; на столе бутылочки/остатки/выбор, мини-кристалл со статусом, подписи врагов и снарядов; межволновое окно, монета, итог боя |
+| Пауза | Парящий ромб-герб показывает pause во время игры, play на паузе; нажатие переключает состояние. Текстовый статус сверху, без полноэкранной завесы. Дублирующие кнопки из HUD и верхней панели арены убраны |
+| Trainer / `CheatsMenu` | Заголовок/закрыть, пояснение, баланс/режим; общие читы, варка, все враги защиты, select волны/переход, сброс/100%, пояснение последствий и наград, статус команды |
+| Android Back | Системный диалог «Выйти из игры?» с «Выйти» и «Остаться»; игра ставится на паузу |
+
+## Меню, каталог, коллекция
+
+### Исправления и переключатель подсказок — 4.0.1
+
+Книжка варки уменьшена до 76px по высоте, HTML-зона нажатия 52×76px, подпись 13px. Новый центр x=-viewport.width*.27, y=min(viewport.height*.42, viewport.height*(.5-46/screenHeight)); это правее и выше прежнего положения, с отступом центра не менее 46px от верха. Область полёта левого куба остаётся доступной. В защите книжка и герб сдвинуты на z=-field.depth/2+.35 (при текущем поле -6.15), вперёд от стены и выступающей кладки; учитывается объём герба при billboard-повороте.
+
+Новый общий HintToggle — круглая HTML-кнопка «?» слева снизу (left/bottom 16px), 46×46px border-box, обводка 2px currentColor, фон surface, шрифт 28px/700, z-index 25. Включена: runeStart #ffd46b, свечение 12px; выключена: новый токен hintInactive #90949b, свечение 6px. Парение translateY 0→-4px→0 за 3с, отключается при reduced-motion. aria-pressed, aria-controls, локализованные title/label; работает мышью, touch и клавиатурой.
+
+Кнопка управляет именно окнами .hud (варка) и .arena-hints (защита). Они скрываются атрибутом hidden/display:none. Таймер, баланс, HP, объектные руны/подсказки, результаты и кнопки управления остаются. HUD варки теперь bottom 78px; нижняя панель бафов арены left 78px — место под «?». На ≤600px таймер top 110px, статус паузы top 154px, чтобы не перекрывать уменьшенную книжку.
+
+В меню настроек под звуком добавлена карточка «Подсказки», повторно использующая .audio-settings/.audio-toggle (ширина до 480px, checkbox 22×22). «Показывать подсказки при начале игры» изначально включено. Настройка сохраняется отдельно: localStorage `hpproject-hints-v1`, поле defaultEnabled boolean. «?» меняет только текущую попытку, не предпочтение. Каждый новый вход/повтор начинает с сохранённого значения; переключение паузы или волны внутри боя выбор не сбрасывает. Все новые подписи переведены на пять языков.
+
+### Триптих и герб — 4.0.0
+
+Исходники: `Menu/TriptychModel.jsx`, `TriptychMenu.jsx`, `SceneMenuControls.jsx`, `triptychState.js`, `triptychStore.js`, `Triptych.css`.
+
+Модель: центральная панель 2.2×3.2×.12, две створки 1.1×3.2×.12 на шарнирах x=±1.1/z=.16. Каждая панель — шесть box-мешей; четыре декоративных ромба — octahedron detail 0. Итого 248 треугольников у триптиха, без текстур. Моноцветные материалы: roomWood, button, surfaceCard, coinBorder. Парение y ±.055, наклон z ±.012 радиан. Начальный Canvas: камера [0,0,7.8]/FOV 42/DPR 1–1.5, ambient 1.8, directional [3,4,5]/2. Фон вокруг surface, без декораций комнаты.
+
+Пул 18 точек (один points draw call), size .035, opacity .55, runeStart; частицы поднимаются от нижней кромки и расходятся. В раскрытии 0.85с используется smoothstep: створки до ±2.25 рад, общий масштаб от 1 до 4.6; затем 3D Canvas удаляется, открывается HTML-панель. Бренд Hyped Pot не локализуется. Начальная кнопка: width min(34svh,72vw), height 52svh, шрифт clamp(26px,5vw,46px)/700, rune, letter-spacing .06em, центр экрана.
+
+Открытая панель: inset 16px, border 12px roomWood, outline 2px coinBorder, radius 4px; фон surface; боковые металлические полосы width 5px. Внутри padding 68px 24px 32px, gap 12px. Все непосредственные кнопки/label меню имеют width min(360px,100%), кнопки min-height 44px, текст по центру, white-space normal, overflow-wrap anywhere. Длинный текст увеличивает высоту, но не ширину. Содержимое прокручивается. Вложенные магазин/бестиарий сохраняют свои сетки. На ≤600px: inset 7px, border 8px, padding меню 84px 14px 24px. Появление панели .24с ease-out.
+
+В варке книжка в левой верхней зоне: [-viewport.width*.27, min(viewport.height*.42, viewport.height*(.5-46/screenHeight)),0], размер по высоте 76 CSS px. Герб по центру сверху: [0,viewport.height*.28,0], номинальная высота 76px. На арене оба объекта стоят за дальним краем стола: книжка [field.width*.3,1.65,-field.depth/2+.35], scale .6; герб [-field.width*.23,1.65,-field.depth/2+.35], scale 1. Камера и стол не менялись. Billboard направляет объекты к камере. Текст книжки — постоянное `menu`.
+
+Герб — два плоских octahedron (coinBorder/button), pause — два box, play — один треугольник circleGeometry с 3 сегментами, rune. Парение y ±.04. Нативные HTML-кнопки поверх моделей: книжка 52×76px (brewing), 72×110px (arena), герб 76×76px, фон прозрачный, текст 16px/600, rune; фокус 2px focus/offset 4px. У герба aria-pressed и локализованные pause/resume label. Html zIndexRange [20,15]; pointer down/move/up не передаются распознавателю жестов.
+
+Книжка и Esc запускают прежний выход в меню (завершают раунд), но перед выходом приостанавливают активный режим на время анимации. Награды и прогресс обрабатываются существующими exit-действиями. Герб и P переключают паузу отдельно. Старые кнопки меню/паузы и перекрывающее паузное окно удалены из игрового UI. Остался статус .pause-notice: top 86px (154px на ≤600px), centered, padding 6px 12px, radius 6px, surfaceVeil/rune, 13px, z-index 12, pointer-events none. Итоговые экраны с повтором/возвратом сохранены.
+
+При prefers-reduced-motion: reduce нет покачивания/частиц, раскрытие мгновенное, CSS появления отключён. В варке на паузе Canvas работает demand, чтобы герб обновлялся и оставался доступным; игровой tick остановлен. Экран раскрытия z-index 16777274, закрытый триптих 8, открытое главное меню auto (не изолирует модальное окно карточек от кошелька), trainer по-прежнему в top layer. Цветовых токенов не добавлено.
+
+`.menu`: height 100%, border-box, overflow auto, flex column, align-items center, justify-content safe center, gap 16px, padding 72px 24px; абзацы max-width 680px. У обучения и бестиария выравнивание сверху. Размер кнопок меню зависит от текста, единой фиксированной ширины нет.
+
+| Блок | Размеры и расположение | Цвет / текст / состояния |
+| --- | --- | --- |
+| Магазин | width min(950px,100%), column gap 12px; сетка auto-fit minmax(min(200px,100%),1fr), gap 16px | Карточки `surfaceCard`, border `cardBorder` |
+| Товар | border-box, padding 20px, border 1px, radius 12px; column gap 10px; кнопка margin-top auto | Категория 11px, примечание `shopNote`; цена основной шрифт; сообщение min-height 1.3em, `rune` |
+| Превью товара | контейнер height 90px, grid centered | Заливка item.color, тень `0 0 24px <item.color>66` |
+| Палочка / котёл / кристалл | 10×80, radius 5, rotation 35°, верх 7px; 72×58, radius 12/12/26/26, верх 8px; ромб 48×78 | Верх палочки `wandTip`, котла `potRim`; корпус — цвет предмета |
+| Зелья в магазине | vial 24×54 radius 5/5/8/8; phial 34×49 radius 35%/35%/40%/40%; flask 48×43 radius 50%/50%/38%/38% | Рамка 1px border; горло/пробка псевдоэлементы, точные значения в CSS ниже |
+| Улучшения | Несколько SVG 22×52, промежуток 5px; число по слотам/копиям | item.color; пробки potionStopper |
+| Подготовка и коллекция | width min(1000px,100%), gap 14px; сетки минимум 200px, gap 16px | Общая тема меню |
+| Карточка зелья | padding 18px, border 1px potionBorder, radius 12px; выбранная border 2px | Значок 36px с цветом зелья; checkbox 20×20; недоступен без запаса или при заполнении слотов |
+| Карточка мага | min-height 240px, column centered, gap 20px | Закрытая disabled; ромб 70×90, символ ✦ 32px `#fff9d8`, фон из cards.json |
+| Окно карточки | fixed inset 0, z-index 100, padding/gap 24px, overflow auto, centered | `#171322f5`, ромб 170×220, символ 70px; описание max-width 680px, line-height 1.7; закрытие top/right 24px |
+
+Каталог и подписи генерируются из данных, не имеют отдельной вёрстки на каждый предмет. Полный список ID, русских названий, цветовых вариантов и таблица цветов находятся в приложениях ниже. Состояния магазина: покупка доступна при достаточном балансе и выполненном требовании, выбранное снаряжение/купленное улучшение disabled, обычный купленный предмет можно экипировать, зелья покупаются повторно.
+
+## Бестиарий
+
+Контейнер width min(1120px,100%), gap 14px. Вводный текст max-width 900px, 13px, recipeUpcoming. Фильтры flex wrap, gap 8px; выбранные получают selectedBorder/selectedSurface. Счётчик 13px shopNote.
+
+Две колонки `minmax(230px,.85fr) minmax(0,1.4fr)`, gap 20px. Список column gap 8px, padding 4px, max-height 680px, overflow auto, scrollbar-gutter stable. Запись на всю ширину, gap 12px; SVG 54×54 с viewBox 64×64; название 14px, line-height 1.3, перенос anywhere; категория 11px recipeUpcoming.
+
+Детальная карточка width 100%, padding 22px, border 1px cardBorder, radius 12px. h3 1.25em с верхним отступом 7px; h4 14px rune, margin 20px 0 8px; описание 14px/1.6. Превью width 100%, height 240px, margin 16px 0, border 1px border, radius 10px, overflow hidden. Canvas demand, DPR 1–1.5; камера [0,0,4.7], FOV 38; фон surface, ambient 1.2, directional 2.
+
+Рабочие заклинания: grid auto-fit минимум 180px, gap 10px, пункты 12px с gap 9px; SpellHint 40×40. На ширине ≤700px: одна колонка, gap 14px, список max-height 245px, padding карточки 16px, превью 215px, фильтры padding 8px 11px и шрифт 13px.
+
+## Обучение и звук
+
+Обучение width min(760px,100%), column centered gap 12px. Поле SVG width min(520px,100%), aspect-ratio 1, viewBox 600×600, border 3px parchmentBorder, radius 12px, parchment; внутренний shadow 0 0 60px parchmentShadow и внешний 0 12px 32px shadowSoft. Touch-action none, user-select none, cursor crosshair.
+
+SVG сетка 30×30, trainingGrid opacity .15. Образец: ореол толщиной 32 trainingGlow opacity .3; пунктир trainingRune 3, dasharray 9 7; стрелка 3, marker 9×9; старт радиус 11, trainingStart с рамкой 3 trainingStartBorder. Нарисованный след 7 trainingStroke, скруглённые концы/стыки. Это отдельный след обучения, не золотой игровой Canvas-след. Панель действий flex wrap gap 10px; крайние предыдущий/следующий disabled.
+
+Настройки звука: width min(480px,100%), border-box, column gap 22px, padding 24px, border 1px border, radius 12px, surfaceCard; описание 13px/1.5. Checkbox 22×22, ряд gap 12px. Слайдер width 100%, margin 12px 0; accent rune, проценты tabular-nums. Вид ползунка и checkbox нативный, фиксированные цвета дорожки/размер ручки не заданы.
+
+## Варка: HUD и подсказки сцены
+
+| Элемент | Размеры / положение | Оформление |
+| --- | --- | --- |
+| Баланс | absolute top/right 16px, padding 10px, radius 6px, z-index 10 | surface; обычный текст; кнопка 💎 минимум 44×44 |
+| FPS | left/top 12px, 44×44, z-index 10, grid centered | `18px monospace`, белый на чёрном, pointer-events none |
+| Таймер | top 20px, left 50%, translateX(-50%), padding 10px, radius 6px, z-index 10 | surfaceVeil; на ≤600px top 110px, width max-content |
+| HUD | bottom 78px / left 16px, padding 12px, max-width calc(100% - 56px), z-index 10 | surfaceVeil, text-align left; p margin 6px 0; на ≤600px font-size 13px; кликабельны только кнопки |
+| Итог | inset 0, border-box, padding 24px, column centered, gap 10px, overflow auto | resultVeil; h2 margin 0, прямые p margin 4px 0; z-index 10. Пауза теперь через герб, см. раздел 4.0.0 |
+| Превью результата | 180×180, под ним текст; column gap 6px | Общая PotionModel, цвет зелья и качества; p margin 0 |
+| Общий SpellHint | 38×38, border 1px, radius 8px, inline-flex | surface, border, rune; SVG viewBox 100×100, stroke 7, round; стартовая точка r=5 runeStart |
+| Руны котла | ряд gap 5px; колонка 48px/gap 3px; иконка 30×30, круглая | heat #ff7733, cool #69d9ff, stir #b49aff; фон surfaceVeil; подпись 10px/1.1, nowrap, shadow 0 1px 3px black |
+| Помешивание | column, padding 6px, radius 6px, nowrap; meter width 100px | 11px, text, surfaceVeil; meter accent health; высота/отрисовка meter нативные |
+| Руны слизня | ряд gap 8px, max-width 85vw; каждый блок width 76px + padding 5px + border 1px, radius 10px | slimeVeil, slimeBorder, slimeText; SVG 56×56/stroke 4; подпись 10px/1.2; тень 0 2px 12px shadowMedium |
+
+Рецепт — Three.js Text на позиции [-3,1,0], максимум четыре строки (действия сейчас + следующие ингредиенты). Межстрочный шаг .45; текст смещён [-1.05,0,0], якорь left/middle; цветной квадрат .16×.16 на [-1.25,0,0]. Размер первой строки .24, затем уменьшается на .03 (нижний предел .12). Текущая строка recipeCurrent #ffd700, следующие recipeUpcoming #a6b8cf. Шрифт spatial=null: конкретный font не передаётся, используется библиотечный, а не system-ui.
+
+Превью зелья в результате: камера [0,0,2.15], FOV 36, DPR 1–1.5; ambient intensity 1.6, directional [3,4,4] intensity 3; модель вращается вокруг Y со скоростью .45 рад/с, наклон группы [.08,0,-.08]. Это текущая анимация UI, отдельное правило reduced-motion для неё не задано.
+
+HTML котла привязан к [0,-.04,.82] с zIndexRange [5,0]; помешивание [0,-1.35,0]. Подсказка ингредиента ниже модели на y=`-ingredientSize*.5-.36`. Руны слизня привязаны к [0,-1.12,0]. Эти HTML-подсказки center, без перехвата указателя; их экранная позиция меняется с камерой. У части Html zIndexRange явно не задан, поэтому применяется значение библиотеки.
+
+## Защита кристалла
+
+| Элемент | Геометрия | Стиль |
+| --- | --- | --- |
+| Игровая область | defense-game/canvas absolute inset 0 | Canvas touch-action none |
+| Верхняя панель | top/left/right 12px, flex wrap gap 14px, padding 12px, border 1px, radius 10px | arenaHeader, arenaBorder; HP, волна, деньги; пауза/выход перенесены в сцену |
+| HP кристалла | height 6px, min-width 90px, radius 5px, overflow hidden | healthTrack / health; заполнение 100×hp/maxHp % |
+| Временные stones | padding 3px 6px, dashed border 1px, radius 6px, nowrap | coinBorder, arenaHint, rune; при зачислении .4s ease-out, scale 1.12→1, coinPanel/coinGlow; reduced-motion отключает анимацию |
+| Подсказки слева | left 16px, top 110px, max-width 290px, padding 10px, radius 8px | arenaHint, 13px; p margin 5px 0, pointer-events none |
+| Бафы снизу | bottom/right 14px, left 78px, flex wrap gap 14px, padding 8px 12px, radius 10px | arenaFooter, 13px; строки nowrap, pointer-events none |
+| Межволновое окно | right 18px, top 140px, width min(280px,70vw), padding 18px, border 1px, radius 12px | coinBorder/coinPanel; p 13px; кнопки width 100%, margin-top 10px |
+| Подпись врага | padding 4px 7px, radius 6px, column centered | enemyLabel, белый, 10px; HP 55×6; руна 28×28 |
+| Статус врага | max-width 180px, centered, line-height 1.2 | Отсчёт атаки: outline 1px burningEnemy; показываются перенос, дезориентация, особые контрзаклинания |
+| Подпись снаряда | flex gap 5px, padding 2px, radius 5px | enemyLabel/rune, 10px; выбранный padding 5px, outline 1px enemySelected, max-width 200px; текст max-width 160px/1.2 |
+| Остаток зелья | min-width 24px, padding 3px 6px, radius 6px, nowrap | 11px bold 700, rune на arenaHint; пустой recipeUpcoming, opacity .7 |
+| Подсказка зелья | border-box, width min(240px,65vw), padding 9px 11px, border 1px, radius 9px | coinBorder/coinPanel, text, 11px/1.35; заголовок 12px rune; p margin 4px 0 7px, SpellHint 34×34; shadowMedium |
+| Мини-кристалл / статус | width min(150px,32vw), border-box, padding 7px 8px, gap 4px, border 1px, radius 8px | arenaHint/text, 11px/1.25; выбранная рамка crystalSelected; ожог crystalBurn, мороз crystalFreeze, толпа rune; small 10px recipeUpcoming; руны 25×25 |
+| Подсказка монеты | inline style: flex center gap 8px, width 220px, padding 8px, radius 8px | coinPanel/rune, 11px, SpellHint flex-basis 34px |
+| Итог монеты | padding 7px, radius 7px, nowrap | coinPanel/rune, 13px, shadowMedium |
+| Итог боя | Общая .result | Победа/поражение, зачисленные stones, потери временных stones при поражении, возврат. Пауза теперь через герб |
+
+На ≤650px: верхняя панель 12px/gap 7px, её кнопки padding 6px/font-size 11px; подсказки top 130px/max-width 180px/font-size 11px; бафы 11px/gap 8px; межволновая панель top 270px/padding 10px.
+
+Подписи врагов: Html на [0,enemy.size+.45,0] относительно группы; снарядов [0,size+.35,0]; счётчик бутылки [.43,.23,0]; выбранное зелье [0,1.65,0]; мини-кристалл [0,.99,0]; подсказки монеты [0,.8,0]. У всех center и pointer-events none, zIndexRange [5,0], у подсказки зелья [6,0]. Кликается 3D-объект, а не его подпись.
+
+3D-сигналы выбора также являются UI: обводка бутылки увеличением меша 1.07; кольцо под бутылкой радиусы .28/.36, 12 сегментов, coinSelected или arenaWoodLine; цвет выделения врага enemySelected, кристалла crystalSelected, котла potSelected, монеты coinSelected. Фактический оттенок 3D зависит от материала/освещения. Геометрия предметов и всей комнаты не является пиксельной вёрсткой и хранится в компонентах соответствующих моделей.
+
+## Trainer
+
+Нативный HTML dialog, показывается через showModal (верхний слой браузера, а не обычный z-index). Width min(760px,calc(100vw - 24px)), max-height calc(100svh - 24px), border-box, overflow auto, padding 22px, border 1px trainerBorder, radius 12px. Фон trainerSurface, белый текст; backdrop trainerBackdrop. Overscroll-behavior contain, touch-action pan-y.
+
+Header flex wrap, gap 12px, space-between; h2 margin 0; h3 margin-bottom 10px; p 14px/1.5. Сетка команд auto-fit minmax(min(210px,100%),1fr), gap 8px. Кнопки column, align-start, gap 6px, text-align left; хоткей 11px monospace/hotkey. Выбор волны flex wrap gap 10px, margin-top 12px. Статус min-height 42px/focus.
+
+Все команды видимы: ±100 stones, зелья, FPS; нагрев/охлаждение, левитация, этап, три врага варки; все типы врагов защиты и переход по волнам; сброс профиля и открыть всё. Команды варки disabled вне активной неприостановленной варки; спавн защиты disabled вне неприостановленной волны; выбор волны недоступен вне защиты; выдача зелий disabled в защите. Сброс и 100% доступны везде, завершают игру. Детальные правила: [CHEATS.md](CHEATS.md).
+
+Кнопка входа `.trainer-crystal`: inline-flex center, min-width/min-height 44px, padding 4px, margin 0, border 0, transparent, font-size inherit, touch-action manipulation, user-select none. Общий hover кнопки продолжает действовать. Десять быстрых кликов/тапов с промежутками ≤500мс открывают trainer. Также F10 на ПК, F9 на арене. Открытие не ставит игру на паузу. Подписи F10/Esc и хоткеи в текущей разметке показываются и в touch.
+
+## След жеста, слои, мобильное управление
+
+`MagicGestureTrail` — Canvas2D поверх сцены: absolute inset 0, width/height 100%, z-index 16777273, pointer-events none, touch-action none, user-select none. Поэтому след виден над полом и не блокирует выбор предметов. Цвет #ffd86e, основная линия 3px/opacity .95, ореол 12px/.3, внешний ореол 20.4px/.084. Затухание .16с. Частицы: фиксированный пул 96, шаг 4px, жизнь .36с, размер 1.7, spread 26, opacity .95, максимум 12 за обновление; DPR ограничен 1.5, максимум 512 точек. Точные параметры — spellEffects.json → drawing, формулы — MagicGestureTrail.jsx/gestureTrail.js. На паузе/при скрытии страницы след очищается.
+
+Ключевые слои: обычная 3D-сцена; привязанные Html с локальным диапазоном 0–5/6; закрытый триптих 8, открытый auto; HUD 10; статус паузы 12; книжка/герб Html 15–20; карточка мага 100; след 16777273; раскрытие 16777274; modal dialog в top layer. Это не единая строгая шкала для всех Html: некоторые используют настройки Drei по умолчанию. На арене header/aside не имеют собственного заданного z-index.
+
+Один UI используется для desktop и touch; отдельной мобильной вёрстки сейчас нет, кроме указанных media queries. Canvas отключает прокрутку жестом, меню/списки/trainer прокручиваются. У ряда 3D-целей есть невидимый TouchHitArea с базовым размером 40 CSS px; бутылочки арены и мини-кристалл используют 32px. Геометрия цели пересчитывается по дистанции камеры/FOV, видимая модель не растёт. Рядом с поднятым объектом движение ведёт его, вдали рисует новый жест. Alt+Shift+M переключает режим, Android-сборка включает touch.
+
+Нативная Android Activity добавляет отступы системных панелей и выреза через WindowInsets. Диалог Back использует системную тему AlertDialog: размеры, шрифт и цвета не заданы в игровом CSS и зависят от Android. Его нельзя описать фиксированными px/HEX по этому репозиторию.
+
+## Неактивные компоненты и оставшиеся стили
+
+- `.brewing-pause` и `.hud button` остались в App.css, но прежние кнопки/паузное окно больше не выводятся после 4.0.0. Их заменяют SceneMenuControls и .pause-notice.
+
+- `LoaderOverlay.jsx` существует, но не подключён в текущем дереве App/Scene. Задуман fullscreen Html: фон loader #1976d2; column gap 20px; spinner 60×60 + border 4px loaderTrack, белый верх, круг, вращение 1с linear; текст 1.2rem/600, loader font, белый с тенью 0 1px 2px loaderShadow; прогресс 220×8, radius 4px, белая заливка, transition width .2s ease-out. Не считать видимым экраном загрузки текущей игры.
+- `MagickText.jsx` не подключён: размер .4 единицы сцены, белый, glow magicGlow, centered, пульсация 3Гц ±.15; spatial font. В активной сцене нет этой надписи заклинания.
+- Старый `test/SpellTrail.jsx` не используется, заменён MagicGestureTrail.
+- `.arena-debug` остался в CSS (right 12/top 80/z-index 30/padding 18/gap 10/radius 10/debugSurface/debugBorder), но отдельная F9-панель удалена в 3.7.0.
+- `.arena-gesture`, `.arena-coin-face` остались в CSS, текущие компоненты их не выводят. У coin-face размер 42px и drop-shadow 0 0 8px coinGlow; актуальная монета — модель.
+
+## Приложения: точные значения из исходников
+
+Ниже приведены все токены темы, варианты каталога и четыре CSS-файла на дату снимка. Это позволяет найти также мелкие отступы, скругления, тени и переопределения, не повторённые в кратких таблицах. Порядок правил внутри файлов сохранён; Triptych.css подключён после App.css и переопределяет меню. Числа типографики без единиц для magic/recipe — параметры 3D, не px. Значение spatial=null означает отсутствие заданного файла шрифта.
+
+
+### A. Fonts and typography
+
+| Group | Token | CSS variable | Value |
+| --- | --- | --- | --- |
+| fonts | body | --font-body | system-ui, sans-serif |
+| fonts | loader | --font-loader | system-ui, -apple-system, sans-serif |
+| fonts | mono | --font-mono | monospace |
+| fonts | spatial | not installed | null |
+| typography | fps | --type-fps | 18px monospace |
+| typography | hotkey | --type-hotkey | 11px monospace |
+| typography | title | --type-title | clamp(24px, 4vw, 42px) |
+| typography | tiny | --type-tiny | 10px |
+| typography | small | --type-small | 11px |
+| typography | compact | --type-compact | 12px |
+| typography | hint | --type-hint | 13px |
+| typography | bodySmall | --type-body-small | 14px |
+| typography | potionSymbol | --type-potion-symbol | 36px |
+| typography | cardGlyph | --type-card-glyph | 32px |
+| typography | cardLarge | --type-card-large | 70px |
+| typography | coin | --type-coin | 42px |
+| typography | loading | --type-loading | 1.2rem |
+| typography | loadingWeight | --type-loading-weight | 600 |
+| typography | magicSize | --type-magic-size | 0.4 |
+| typography | recipeSize | --type-recipe-size | 0.24 |
+| typography | recipeMinSize | --type-recipe-min-size | 0.12 |
+| typography | recipeSizeStep | --type-recipe-size-step | 0.03 |
+
+### B. Complete color palette
+
+| Token | CSS variable | Value |
+| --- | --- | --- |
+| hintInactive | --color-hint-inactive | #90949b |
+| surface | --color-surface | #242132 |
+| surfaceCard | --color-surface-card | #353044 |
+| border | --color-border | #8879a3 |
+| white | --color-white | #ffffff |
+| button | --color-button | #403451 |
+| buttonHover | --color-button-hover | #594771 |
+| black | --color-black | #000000 |
+| surfaceVeil | --color-surface-veil | #242132dd |
+| resultVeil | --color-result-veil | #171322ed |
+| parchment | --color-parchment | #e8d4af |
+| parchmentBorder | --color-parchment-border | #b49462 |
+| parchmentShadow | --color-parchment-shadow | #765b3244 |
+| shadowSoft | --color-shadow-soft | #00000044 |
+| cardBorder | --color-card-border | #675778 |
+| shopNote | --color-shop-note | #e4c49a |
+| wandTip | --color-wand-tip | #fff0be |
+| potRim | --color-pot-rim | #bbb6c0 |
+| slimeBorder | --color-slime-border | #a3e7bd |
+| slimeVeil | --color-slime-veil | #19352ded |
+| slimeText | --color-slime-text | #c0ffe0 |
+| shadowMedium | --color-shadow-medium | #00000055 |
+| potionBorder | --color-potion-border | #6b5b7f |
+| selectedBorder | --color-selected-border | #d9c084 |
+| selectedSurface | --color-selected-surface | #4b3d5f |
+| cardGlyph | --color-card-glyph | #fff9d8 |
+| modalVeil | --color-modal-veil | #171322f5 |
+| arenaHeader | --color-arena-header | #211d2ee8 |
+| arenaBorder | --color-arena-border | #6d5c72 |
+| healthTrack | --color-health-track | #4e3344 |
+| health | --color-health | #a1dfb1 |
+| enemyLabel | --color-enemy-label | #211a2bdd |
+| rune | --color-rune | #ffe5a8 |
+| coinGlow | --color-coin-glow | #ffe598 |
+| arenaHint | --color-arena-hint | #211d2ecc |
+| arenaFooter | --color-arena-footer | #211d2ed9 |
+| coinBorder | --color-coin-border | #b6a26e |
+| coinPanel | --color-coin-panel | #211d2ef2 |
+| debugSurface | --color-debug-surface | #351f3efa |
+| debugBorder | --color-debug-border | #c78edb |
+| trainerBorder | --color-trainer-border | #bd95dc |
+| trainerSurface | --color-trainer-surface | #241c30 |
+| trainerBackdrop | --color-trainer-backdrop | #08060dbb |
+| hotkey | --color-hotkey | #d9bfdc |
+| focus | --color-focus | #ffdf94 |
+| text | --color-text | #f4efff |
+| floor | --color-floor | #808080 |
+| hand | --color-hand | #ffc0cb |
+| loader | --color-loader | #1976d2 |
+| loaderTrack | --color-loader-track | rgba(255, 255, 255, 0.3) |
+| loaderShadow | --color-loader-shadow | rgba(0,0,0,0.2) |
+| slimeEye | --color-slime-eye | #263e38 |
+| runeStart | --color-rune-start | #ffd46b |
+| magicGlow | --color-magic-glow | #ffff88 |
+| recipeCurrent | --color-recipe-current | #ffd700 |
+| recipeUpcoming | --color-recipe-upcoming | #a6b8cf |
+| potDefault | --color-pot-default | #39333e |
+| potEmissive | --color-pot-emissive | #ff4500 |
+| potSelected | --color-pot-selected | #90ffab |
+| potLiquid | --color-pot-liquid | #4c635b |
+| potMist | --color-pot-mist | #d3d9d2 |
+| fireHot | --color-fire-hot | #ffd34e |
+| fireWarm | --color-fire-warm | #ff6b20 |
+| fireLight | --color-fire-light | #ff6600 |
+| frozenEnemy | --color-frozen-enemy | #b5f1ff |
+| burningEnemy | --color-burning-enemy | #ff5500 |
+| enemySelected | --color-enemy-selected | #fff3c6 |
+| crystalBurn | --color-crystal-burn | #ff9959 |
+| crystalFreeze | --color-crystal-freeze | #83d7ff |
+| crystal | --color-crystal | #bd9cff |
+| crystalBase | --color-crystal-base | #49404e |
+| crystalSelected | --color-crystal-selected | #fff2bf |
+| potionStopper | --color-potion-stopper | #d9c297 |
+| coinSelected | --color-coin-selected | #fff0a3 |
+| coin | --color-coin | #e7ba49 |
+| arenaBackground | --color-arena-background | #17141e |
+| arenaWood | --color-arena-wood | #694e46 |
+| arenaWoodLine | --color-arena-wood-line | #3c302f |
+| arenaWoodBorder | --color-arena-wood-border | #aa8a63 |
+| brewBackground | --color-brew-background | #484343 |
+| roomBackground | --color-room-background | #262b2e |
+| roomStone | --color-room-stone | #96846b |
+| roomStoneLight | --color-room-stone-light | #b09b7b |
+| roomStoneDark | --color-room-stone-dark | #6a6053 |
+| roomMortar | --color-room-mortar | #514b42 |
+| roomFloor | --color-room-floor | #62645e |
+| roomFloorLight | --color-room-floor-light | #77796f |
+| roomWood | --color-room-wood | #4b3328 |
+| roomWoodLight | --color-room-wood-light | #71513b |
+| roomWoodDark | --color-room-wood-dark | #2d241f |
+| roomBoard | --color-room-board | #29332e |
+| roomMetal | --color-room-metal | #292b2b |
+| roomGlassLow | --color-room-glass-low | #609fad |
+| roomGlassHigh | --color-room-glass-high | #274f73 |
+| roomBannerGreen | --color-room-banner-green | #49614b |
+| roomBannerBlue | --color-room-banner-blue | #354d66 |
+| roomFlame | --color-room-flame | #efad60 |
+| roomFlameCore | --color-room-flame-core | #ffe0a0 |
+| roomSkyLight | --color-room-sky-light | #b8c8d3 |
+| roomGroundLight | --color-room-ground-light | #65513a |
+| roomKeyLight | --color-room-key-light | #ffe1b0 |
+| trainingGrid | --color-training-grid | #78614b |
+| trainingRune | --color-training-rune | #775320 |
+| trainingGlow | --color-training-glow | #b39466 |
+| trainingStart | --color-training-start | #d99b28 |
+| trainingStartBorder | --color-training-start-border | #6c451a |
+| trainingStroke | --color-training-stroke | #7447bd |
+| ingredient1 | --color-ingredient1 | #effa19 |
+| ingredient2 | --color-ingredient2 | #19faef |
+| ingredient3 | --color-ingredient3 | #fa19ef |
+| ingredient4 | --color-ingredient4 | #4ad52e |
+| ingredient5 | --color-ingredient5 | #edd642 |
+| ingredient6 | --color-ingredient6 | #5f1d05 |
+| enemyCold | --color-enemy-cold | #32aaff |
+| enemyFire | --color-enemy-fire | #ffdf32 |
+| enemySlime | --color-enemy-slime | #94e5b2 |
+| qualityBasic | --color-quality-basic | #a6b8cf |
+| qualityFine | --color-quality-fine | #8bdfad |
+| qualityMasterwork | --color-quality-masterwork | #ffcf76 |
+| shopWanddefaultColor | --color-shop-wanddefault-color | #754327 |
+| shopWanddefaultEmissive | --color-shop-wanddefault-emissive | #331100 |
+| shopWandrubyColor | --color-shop-wandruby-color | #e84365 |
+| shopWandrubyEmissive | --color-shop-wandruby-emissive | #64152c |
+| shopWandazureColor | --color-shop-wandazure-color | #42baff |
+| shopWandazureEmissive | --color-shop-wandazure-emissive | #123b75 |
+| shopWandvioletColor | --color-shop-wandviolet-color | #b781ff |
+| shopWandvioletEmissive | --color-shop-wandviolet-emissive | #48236b |
+| shopWandForceMinorColor | --color-shop-wand-force-minor-color | #d2a45a |
+| shopWandForceMinorEmissive | --color-shop-wand-force-minor-emissive | #50300c |
+| shopWandForceMediumColor | --color-shop-wand-force-medium-color | #c7734f |
+| shopWandForceMediumEmissive | --color-shop-wand-force-medium-emissive | #5e2314 |
+| shopWandForceMajorColor | --color-shop-wand-force-major-color | #f35f48 |
+| shopWandForceMajorEmissive | --color-shop-wand-force-major-emissive | #701b14 |
+| shopWandExecutionColor | --color-shop-wand-execution-color | #343246 |
+| shopWandExecutionEmissive | --color-shop-wand-execution-emissive | #4b1971 |
+| shopWandSplashColor | --color-shop-wand-splash-color | #55d8c2 |
+| shopWandSplashEmissive | --color-shop-wand-splash-emissive | #0e514a |
+| shopWandNoobColor | --color-shop-wand-noob-color | #ffb8e2 |
+| shopWandNoobEmissive | --color-shop-wand-noob-emissive | #6b2854 |
+| shopCrystalEmeraldColor | --color-shop-crystal-emerald-color | #54d9a4 |
+| shopCrystalSolarColor | --color-shop-crystal-solar-color | #ffd16a |
+| shopCrystalIceColor | --color-shop-crystal-ice-color | #91e4ff |
+| shopPotjadeColor | --color-shop-potjade-color | #40ba8b |
+| shopPotgoldColor | --color-shop-potgold-color | #e8b844 |
+| shopPotroseColor | --color-shop-potrose-color | #dc7aab |
+| potionsFrostColor | --color-potions-frost-color | #74dcff |
+| potionsFlameColor | --color-potions-flame-color | #ff844f |
+| potionsEchoColor | --color-potions-echo-color | #c699ff |
+| potionsHealingColor | --color-potions-healing-color | #7ce0a0 |
+| cardsMage1Color | --color-cards-mage1-color | #bd8fff |
+| cardsMage2Color | --color-cards-mage2-color | #72cfff |
+| cardsMage5Color | --color-cards-mage5-color | #fc92b5 |
+| defenseEnemiesFireColor | --color-defense-enemies-fire-color | #ff733f |
+| defenseEnemiesMossColor | --color-defense-enemies-moss-color | #8fdc9c |
+| spellEffectsTrailColor | --color-spell-effects-trail-color | #ffe897 |
+| spellEffectsDrawingColor | --color-spell-effects-drawing-color | #ffd86e |
+| spellEffectsSpells1Color | --color-spell-effects-spells1-color | #ff7733 |
+| spellEffectsSpells2Color | --color-spell-effects-spells2-color | #69d9ff |
+| spellEffectsSpells3Color | --color-spell-effects-spells3-color | #77ffad |
+| spellEffectsSpells4Color | --color-spell-effects-spells4-color | #fff1a6 |
+| spellEffectsSpells5Color | --color-spell-effects-spells5-color | #b49aff |
+| spellEffectsSpells6Color | --color-spell-effects-spells6-color | #b8eaff |
+| spellEffectsSpells7Color | --color-spell-effects-spells7-color | #ffb8ef |
+| spellEffectsSpells8Color | --color-spell-effects-spells8-color | #ffce73 |
+| spellEffectsSpells9Color | --color-spell-effects-spells9-color | #88eeff |
+| spellEffectsSpells10Color | --color-spell-effects-spells10-color | #ff4fc8 |
+| spellEffectsSlimeTrailColor | --color-spell-effects-slime-trail-color | #a4ecc0 |
+| menuLevels1Color | --color-menu-levels1-color | #FF5733 |
+| menuLevels2Color | --color-menu-levels2-color | #33FF57 |
+| menuLevels3Color | --color-menu-levels3-color | #3357FF |
+| menuLevels4Color | --color-menu-levels4-color | #FF33A8 |
+| menuLevels5Color | --color-menu-levels5-color | #F3FF33 |
+| menuLevels6Color | --color-menu-levels6-color | #33FFF5 |
+| defenseEnemiesGiantColor | --color-defense-enemies-giant-color | #9a7154 |
+| defenseEnemiesFlyerFireColor | --color-defense-enemies-flyer-fire-color | #ff9362 |
+| defenseEnemiesFlyerFrostColor | --color-defense-enemies-flyer-frost-color | #80cfff |
+| defenseEnemiesSentinelColor | --color-defense-enemies-sentinel-color | #f2544b |
+| defenseEnemiesBomberColor | --color-defense-enemies-bomber-color | #ba65ff |
+
+### C. Shop items
+
+| ID | Name (ru) | Type / model | Color | Emissive |
+| --- | --- | --- | --- | --- |
+| wand_default | shop.items.wand_default | wand | #754327 | #331100 |
+| wand_ruby | shop.items.wand_ruby | wand | #e84365 | #64152c |
+| wand_azure | shop.items.wand_azure | wand | #42baff | #123b75 |
+| wand_violet | shop.items.wand_violet | wand | #b781ff | #48236b |
+| wand_force_minor | shop.items.wand_force_minor | wand | #d2a45a | #50300c |
+| wand_force_medium | shop.items.wand_force_medium | wand | #c7734f | #5e2314 |
+| wand_force_major | shop.items.wand_force_major | wand | #f35f48 | #701b14 |
+| wand_execution | shop.items.wand_execution | wand | #343246 | #4b1971 |
+| wand_splash | shop.items.wand_splash | wand | #55d8c2 | #0e514a |
+| wand_noob | shop.items.wand_noob | wand | #ffb8e2 | #6b2854 |
+| pot_default | shop.items.pot_default | pot | #39333e |  |
+| pot_jade | shop.items.pot_jade | pot | #40ba8b |  |
+| pot_gold | shop.items.pot_gold | pot | #e8b844 |  |
+| pot_rose | shop.items.pot_rose | pot | #dc7aab |  |
+| crystal_default | shop.items.crystal_default | crystal | #bd9cff |  |
+| crystal_emerald | shop.items.crystal_emerald | crystal | #54d9a4 |  |
+| crystal_solar | shop.items.crystal_solar | crystal | #ffd16a |  |
+| crystal_ice | shop.items.crystal_ice | crystal | #91e4ff |  |
+| upgrade_potion_slot | shop.items.upgrade_potion_slot | upgrade | #7ce0a0 |  |
+| upgrade_potion_copies_2 | shop.items.upgrade_potion_copies_2 | upgrade | #74dcff |  |
+| upgrade_potion_copies_3 | shop.items.upgrade_potion_copies_3 | upgrade | #ff844f |  |
+
+### D. Potions
+
+| ID | Name (ru) | Type / model | Color | Emissive |
+| --- | --- | --- | --- | --- |
+| frost | potions.frost.name | vial | #74dcff |  |
+| flame | potions.flame.name | phial | #ff844f |  |
+| echo | potions.echo.name | flask | #c699ff |  |
+| healing | potions.healing.name | vial | #7ce0a0 |  |
+
+### E. Mage cards
+
+| ID | Name (ru) | Type / model | Color | Emissive |
+| --- | --- | --- | --- | --- |
+| mage_1 | cards.1.name | card | #bd8fff |  |
+| mage_2 | cards.2.name | card | #72cfff |  |
+| mage_3 | cards.3.name | card | #ffcf76 |  |
+| mage_4 | cards.4.name | card | #8bdfad |  |
+| mage_5 | cards.5.name | card | #fc92b5 |  |
+| mage_6 | cards.6.name | card | #bd8fff |  |
+| mage_7 | cards.7.name | card | #72cfff |  |
+| mage_8 | cards.8.name | card | #ffcf76 |  |
+| mage_9 | cards.9.name | card | #8bdfad |  |
+| mage_10 | cards.10.name | card | #fc92b5 |  |
+
+### CSS: src/index.css
+
+```css
+:root { font-family: var(--font-body); color: var(--color-text); background: var(--color-surface); font-synthesis: none; text-rendering: optimizeLegibility; }
+body { margin: 0; } #root { width: 100%; min-height: 100svh; } h1 { font-size: var(--type-title); } p { line-height: 1.5; }
+```
+
+
+
+### CSS: src/App.css
+
+```css
+.app { position: relative; width: 100%; height: 100svh; overflow: hidden; }
+.menu { box-sizing: border-box; height: 100%; overflow: auto; display: flex; flex-direction: column; align-items: center; justify-content: safe center; gap: 16px; padding: 72px 24px; background: var(--color-surface); }
+.menu p { max-width: 680px; } .menu article { padding: 12px; background: var(--color-surface-card); width: min(600px, 90%); }
+button, select { font: inherit; padding: 10px 16px; border: 1px solid var(--color-border); border-radius: 6px; color: var(--color-white); background: var(--color-button); cursor: pointer; }
+button:hover { background: var(--color-button-hover); } select { max-width: 90vw; } label { display: flex; flex-direction: column; gap: 8px; }
+.wallet, .fps, .timer, .hud, .result { position: absolute; z-index: 10; }
+.wallet { right: 16px; top: 16px; background: var(--color-surface); padding: 10px; border-radius: 6px; }
+.fps { left: 12px; top: 12px; width: 44px; height: 44px; display: grid; place-items: center; background: var(--color-black); color: var(--color-white); font: var(--type-fps); pointer-events: none; }
+.timer { top: 20px; left: 50%; transform: translateX(-50%); background: var(--color-surface-veil); padding: 10px; border-radius: 6px; pointer-events: none; }
+.hud { bottom: 16px; left: 16px; background: var(--color-surface-veil); padding: 12px; max-width: calc(100% - 56px); text-align: left; pointer-events: none; }
+.hud button { pointer-events: auto; } .hud p { margin: 6px 0; }
+.result { inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: var(--color-result-veil); }
+@media(max-width: 600px) { .timer { top: 70px; width: max-content; } .hud { font-size: var(--type-hint); } }
+.training-menu { justify-content: flex-start; }
+.bestiary-menu { justify-content:flex-start; }
+.bestiary { width:min(1120px,100%);display:flex;flex-direction:column;align-items:center;gap:14px;flex-shrink:0; }
+.bestiary h2,.bestiary h3,.bestiary h4,.bestiary p { margin:0; }
+.bestiary .bestiary-intro { max-width:900px;text-align:center;color:var(--color-recipe-upcoming);font-size:var(--type-hint); }
+.bestiary-filters { display:flex;flex-wrap:wrap;justify-content:center;gap:8px; }
+.bestiary button[aria-pressed=true] { border-color:var(--color-selected-border);background:var(--color-selected-surface); }
+.bestiary button:focus-visible { outline:2px solid var(--color-focus);outline-offset:3px; }
+.bestiary .bestiary-count { color:var(--color-shop-note);font-size:var(--type-hint); }
+.bestiary-layout { display:grid;grid-template-columns:minmax(230px,.85fr) minmax(0,1.4fr);gap:20px;width:100%;align-items:start; }
+.bestiary-list { display:flex;flex-direction:column;gap:8px;max-height:680px;overflow:auto;padding:4px;scrollbar-gutter:stable; }
+.bestiary-entry { display:flex;align-items:center;gap:12px;width:100%;box-sizing:border-box;text-align:left; }
+.bestiary-entry > span { display:flex;flex-direction:column;gap:6px;min-width:0; }
+.bestiary-entry strong { font-size:var(--type-body-small);line-height:1.3;overflow-wrap:anywhere; }
+.bestiary-entry small,.bestiary-mode { color:var(--color-recipe-upcoming);font-size:var(--type-small); }
+.bestiary-thumbnail { flex:0 0 54px;width:54px;height:54px;overflow:visible; }
+.menu .bestiary-detail { box-sizing:border-box;width:100%;padding:22px;border:1px solid var(--color-card-border);border-radius:12px;text-align:left; }
+.bestiary-detail h3 { margin-top:7px;font-size:1.25em; }
+.bestiary-detail h4 { margin:20px 0 8px;color:var(--color-rune);font-size:var(--type-body-small); }
+.bestiary-detail p { font-size:var(--type-body-small);line-height:1.6; }
+.bestiary-preview { width:100%;height:240px;margin:16px 0;border:1px solid var(--color-border);border-radius:10px;overflow:hidden; }
+.bestiary-spells { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));gap:10px;padding:0;margin:0;list-style:none; }
+.bestiary-spells li { display:flex;align-items:center;gap:9px;font-size:var(--type-compact); }
+.bestiary-spells .spell-hint { flex:0 0 40px;width:40px;height:40px; }
+@media(max-width:700px) {
+  .bestiary-layout { grid-template-columns:minmax(0,1fr);gap:14px; }
+  .bestiary-list { max-height:245px; }
+  .menu .bestiary-detail { padding:16px; }
+  .bestiary-preview { height:215px; }
+  .bestiary-filters button { padding:8px 11px;font-size:var(--type-hint); }
+}
+.audio-settings { box-sizing:border-box;display:flex;flex-direction:column;gap:22px;flex-shrink:0;width:min(480px,100%);padding:24px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-card);text-align:left; }
+.audio-settings h2,.audio-settings p { margin:0; }
+.audio-settings p { font-size:var(--type-hint);line-height:1.5; }
+.audio-settings .audio-toggle { flex-direction:row;align-items:center;gap:12px;cursor:pointer; }
+.audio-toggle input { width:22px;height:22px;accent-color:var(--color-rune); }
+.audio-volume > span { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+.audio-volume output { font-variant-numeric:tabular-nums; }
+.audio-volume input { width:100%;margin:12px 0;accent-color:var(--color-rune);cursor:pointer; }
+.audio-settings input:focus-visible { outline:2px solid var(--color-focus);outline-offset:4px; }
+.training { width: min(760px, 100%); text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; flex-shrink: 0; }
+.training h2, .training h3, .training p { margin: 0; }
+.training-board { width: min(520px, 100%); aspect-ratio: 1; display: block; flex-shrink: 0; background: var(--color-parchment); border: 3px solid var(--color-parchment-border); border-radius: 12px; touch-action: none; user-select: none; cursor: crosshair; box-shadow: inset 0 0 60px var(--color-parchment-shadow), 0 12px 32px var(--color-shadow-soft); }
+.training-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+button:disabled { opacity: .45; cursor: default; }
+.shop { width: min(950px, 100%); flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.shop-grid { width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 16px; }
+.menu .shop-card { box-sizing: border-box; width: auto; max-width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; border: 1px solid var(--color-card-border); border-radius: 12px; }
+.shop-card h3, .shop-card p { margin: 0; } .shop-card button { margin-top: auto; } .shop-card small { color: var(--color-shop-note); }
+.shop-preview { height: 90px; display: grid; place-items: center; }
+.shop-preview-wand { display: block; width: 10px; height: 80px; border-radius: 5px; transform: rotate(35deg); border-top: 7px solid var(--color-wand-tip); }
+.shop-preview-pot { display: block; width: 72px; height: 58px; border-radius: 12px 12px 26px 26px; border-top: 8px solid var(--color-pot-rim); }
+.shop-preview-crystal { display:block;width:48px;height:78px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); }
+.shop-preview-potion { display:block;position:relative;width:24px;height:54px;border-radius:5px 5px 8px 8px;border:1px solid var(--color-border); }
+.shop-preview-potion::before { content:"";position:absolute;left:50%;top:-12px;transform:translateX(-50%);width:13px;height:13px;background:inherit;border:1px solid var(--color-border);border-bottom:0;border-radius:3px 3px 0 0; }
+.shop-preview-potion::after { content:"";position:absolute;left:50%;top:-17px;transform:translateX(-50%);width:15px;height:6px;background:var(--color-potion-stopper);border-radius:2px; }
+.shop-potion-phial { width:34px;height:49px;border-radius:35% 35% 40% 40%; }
+.shop-potion-flask { width:48px;height:43px;border-radius:50% 50% 38% 38%; }
+.shop-potion-flask::before { top:-17px;height:18px; }
+.shop-potion-flask::after { top:-22px; }
+.shop-effects-note { color:var(--color-recipe-upcoming);font-size:var(--type-hint);text-align:center; }
+.shop .shop-feedback { min-height:1.3em;margin:0;color:var(--color-rune); }
+.shop-card .shop-item-type { font-size:var(--type-small); }
+.shop-potion-stock { text-align:center;font-size:var(--type-hint); }
+.shop-potion-stock p { margin:3px 0; }
+.slime-runes { display: flex; gap: 8px; width: max-content; max-width: 85vw; justify-content: center; }
+.slime-rune { width: 76px; padding: 5px; border: 1px solid var(--color-slime-border); border-radius: 10px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 2px 12px var(--color-shadow-medium); }
+.slime-rune svg { display: block; width: 56px; height: 56px; margin: auto; }
+.slime-rune span { display: block; font-size: var(--type-tiny); line-height: 1.2; overflow-wrap: anywhere; }
+.defense-setup,.collection { width: min(1000px,100%); display:flex; flex-direction:column; align-items:center; gap:14px; flex-shrink:0; }
+.potion-grid,.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr)); gap:16px; width:100%; }
+.menu .potion-card { width:auto; box-sizing:border-box; border:1px solid var(--color-potion-border); border-radius:12px; padding:18px; }
+.chosen,.menu .potion-card.chosen { border:2px solid var(--color-selected-border); background:var(--color-selected-surface); }
+.potion-symbol { font-size: var(--type-potion-symbol); } .potion-card label { display:flex;flex-direction:row;justify-content:center; } .potion-card input { width:20px;height:20px; }
+.mage-card { min-height:240px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px; }
+.mage-diamond { display:grid;place-items:center;width:70px;height:90px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);color:var(--color-card-glyph);font-size: var(--type-card-glyph); }
+.mage-diamond.large { width:170px;height:220px;font-size: var(--type-card-large); }
+.card-modal { position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:24px;background:var(--color-modal-veil);overflow:auto;text-align:center; }
+.card-modal p { max-width:680px;line-height:1.7; } .card-close { position:absolute;right:24px;top:24px; }
+.defense-game,.defense-canvas { position:absolute;inset:0; } .defense-canvas { touch-action:none; }
+.arena-gesture { position:absolute;inset:0;width:100%;height:100%;pointer-events:none; }
+.arena-top { position:absolute;top:12px;left:12px;right:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--color-arena-header);padding:12px;border:1px solid var(--color-arena-border);border-radius:10px; }
+.arena-health { height:6px;background:var(--color-health-track);border-radius:5px;overflow:hidden;min-width:90px; }
+.arena-health i { display:block;height:100%;background:var(--color-health); }
+.arena-enemy-label { background:var(--color-enemy-label);padding:4px 7px;border-radius:6px;color:var(--color-white);display:flex;flex-direction:column;align-items:center;font-size: var(--type-tiny); }
+.arena-enemy-label .arena-health { min-width:55px;width:55px; } .arena-rune { width:28px;height:28px;color:var(--color-rune); }
+.arena-counter-runes { display:flex;align-items:center;justify-content:center;gap:2px; }
+.arena-enemy-status { max-width:180px;text-align:center;line-height:1.2; }
+.arena-enemy-windup { outline:1px solid var(--color-burning-enemy); }
+.arena-projectile-label { display:flex;align-items:center;gap:5px;padding:2px;border-radius:5px;background:var(--color-enemy-label);color:var(--color-rune);font-size:var(--type-tiny); }
+.arena-projectile-selected { padding:5px;outline:1px solid var(--color-enemy-selected);max-width:200px; }
+.arena-projectile-label span { max-width:160px;line-height:1.2; }
+.arena-coin-face { font-size: var(--type-coin);filter:drop-shadow(0 0 8px var(--color-coin-glow)); }
+.arena-hints { position:absolute;left:16px;top:110px;max-width:290px;background:var(--color-arena-hint);padding:10px;border-radius:8px;pointer-events:none;font-size: var(--type-hint); }
+.arena-hints p { margin:5px 0; } .arena-hints span { display:block; }
+.arena-buffs { position:absolute;bottom:14px;left:14px;right:14px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;background:var(--color-arena-footer);padding:8px 12px;border-radius:10px;font-size:var(--type-hint);pointer-events:none; }
+.arena-buffs span { white-space:nowrap; }
+.arena-potion-count { display:block;min-width:24px;padding:3px 6px;border-radius:6px;background:var(--color-arena-hint);color:var(--color-rune);font-size:var(--type-small);font-weight:700;text-align:center;white-space:nowrap; }
+.arena-potion-empty { color:var(--color-recipe-upcoming);opacity:.7; }
+.arena-crystal-status { box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:4px;width:min(150px,32vw);padding:7px 8px;border:1px solid var(--color-border);border-radius:8px;background:var(--color-arena-hint);color:var(--color-text);font-size:var(--type-small);line-height:1.25;text-align:center; }
+.arena-crystal-status strong { font-size:var(--type-small); }
+.arena-crystal-status > div { display:flex;align-items:center;justify-content:center;gap:5px;width:100%; }
+.arena-crystal-status .spell-hint { flex:0 0 25px;width:25px;height:25px;color:inherit; }
+.arena-crystal-status small { color:var(--color-recipe-upcoming);font-size:var(--type-tiny); }
+.arena-crystal-status-selected { border-color:var(--color-crystal-selected); }
+.arena-crystal-status-burn { color:var(--color-crystal-burn); }
+.arena-crystal-status-freeze { color:var(--color-crystal-freeze); }
+.arena-crystal-status-crowd { color:var(--color-rune); }
+.arena-potion-hint { box-sizing:border-box;width:min(240px,65vw);padding:9px 11px;border:1px solid var(--color-coin-border);border-radius:9px;background:var(--color-coin-panel);color:var(--color-text);font-size:var(--type-small);line-height:1.35;text-align:left;box-shadow:0 2px 12px var(--color-shadow-medium); }
+.arena-potion-hint strong { display:block;color:var(--color-rune);font-size:var(--type-compact); }
+.arena-potion-hint p { margin:4px 0 7px; }
+.arena-potion-hint > div { display:flex;gap:8px;align-items:center; }
+.arena-potion-hint .spell-hint { flex:0 0 34px;width:34px;height:34px; }
+.arena-between { position:absolute;right:18px;top:140px;width:min(280px,70vw);padding:18px;border:1px solid var(--color-coin-border);background:var(--color-coin-panel);border-radius:12px; }
+.arena-between p { font-size: var(--type-hint); }.arena-between button { display:block;width:100%;margin-top:10px; }
+.arena-debug { position:absolute;right:12px;top:80px;z-index:30;display:flex;flex-direction:column;gap:10px;padding:18px;background:var(--color-debug-surface);border:1px solid var(--color-debug-border);border-radius:10px; }
+@media(max-width:650px){.arena-top{font-size: var(--type-compact);gap:7px;}.arena-top button{padding:6px;font-size: var(--type-small);}.arena-hints{top:130px;max-width:180px;font-size: var(--type-small);}.arena-buffs{font-size:var(--type-small);gap:8px;}.arena-between{top:270px;padding:10px;}}
+
+
+.app canvas { touch-action: none; }
+
+.cheat-menu { box-sizing: border-box; width: min(760px, calc(100vw - 24px)); max-height: calc(100svh - 24px); overflow: auto; padding: 22px; border: 1px solid var(--color-trainer-border); border-radius: 12px; color: var(--color-white); background: var(--color-trainer-surface); text-align: left; }
+.cheat-menu::backdrop { background: var(--color-trainer-backdrop); }
+.trainer-crystal { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; padding: 4px; margin: 0; border: 0; background: transparent; font-size: inherit; touch-action: manipulation; user-select: none; }
+.cheat-menu { overscroll-behavior: contain; touch-action: pan-y; }
+.cheat-menu header { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+.cheat-menu h2 { margin: 0; } .cheat-menu h3 { margin-bottom: 10px; }
+.cheat-menu p { font-size: var(--type-body-small); line-height: 1.5; }
+.cheat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr)); gap: 8px; }
+.cheat-grid button { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; text-align: left; }
+.cheat-menu kbd { font: var(--type-hotkey); color: var(--color-hotkey); }
+.cheat-menu button:focus-visible, .cheat-menu select:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.cheat-wave { display: flex; flex-wrap: wrap; gap: 10px; align-items: end; margin-top: 12px; }
+.cheat-menu [role=status] { min-height: 42px; color: var(--color-focus); }
+
+.spell-hint { display: inline-flex; width: 38px; height: 38px; color: var(--color-rune); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; }
+.spell-hint svg { width: 100%; height: 100%; } .spell-hint-start { fill: var(--color-rune-start); }
+.pot-guidance { display: flex; align-items: center; gap: 8px; }
+.agitation { display: flex; flex-direction: column; white-space: nowrap; font-size: var(--type-small); color: var(--color-text); background: var(--color-surface-veil); padding: 6px; border-radius: 6px; }
+.agitation meter { width: 100px; accent-color: var(--color-health); }
+.potion-result { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.potion-result-preview { width: 180px; height: 180px; }
+.potion-result p { margin: 0; }
+.result { box-sizing: border-box; overflow: auto; padding: 24px; justify-content: safe center; gap: 10px; }
+.result h2 { margin: 0; } .result > p { margin: 4px 0; }
+.brewing-pause { z-index: 16777272; }
+.pot-runes { display: flex; align-items: flex-start; justify-content: center; gap: 5px; }
+.pot-rune { display: flex; flex-direction: column; align-items: center; gap: 3px; width: 48px; color: var(--color-rune); }
+.pot-rune .spell-hint { width: 30px; height: 30px; border-radius: 50%; color: inherit; background: var(--color-surface-veil); }
+.pot-rune span:last-child { font-size: var(--type-tiny); line-height: 1.1; white-space: nowrap; text-shadow: 0 1px 3px var(--color-black); }
+.pot-rune-heat { color: var(--color-spell-effects-spells1-color); }
+.pot-rune-cool { color: var(--color-spell-effects-spells2-color); }
+.pot-rune-stir { color: var(--color-spell-effects-spells5-color); }
+.arena-wallet { white-space: nowrap; padding: 3px 6px; border:1px dashed var(--color-coin-border);border-radius: 6px;color:var(--color-rune);background:var(--color-arena-hint);transform-origin: center; }
+.arena-wallet-collected { animation: wallet-collected .4s ease-out; }
+@keyframes wallet-collected { 0% { transform: scale(1.12); background: var(--color-coin-panel); color: var(--color-coin-glow); } 100% { transform: scale(1); } }
+.arena-coin-hint .spell-hint { flex: 0 0 34px; }
+.arena-coin-result { font-size: var(--type-hint); box-shadow: 0 2px 12px var(--color-shadow-medium); }
+@media (prefers-reduced-motion: reduce) { .arena-wallet-collected { animation: none; } }
+```
+
+
+
+### CSS: src/modules/Gestures/MagicGestureTrail.css
+
+```css
+.magic-gesture-trail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 16777273;
+  pointer-events: none;
+  touch-action: none;
+  user-select: none;
+}
+```
+
+
+
+### CSS: src/modules/Menu/Triptych.css
+
+```css
+.triptych-screen { position: absolute; inset: 0; z-index: 8; background: var(--color-surface); }
+.triptych-open { z-index: auto; }
+.triptych-opening { z-index: 16777274; overflow: hidden; }
+.triptych-intro-model { position: absolute; inset: 0; }
+.triptych-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34svh, 72vw); height: 52svh; border: 0; background: transparent; padding: 24px; color: var(--color-rune); font-size: clamp(26px, 5vw, 46px); font-weight: 700; letter-spacing: .06em; line-height: 1.25; overflow-wrap: anywhere; text-align: center; text-shadow: 0 2px 0 var(--color-room-wood-dark); touch-action: manipulation; }
+.triptych-title:hover { background: transparent; color: var(--color-white); }
+.triptych-title:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 8px; }
+.triptych-content { position: absolute; inset: 16px; box-sizing: border-box; border: 12px solid var(--color-room-wood); outline: 2px solid var(--color-coin-border); border-radius: 4px; background: var(--color-surface); box-shadow: inset 0 0 0 2px var(--color-coin-border); animation: triptych-reveal .24s ease-out; }
+.triptych-content::before, .triptych-content::after { content: ''; position: absolute; top: 20%; bottom: 20%; width: 5px; background: var(--color-coin-border); pointer-events: none; }
+.triptych-content::before { left: -9px; }.triptych-content::after { right: -9px; }
+.triptych-content .menu { padding: 68px 24px 32px; gap: 12px; background: transparent; }
+.triptych-content .menu > button, .triptych-content .menu > label { box-sizing: border-box; width: min(360px, 100%); }
+.triptych-content .menu > button { min-height: 44px; flex-shrink: 0; white-space: normal; overflow-wrap: anywhere; text-align: center; }
+.triptych-content .menu > label { text-align: center; }
+.triptych-content .menu > label select { width: 100%; min-width: 0; }
+.triptych-content .menu > h1 { margin: 0; color: var(--color-rune); }
+.triptych-content .menu > p { margin: 0; }
+.scene-control { box-sizing: border-box; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--color-rune); font-size: 16px; font-weight: 600; text-shadow: 0 1px 3px var(--color-black); touch-action: manipulation; user-select: none; }
+.scene-control:hover { background: transparent; color: var(--color-white); }
+.scene-control:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+.scene-menu-book { width: 72px; height: 110px; }
+.scene-menu-compact { width: 52px; height: 76px; font-size: 13px; }
+.hint-toggle { position: absolute; z-index: 25; left: 16px; bottom: 16px; box-sizing: border-box; width: 46px; height: 46px; padding: 0; border: 2px solid currentColor; border-radius: 50%; background: var(--color-surface); color: var(--color-hint-inactive); box-shadow: 0 0 6px var(--color-hint-inactive); font-size: 28px; font-weight: 700; line-height: 1; touch-action: manipulation; animation: hint-float 3s ease-in-out infinite; }
+.hint-toggle-on { color: var(--color-rune-start); box-shadow: 0 0 12px var(--color-rune-start); }
+.hint-toggle:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+.hud { bottom: 78px; }
+.arena-buffs { left: 78px; }
+.hud[hidden], .arena-hints[hidden] { display: none; }
+@keyframes hint-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@media (max-width: 600px) { .timer { top: 110px; } }
+@media (prefers-reduced-motion: reduce) { .hint-toggle { animation: none; } }
+.scene-pause-crest { width: 76px; height: 76px; }
+.pause-notice { position: absolute; top: 86px; left: 50%; transform: translateX(-50%); padding: 6px 12px; border-radius: 6px; background: var(--color-surface-veil); color: var(--color-rune); z-index: 12; pointer-events: none; font-size: 13px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@keyframes triptych-reveal { from { opacity: .3; transform: scale(.98); } to { opacity: 1; transform: scale(1); } }
+@media (max-width: 600px) { .triptych-content { inset: 7px; border-width: 8px; }.triptych-content .menu { padding: 84px 14px 24px; }.pause-notice { top: 154px; }.triptych-content::before { left: -6px; }.triptych-content::after { right: -6px; } }
+@media (prefers-reduced-motion: reduce) { .triptych-content { animation: none; } }
+```
+
+

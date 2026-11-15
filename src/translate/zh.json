@@ -1,4 +1,9 @@
 {
+  "hints.title": "提示",
+  "hints.defaultEnabled": "开始游戏时显示提示",
+  "hints.description": "适用于魔药酿造和水晶防御。? 按钮可隐藏或显示提示面板，直到下一局游戏。",
+  "hints.show": "显示提示",
+  "hints.hide": "隐藏提示",
   "app.title": "魔法工坊",
   "app.version": "版本 {{version}}",
   "language": "语言",

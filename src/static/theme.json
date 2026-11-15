@@ -1,5 +1,6 @@
 {
   "colors": {
+    "hintInactive": "#90949b",
     "surface": "#242132",
     "surfaceCard": "#353044",
     "border": "#8879a3",

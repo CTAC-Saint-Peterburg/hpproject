@@ -1,0 +1,37 @@
+.triptych-screen { position: absolute; inset: 0; z-index: 8; background: var(--color-surface); }
+.triptych-open { z-index: auto; }
+.triptych-opening { z-index: 16777274; overflow: hidden; }
+.triptych-intro-model { position: absolute; inset: 0; }
+.triptych-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34svh, 72vw); height: 52svh; border: 0; background: transparent; padding: 24px; color: var(--color-rune); font-size: clamp(26px, 5vw, 46px); font-weight: 700; letter-spacing: .06em; line-height: 1.25; overflow-wrap: anywhere; text-align: center; text-shadow: 0 2px 0 var(--color-room-wood-dark); touch-action: manipulation; }
+.triptych-title:hover { background: transparent; color: var(--color-white); }
+.triptych-title:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 8px; }
+.triptych-content { position: absolute; inset: 16px; box-sizing: border-box; border: 12px solid var(--color-room-wood); outline: 2px solid var(--color-coin-border); border-radius: 4px; background: var(--color-surface); box-shadow: inset 0 0 0 2px var(--color-coin-border); animation: triptych-reveal .24s ease-out; }
+.triptych-content::before, .triptych-content::after { content: ''; position: absolute; top: 20%; bottom: 20%; width: 5px; background: var(--color-coin-border); pointer-events: none; }
+.triptych-content::before { left: -9px; }.triptych-content::after { right: -9px; }
+.triptych-content .menu { padding: 68px 24px 32px; gap: 12px; background: transparent; }
+.triptych-content .menu > button, .triptych-content .menu > label { box-sizing: border-box; width: min(360px, 100%); }
+.triptych-content .menu > button { min-height: 44px; flex-shrink: 0; white-space: normal; overflow-wrap: anywhere; text-align: center; }
+.triptych-content .menu > label { text-align: center; }
+.triptych-content .menu > label select { width: 100%; min-width: 0; }
+.triptych-content .menu > h1 { margin: 0; color: var(--color-rune); }
+.triptych-content .menu > p { margin: 0; }
+.scene-control { box-sizing: border-box; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; color: var(--color-rune); font-size: 16px; font-weight: 600; text-shadow: 0 1px 3px var(--color-black); touch-action: manipulation; user-select: none; }
+.scene-control:hover { background: transparent; color: var(--color-white); }
+.scene-control:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+.scene-menu-book { width: 72px; height: 110px; }
+.scene-menu-compact { width: 52px; height: 76px; font-size: 13px; }
+.hint-toggle { position: absolute; z-index: 25; left: 16px; bottom: 16px; box-sizing: border-box; width: 46px; height: 46px; padding: 0; border: 2px solid currentColor; border-radius: 50%; background: var(--color-surface); color: var(--color-hint-inactive); box-shadow: 0 0 6px var(--color-hint-inactive); font-size: 28px; font-weight: 700; line-height: 1; touch-action: manipulation; animation: hint-float 3s ease-in-out infinite; }
+.hint-toggle-on { color: var(--color-rune-start); box-shadow: 0 0 12px var(--color-rune-start); }
+.hint-toggle:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
+.hud { bottom: 78px; }
+.arena-buffs { left: 78px; }
+.hud[hidden], .arena-hints[hidden] { display: none; }
+@keyframes hint-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+@media (max-width: 600px) { .timer { top: 110px; } }
+@media (prefers-reduced-motion: reduce) { .hint-toggle { animation: none; } }
+.scene-pause-crest { width: 76px; height: 76px; }
+.pause-notice { position: absolute; top: 86px; left: 50%; transform: translateX(-50%); padding: 6px 12px; border-radius: 6px; background: var(--color-surface-veil); color: var(--color-rune); z-index: 12; pointer-events: none; font-size: 13px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@keyframes triptych-reveal { from { opacity: .3; transform: scale(.98); } to { opacity: 1; transform: scale(1); } }
+@media (max-width: 600px) { .triptych-content { inset: 7px; border-width: 8px; }.triptych-content .menu { padding: 84px 14px 24px; }.pause-notice { top: 154px; }.triptych-content::before { left: -6px; }.triptych-content::after { right: -6px; } }
+@media (prefers-reduced-motion: reduce) { .triptych-content { animation: none; } }

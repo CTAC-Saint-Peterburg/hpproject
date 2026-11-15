@@ -10,6 +10,7 @@ import Shop from './Shop';
 import DefenseSetup from '../Defense/DefenseSetup';
 import AudioSettings from '../Audio/AudioSettings.jsx';
 import Bestiary from './Bestiary';
+import { HintSettings } from './HintControls';
 
 export default function MainMenu() {
  const { t, i18n } = useTranslation();
@@ -18,7 +19,7 @@ export default function MainMenu() {
  const languageSelect = <label>{t('language')}<select value={i18n.resolvedLanguage} onChange={e => i18n.changeLanguage(e.target.value)}>
  {Object.entries(languages).map(([code,name]) => <option key={code} value={code}>{name}</option>)}</select></label>;
  if (page === 'training') return <section className="menu training-menu">{languageSelect}<SpellTraining onBack={() => setPage('main')} /></section>;
- return <section className={'menu' + (page === 'bestiary' ? ' bestiary-menu' : '')}><h1>{t('app.title')}</h1><p>{t('app.version', {version:pkg.version})}</p>
+ return <section className={'menu triptych-page' + (page === 'bestiary' ? ' bestiary-menu' : '')}><h1>Hyped Pot</h1><p>{t('app.version', {version:pkg.version})}</p>
  {languageSelect}
  {page === 'main' && <>
  {s.showFirstVisitWelcome && <article role="status"><p>{t('firstVisit.welcome')}</p><button onClick={s.dismissFirstVisit}>{t('collection.close')}</button></article>}
@@ -38,7 +39,7 @@ export default function MainMenu() {
  {page === 'help' && <><h2>{t('menu.help')}</h2><p>{t('help.heat')}</p><p>{t('help.ingredients')}</p><p>{t('help.rules')}</p></>}
  {page === 'shop' && <Shop />}
  {page === 'bestiary' && <Bestiary />}
- {page === 'settings' && <AudioSettings />}
+ {page === 'settings' && <><AudioSettings /><HintSettings /></>}
  {page !== 'main' && <button onClick={() => setPage('main')}>{t('menu.back')}</button>}
  </section>;
 }

@@ -1,4 +1,8 @@
 import TrainerCrystal from '../Cheats/TrainerCrystal';
+import { HintToggle } from '../Menu/HintControls';
+import { useHintVisibility } from '../Menu/useHintVisibility';
+import SceneMenuControls from '../Menu/SceneMenuControls';
+import { openTriptych, useTriptychStore } from '../Menu/triptychStore';
 import { theme } from '../../static/theme';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
@@ -38,6 +42,7 @@ function Board({walletRef,gestureRef,inputBridge,onHeldTest}){
  return <><ArenaCamera/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
  <directionalLight position={[4,10,6]} intensity={2.2}/><FrameCounter/>
  <CastleRoom variant="arena" lighting={false} furniture={false}/>
+ <SceneMenuControls arena />
  <group onClick={event=>{if(!isSelectionClick(event,gestureRef.current))return;event.stopPropagation();useDefenseStore.getState().select(null);}}>
  <mesh position={[0,-.18,0]}><boxGeometry args={[w,.35,d]}/><meshStandardMaterial color={theme.colors.arenaWood} roughness={.85}/></mesh>
  {Array.from({length:10},(_,i)=><mesh key={i} position={[0,.005,-d/2+i*d/10]}><boxGeometry args={[w,.01,.025]}/><meshBasicMaterial color={theme.colors.arenaWoodLine}/></mesh>)}
@@ -59,6 +64,7 @@ function Board({walletRef,gestureRef,inputBridge,onHeldTest}){
  </>;
 }
 export default function DefenseScene(){
+ const [hintsVisible,toggleHints]=useHintVisibility('arena');
  const {t}=useTranslation();
  const s=useDefenseStore(),stones=useGameStore(state=>state.stones),fps=useGameStore(state=>state.fps);
  const showFps=useCheatUiStore(s=>s.showFps);
@@ -96,9 +102,10 @@ export default function DefenseScene(){
  useEffect(()=>{
   const timer=setInterval(()=>useDefenseStore.getState().tick(Date.now()),50);
   const key=e=>{
+   if(useTriptychStore.getState().phase==='opening')return;
    if(e.repeat||e.target.isContentEditable||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName))return;
    const state=useDefenseStore.getState();
-   if(e.code==='Escape')state.exit();
+   if(e.code==='Escape')openTriptych();
    if(e.code==='KeyP'&&!e.altKey)state.setPaused(!state.paused);
    if(useInputStore.getState().mode==='touch')return;
    if(e.altKey&&e.shiftKey){
@@ -134,9 +141,10 @@ export default function DefenseScene(){
  <span><TrainerCrystal /> {t('arena.balance',{stones})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
    className={s.rewardCollectedSerial?'arena-wallet arena-wallet-collected':'arena-wallet'} aria-live="polite">
    {t('arena.pending',{stones:Math.max(0,s.pendingStones-visualPending)})}</span>
- <button onClick={()=>s.setPaused(!s.paused)}>{t(s.paused?'arena.resume':'arena.pause')}</button><button onClick={s.exit}>{t('menu.return')}</button></header>
+ </header>
  {showFps&&<div className="fps">{fps}</div>}
- <aside className="arena-hints"><p>{t(s.message)}</p>
+ <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="arena-hints" />
+ <aside className="arena-hints" id="arena-hints" hidden={!hintsVisible}><p>{t(s.message)}</p>
  <p>{t('arena.enemiesLeft',{count:s.enemies.length+s.queue.length})}</p>
  {s.projectiles.length>0&&<p>{t('arena.projectilesLeft',{count:s.projectiles.length})}</p>}
  {Object.entries(s.crystalEffects).map(([kind,effect])=><span key={kind}>{kind==='burn'?'🔥':'❄️'} {t('time.seconds',{value:Math.ceil(effect.until-s.time)})} · {t('arena.cleanse')}</span>)}
@@ -146,7 +154,7 @@ export default function DefenseScene(){
  <p>{t('arena.waveReward',{stones:s.debugUsed?0:config.waves[s.wave].stonesReward??0})}</p><p>{t('arena.pending',{stones:s.pendingStones})}</p>
  <p>{t('arena.coinChance',{value:Math.round(config.coin.winChance*100)})}</p>
  <button onClick={()=>s.select('coin')}>{t('arena.selectCoin')}</button><button onClick={s.next}>{t(s.wave===9?'arena.finish':'arena.next')}</button></aside>}
- {s.paused&&!['won','lost'].includes(s.phase)&&<div className="result"><h2>{t('arena.paused')}</h2><button onClick={()=>s.setPaused(false)}>{t('arena.resume')}</button><button onClick={s.exit}>{t('menu.return')}</button></div>}
+ {s.paused&&!['won','lost'].includes(s.phase)&&<div className="pause-notice" role="status">{t('arena.paused')}</div>}
  {['won','lost'].includes(s.phase)&&<div className="result"><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2>{s.phase==='lost'&&<p>{t('arena.pendingLost')}</p>}
  <p>{t('arena.earned',{stones:s.runStones})}</p><button onClick={s.exit}>{t('arena.restock')}</button></div>}
 

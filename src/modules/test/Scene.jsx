@@ -14,6 +14,7 @@ import { FrameCounter } from '../GameHud';
 import { theme } from '../../static/theme';
 import IngredientFlight from '../Ingredients/IngredientFlight';
 import brewing from '../../static/brewing.json';
+import SceneMenuControls from '../Menu/SceneMenuControls';
 import { useInputStore } from '../Input/inputStore';
 import { brewingCameraDepth } from '../Ingredients/ingredientPointer';
 
@@ -45,8 +46,9 @@ export default function Scene() {
     if (spell) state.setCurrentSpell(spell);
   };
   return <div style={{ position: 'absolute', inset: 0 }}>
-  <Canvas dpr={[1, 1.5]} frameloop={s.paused ? 'never' : 'always'} camera={{ position: brewing.scene.cameraPosition, fov: brewing.scene.cameraFov }}>
+  <Canvas dpr={[1, 1.5]} frameloop={s.paused ? 'demand' : 'always'} camera={{ position: brewing.scene.cameraPosition, fov: brewing.scene.cameraFov }}>
     <BrewingCameraFit />
+    <SceneMenuControls />
     <color attach="background" args={[theme.colors.roomBackground]} />
     <FrameCounter />
     <Enemies gestureRef={gestureRef} />

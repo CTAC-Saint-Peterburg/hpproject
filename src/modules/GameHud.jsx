@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import TrainerCrystal from './Cheats/TrainerCrystal';
+import { HintToggle } from './Menu/HintControls';
+import { useHintVisibility } from './Menu/useHintVisibility';
+import { openTriptych, useTriptychStore } from './Menu/triptychStore';
 import { useEffect, useRef } from 'react';
 import { useCheatUiStore } from './Cheats/cheatUiStore';
 import { useFrame } from '@react-three/fiber';
@@ -24,11 +27,13 @@ export function FrameCounter() {
 export default function GameHud() {
   const { t } = useTranslation();
   const s = useGameStore();
+  const [hintsVisible, toggleHints] = useHintVisibility(s.runId);
   const showFps = useCheatUiStore(s => s.showFps);
   useEffect(() => {
     const handler = e => {
+      if (useTriptychStore.getState().phase === 'opening') return;
       if (e.repeat || e.target.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
-      if (e.code === 'Escape') s.exitToMenu();
+      if (e.code === 'Escape' && s.startGame) openTriptych();
       if (e.code === 'KeyP' && !e.altKey && !e.ctrlKey && !e.metaKey) s.setPaused(!s.paused);
       if (e.altKey && e.shiftKey && useInputStore.getState().mode === 'desktop') {
         if (e.code === 'Equal') { e.preventDefault(); s.changeStones(100); }
@@ -59,9 +64,8 @@ export default function GameHud() {
     {showFps && <div className="fps">{s.fps}</div>}
     {s.startGame && <>
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
-      <div className="hud">
-        <button onClick={s.exitToMenu}>{t('menu.return')} · Esc</button>
-        {s.status === 'playing' && <button onClick={() => s.setPaused(!s.paused)}>{t(s.paused ? 'arena.resume' : 'arena.pause')} · P</button>}
+      <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="brewing-hints" />
+      <div className="hud" id="brewing-hints" hidden={!hintsVisible}>
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>
         {stage && <p>{t('brewing.requiredStirring', { min: stage.stirring?.min ?? 0, max: stage.stirring?.max ?? 100 })}</p>}
@@ -70,11 +74,7 @@ export default function GameHud() {
         {isPotBlocked(s.enemies, s.lastTick) && <p>{t('messages.slimeBlocked')}</p>}
         <p role="status">{s.message ? t(s.message, s.messageValues) : ''}</p>
       </div>
-      {s.paused && <div className="result brewing-pause" role="dialog" aria-modal="true" aria-label={t('arena.paused')}>
-        <h2>{t('arena.paused')}</h2>
-        <button onClick={() => s.setPaused(false)} autoFocus>{t('arena.resume')} · P</button>
-        <button onClick={s.exitToMenu}>{t('menu.return')}</button>
-      </div>}
+      {s.paused && <div className="pause-notice" role="status">{t('arena.paused')}</div>}
       {s.status !== 'playing' && <div className="result"><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
         <p>{t('result.rating', {stars: '★'.repeat(s.rating) + '☆'.repeat(3 - s.rating), score:s.score})}</p>
         <p>{t('result.reward', {reward:s.reward})}</p>{s.debugUsed && <p>{t('result.debug')}</p>}
