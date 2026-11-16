@@ -1,7 +1,7 @@
 import { defenseConfig as config, potionTypes } from '../../static/themedConfigs';
 import { createCoinToss } from './coinMotion.js';
 import { MAX_REWARD_EVENTS, rewardVisualDuration } from './rewardMotion.js';
-import { createArenaEnemy, advanceArenaEnemy, advanceArenaProjectiles, rangedDelay } from './enemyBehavior.js';
+import { createArenaEnemy, advanceArenaEnemy, advanceArenaProjectiles, rangedDelay, disorientAfterAttack } from './enemyBehavior.js';
 import { potionRackPosition } from './arenaLayout.js';
 import { equippedArenaItem, wandEffects, enemyDistance } from './arenaEquipment.js';
 import { arenaLoadoutSettings } from '../Stores/arenaUpgrades.js';
@@ -67,7 +67,10 @@ export function defenseState(profile, random = Math.random) {
     beginWave: index => {
       if (!Number.isInteger(index) || index<0 || index>=config.waves.length || get().phase==='idle') return false;
       const wave=config.waves[index];
-      const queue=wave.groups.flatMap(group=>Array.from({length:group.count},()=>({...group})));
+      // Interleave types so special enemies do not all arrive in one block.
+      const queue=[];
+      for(let n=0;n<Math.max(...wave.groups.map(group=>group.count));n++)
+        for(const group of wave.groups) if(n<group.count) queue.push({...group});
       set({phase:'wave',wave:index,enemies:[],projectiles:[],queue,selected:null,spawnAt:get().time,pendingStones:0,waveSettled:false,
         ...(wave.restoreCrystalHp?{hp:config.crystal.maxHp,crystalEffects:{}}:{}),
         carriedEnemyId:null,lastDisorient:-99,nextBomberAt:get().time+config.bomberSpawn.checkInterval,
@@ -107,13 +110,15 @@ export function defenseState(profile, random = Math.random) {
     },
     spawnFromQueue: () => {
       const s=get(), wave=config.waves[s.wave];
-      if (s.phase!=='wave' || !s.queue.length || s.enemies.filter(enemy=>config.enemies[enemy.type]?.hostile!==false).length>=wave.maxConcurrent) return;
-      const [group,...queue]=s.queue, enemy=get().createEnemy(group.type,group);
+      if (s.phase!=='wave' || !s.queue.length || s.enemies.length>=Math.min(config.population.maxOnTable,wave.maxConcurrent)) return;
+      const [group,...queue]=s.queue;
+      const enemy=createArenaEnemy(config,group.type,group,s.time,s.serial+1,random,group.position);
       if (enemy) set({queue,enemies:[...s.enemies,enemy],serial:s.serial+1,spawnAt:s.time+wave.spawnInterval});
     },
     debugSpawn: type => {
       const s=get();
       if (s.phase!=='wave' || !config.enemies[type]) return false;
+      if (s.enemies.length>=Math.min(config.population.maxOnTable,config.waves[s.wave].maxConcurrent)) return false;
       if (config.enemies[type].movement==='bomber'
         ? s.enemies.some(enemy=>config.enemies[enemy.type]?.movement==='bomber')
         : s.enemies.filter(enemy=>config.enemies[enemy.type]?.hostile!==false).length>=config.waves[s.wave].maxConcurrent) return false;
@@ -126,7 +131,7 @@ export function defenseState(profile, random = Math.random) {
       if (!spawn.enabled || s.phase!=='wave' || s.paused || s.time<s.nextBomberAt) return false;
       const allowed=bomberSpawnAllowed(s,config);
       set({nextBomberAt:s.time+spawn.checkInterval});
-      if (!allowed || random()>=spawn.chance) return false;
+      if (!allowed || s.enemies.length>=Math.min(config.population.maxOnTable,config.waves[s.wave].maxConcurrent) || random()>=spawn.chance) return false;
       const enemy=get().createEnemy('bomber');
       if (!enemy) return false;
       set({enemies:[...s.enemies,enemy],serial:s.serial+1,nextBomberAt:s.time+spawn.cooldown});
@@ -157,6 +162,7 @@ export function defenseState(profile, random = Math.random) {
         stones:s.debugUsed?0:config.enemies[enemy.type].reward}));
       // Spawn children before checking wave completion, sharing the normal enemy ID sequence.
       const children=[];
+      const waiting=[];
       let serial=s.serial;
       for (const enemy of dead) {
         const split=config.enemies[enemy.type].split;
@@ -167,11 +173,15 @@ export function defenseState(profile, random = Math.random) {
           const margin=base.size*.7+.1;
           const x=Math.max(-config.field.width/2+margin,Math.min(config.field.width/2-margin,enemy.x+Math.cos(angle)*split.distance));
           const z=Math.max(-config.field.depth/2+margin,Math.min(config.field.depth/2-margin,enemy.z+Math.sin(angle)*split.distance));
+          if(s.enemies.length+children.length>=Math.min(config.population.maxOnTable,config.waves[s.wave].maxConcurrent)) {
+            waiting.push({...enemy.spawnGroup,type:split.type,position:{x,z}});
+            continue;
+          }
           const child=createArenaEnemy(config,split.type,enemy.spawnGroup??{},s.time,++serial,random,{x,z});
           if (child) children.push(child);
         }
       }
-      set({pendingStones:s.pendingStones+(s.debugUsed?0:stones),serial,enemies:[...s.enemies,...children],
+      set({pendingStones:s.pendingStones+(s.debugUsed?0:stones),serial,enemies:[...s.enemies,...children],queue:[...waiting,...s.queue],
         carriedEnemyId:dead.some(enemy=>enemy.id===s.carriedEnemyId)?null:s.carriedEnemyId,
         rewardEvents:[...s.rewardEvents,...events].slice(-MAX_REWARD_EVENTS),rewardSerial:s.rewardSerial+events.length});
     },
@@ -347,7 +357,10 @@ export function defenseState(profile, random = Math.random) {
       const combat={hp:s.hp,effects,projectiles:[...s.projectiles],projectileSerial:s.projectileSerial};
       for(const effect of Object.values(effects))combat.hp-=effect.dps*dt;
       const enemies=s.enemies.map(enemy=>advanceArenaEnemy(enemy,config,potionTypes,time,dt,random,combat));
-      const projectiles=advanceArenaProjectiles(combat.projectiles,time,dt,combat);
+      const projectiles=advanceArenaProjectiles(combat.projectiles,time,dt,combat,sourceId=>{
+        const shooter=enemies.find(enemy=>enemy.id===sourceId && enemy.hp>0);
+        if(shooter) disorientAfterAttack(shooter,config,time,random);
+      });
       const dead=enemies.filter(e=>e.hp<=0), alive=enemies.filter(e=>e.hp>0);
       if (s.infiniteHealth) combat.hp = config.crystal.maxHp;
       set({hp:Math.max(0,combat.hp),crystalEffects:effects,enemies:alive,projectiles,projectileSerial:combat.projectileSerial,

@@ -47,7 +47,7 @@ test('force wands add their configured bonus only to matching hits; criticals mu
     assert.equal(f.s().cast(1), false); assert.equal(f.s().enemies[0].hp, 200);
     f.step(.5); assert.equal(f.s().cast(2), true);
     assert.equal(f.s().enemies[0].hp, 200 - config.player.damage - bonus);
-    const critical = fixture(id), victim = critical.make(); critical.install([victim]); critical.setRandom(0);
+    const critical = fixture(id), victim = critical.make(); critical.install([victim]); critical.setRandom(0); critical.store.setState({wave:3});
     assert.equal(critical.s().cast(2), true);
     assert.ok(Math.abs(critical.s().enemies[0].hp - (200 - (config.player.damage + bonus) * config.player.criticalMultiplier)) < 1e-9);
   }

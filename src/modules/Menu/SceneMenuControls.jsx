@@ -8,16 +8,17 @@ import { useGameStore } from '../Stores/GameStore';
 import { useDefenseStore } from '../Defense/DefenseStore';
 import { config } from '../Defense/defenseState';
 import { brewingBookPosition, arenaControlPositions } from './sceneControlLayout';
+import HoldMenuButton from './HoldMenuButton';
 
 const stop = event => event.stopPropagation();
-function Control({ position, scale, children, label, onClick, book = false, paused = false, compact = false }) {
+function Control({ position, scale, children, label, onClick, book = false, paused = false, compact = false, hold = false }) {
   return <Billboard position={position}>
     <group scale={scale}>{children}</group>
     <Html center zIndexRange={[20, 15]}>
-      <button className={'scene-control ' + (book ? 'scene-menu-book' : 'scene-pause-crest') + (compact ? ' scene-menu-compact' : '')}
+      {hold ? <HoldMenuButton onComplete={onClick} /> : <button className={'scene-control ' + (book ? 'scene-menu-book' : 'scene-pause-crest') + (compact ? ' scene-menu-compact' : '')}
         aria-label={label} title={label} aria-pressed={book ? undefined : paused}
         onPointerDown={stop} onPointerMove={stop} onPointerUp={stop}
-        onClick={event => { event.stopPropagation(); onClick(); }}>{book ? 'menu' : <span className="sr-only">{label}</span>}</button>
+        onClick={event => { event.stopPropagation(); onClick(); }}>{book ? 'menu' : <span className="sr-only">{label}</span>}</button>}
     </Html>
   </Billboard>;
 }
@@ -36,7 +37,7 @@ export default function SceneMenuControls({ arena = false }) {
   const crestPosition = arena ? arenaPositions.crest : [0, view.height * .28, 0];
   if (!visible) return null;
   return <>
-    <Control position={bookPosition} scale={arena ? .6 : unit * 76 / 3.2} book compact={!arena} label={t('menu.return')} onClick={openTriptych}>
+    <Control position={bookPosition} scale={arena ? .6 : unit * 76 / 3.2} book hold={arena} compact={!arena} label={t('menu.return')} onClick={openTriptych}>
       <TriptychModel reduced={reduced} />
     </Control>
     <Control position={crestPosition} scale={arena ? 1 : unit * 76 / 1.8} paused={state.paused}

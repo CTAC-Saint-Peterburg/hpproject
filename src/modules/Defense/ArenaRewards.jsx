@@ -108,7 +108,7 @@ export default function ArenaRewards({ events = [], time = 0, paused = false, wa
       if (flashPose.visible && flashCount < MAX_REWARD_EVENTS) {
         matrix.position.fromArray(event.position);
         matrix.quaternion.copy(camera.quaternion);
-        matrix.scale.setScalar(flashPose.scale);
+        matrix.scale.setScalar(flashPose.scale * .45);
         matrix.updateMatrix();
         flashMesh.setMatrixAt(flashCount, matrix.matrix);
         scratch.color.set(event.color || theme.colors.magicGlow).lerp(scratch.glow, .3).multiplyScalar(flashPose.intensity);

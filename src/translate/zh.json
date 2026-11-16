@@ -1,4 +1,10 @@
 {
+  "menu.holdExit": "长按3秒返回菜单",
+  "menu.holdSeconds": "长按3秒",
+  "menu.exitCountdown": "退出：{{seconds}}秒",
+  "arena.enemyFrozen": "冰冻 {{seconds}}秒",
+  "arena.enemyBurning": "燃烧 {{seconds}}秒",
+  "arena.enemyRage": "狂暴 {{seconds}}秒",
   "hud.temperature": "温度",
   "hud.balance": "余额：{{value}}",
   "hud.pending": "待结算",

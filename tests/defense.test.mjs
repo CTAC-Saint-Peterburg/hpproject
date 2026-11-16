@@ -22,6 +22,58 @@ function fixture(random=()=>.99, realProfile=null){
  return {store,s,profile,start,step};
 }
 
+test('wave population and basic wand damage follow the new progression',()=>{
+ assert.deepEqual(config.waves.map(w=>w.groups.reduce((n,g)=>n+g.count,0)),[6,8,10,20,20,20,20,30,30,30]);
+ const f=fixture();f.start();
+ for(const [index,wave] of config.waves.entries()) {
+  for(const group of wave.groups) {
+   f.s().beginWave(index);
+   const enemy=f.s().createEnemy(group.type,group);
+   f.store.setState({enemies:[enemy],selected:enemy.id,time:f.s().time+1});
+   const base=config.enemies[group.type];
+   assert.equal(f.s().cast(base.counterSpell),true);
+   assert.equal(f.s().enemies.some(e=>e.id===enemy.id),index>=3,`wave ${index+1} ${group.type}`);
+  }
+ }
+});
+
+test('table capacity includes bombers and split children; pending children resume without loss',()=>{
+ const f=fixture();f.start();f.s().beginWave(7);
+ const others=Array.from({length:19},(_,i)=>({...f.s().createEnemy('frost'),id:'other-'+i}));
+ const giant={...f.s().createEnemy('giant'),id:'parent',hp:1};
+ f.store.setState({enemies:[...others,giant],queue:[],time:1,selected:giant.id});
+ assert.equal(f.s().debugSpawn('bomber'),false);
+ assert.equal(f.s().cast(2),true);
+ assert.equal(f.s().enemies.length,20);assert.equal(f.s().queue.length,1);
+ assert.equal(f.s().queue[0].type,'fire');
+ f.s().spawnFromQueue();assert.equal(f.s().queue.length,1);
+ f.store.setState({enemies:f.s().enemies.filter(e=>e.id!=='other-0')});
+ f.s().spawnFromQueue();assert.equal(f.s().enemies.length,20);assert.equal(f.s().queue.length,0);
+ assert.equal(f.s().enemies.filter(e=>e.type==='fire').length,2);
+ assert.equal(new Set(f.s().enemies.map(e=>e.id)).size,20);
+});
+
+test('automatic spawns respect cadence and the shared table cap',()=>{
+ const f=fixture();f.start();f.s().beginWave(9);f.s().toggleInfiniteHealth();
+ const count=f.s().queue.length;f.step(config.waves[9].spawnInterval-.1);
+ assert.equal(f.s().queue.length,count);
+ f.step(.2);assert.equal(f.s().queue.length,count-1);
+ f.step(40);assert.equal(f.s().enemies.length,20);assert.equal(f.s().queue.length,10);
+ const remaining=f.s().enemies.slice(1);f.store.setState({enemies:remaining});f.step(.1);
+ assert.equal(f.s().enemies.length,20);assert.equal(f.s().queue.length,9);
+});
+
+test('spawn disorientation suppresses attacks and expires in simulation time',()=>{
+ const f=fixture(()=>0);f.start();
+ const enemy={...f.s().enemies[0],x:1.4,z:0,rageAt:100,rageUntil:100,nextAttack:0};
+ assert.equal(enemy.disorientedUntil,config.spawnDisorientation.duration);
+ f.store.setState({enemies:[enemy],queue:[]});f.step(1);
+ assert.equal(f.s().hp,100);
+ const position=f.s().enemies[0];assert.notEqual(position.x,enemy.x);
+ f.s().setPaused(true);f.step(5);assert.deepEqual(f.s().enemies[0],position);
+ f.s().setPaused(false);f.step(3.1);assert.ok(f.s().time>enemy.disorientedUntil);
+});
+
 test('infinite crystal health absorbs melee, projectiles and DOT; disabling keeps debug reward rules',()=>{
  const f=fixture(()=>0);
  assert.equal(f.s().toggleInfiniteHealth(),false);
@@ -29,7 +81,7 @@ test('infinite crystal health absorbs melee, projectiles and DOT; disabling keep
  assert.equal(f.s().toggleInfiniteHealth(),true);
  assert.equal(f.s().hp,config.crystal.maxHp);
  assert.equal(f.s().pendingStones,0);assert.equal(f.s().debugUsed,true);
- const enemy={...f.s().enemies[0],type:'fire',x:1.4,z:0,rageUntil:100,rageAt:100,nextAttack:0,critChance:1,specialChance:1};
+ const enemy={...f.s().enemies[0],type:'fire',x:1.4,z:0,rageUntil:100,rageAt:100,nextAttack:0,disorientedUntil:0,critChance:1,specialChance:1};
  f.store.setState({enemies:[enemy],queue:[],time:1,crystalEffects:{burn:{until:100,dps:10000}},
    projectiles:[{id:'lethal',x:0,y:1.1,z:0,speed:1,size:.2,damage:10000}]});
  f.step(.1);
@@ -68,7 +120,7 @@ test('counterspells, cooldown, kill currency and one card per cleared wave',()=>
  f.store.setState({time:2});assert.equal(f.s().cast(2),true);
  assert.equal(f.s().cast(2),false);assert.equal(f.s().enemies[0].hp,24);
  f.store.setState({time:3});f.s().cast(2);
- assert.equal(f.s().phase,'clear');assert.equal(f.profile.stones,0);assert.equal(f.s().pendingStones,5+config.waves[0].stonesReward);assert.equal(f.profile.mageCards.mage_1,1);
+ assert.equal(f.s().phase,'clear');assert.equal(f.profile.stones,0);assert.equal(f.s().pendingStones,config.enemies.fire.reward+config.waves[0].stonesReward);assert.equal(f.profile.mageCards.mage_1,1);
  f.s().finishWave();assert.equal(f.profile.mageCards.mage_1,1);
  const pending=f.s().pendingStones;f.s().next();assert.equal(f.s().wave,1);assert.equal(f.s().pendingStones,0);assert.equal(f.profile.stones,pending);
  assert.equal(f.profile.entries,1);
@@ -87,9 +139,9 @@ test('coin resolves once, settles this wave stones and auto advances',()=>{
 });
 test('rage attacks, criticals, special DOT and opposite cleansing spells',()=>{
  const f=fixture(()=>0);f.start();
- const enemy={...f.s().enemies[0],type:'fire',x:1.4,z:0,rageUntil:100,rageAt:100,nextAttack:0,critChance:1,specialChance:1};
+ const enemy={...f.s().enemies[0],type:'fire',x:1.4,z:0,rageUntil:100,rageAt:100,nextAttack:0,disorientedUntil:0,critChance:1,specialChance:1};
  f.store.setState({enemies:[enemy],queue:[],time:1});
- f.step(.1);assert.ok(f.s().hp<90);assert.ok(f.s().crystalEffects.burn);
+ f.step(.1);assert.ok(f.s().hp<100-config.enemies.fire.attack*config.enemies.fire.criticalMultiplier);assert.ok(f.s().crystalEffects.burn);
  const hp=f.s().hp;f.step(.2);assert.ok(f.s().hp<hp);
  f.s().select('crystal');f.s().cast(2);assert.equal(f.s().crystalEffects.burn,undefined);
  f.store.setState({time:3,crystalEffects:{freeze:{until:10,dps:1}}});
@@ -123,7 +175,7 @@ test('burn kills grant currency once; pause and simultaneous spawn limits work',
  const f=fixture();f.start();
  const enemy={...f.s().enemies[0],hp:.1,burnUntil:10,burnDps:4};
  f.store.setState({enemies:[enemy],queue:[]});f.step(.1);
- assert.equal(f.profile.stones,0);assert.equal(f.s().pendingStones,5+config.waves[0].stonesReward);f.step(.5);assert.equal(f.s().pendingStones,5+config.waves[0].stonesReward);
+ assert.equal(f.profile.stones,0);assert.equal(f.s().pendingStones,config.enemies.fire.reward+config.waves[0].stonesReward);f.step(.5);assert.equal(f.s().pendingStones,config.enemies.fire.reward+config.waves[0].stonesReward);
  f.s().debugWave(10);f.step(20);
  assert.ok(f.s().enemies.length<=config.waves[9].maxConcurrent);
  const time=f.s().time, hp=f.s().hp;f.s().setPaused(true);f.step(10);

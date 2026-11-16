@@ -1,4 +1,10 @@
 {
+  "menu.holdExit": "Mantén pulsado 3 segundos para volver al menú",
+  "menu.holdSeconds": "Mantén 3 s",
+  "menu.exitCountdown": "Salir: {{seconds}} s",
+  "arena.enemyFrozen": "Congelado {{seconds}} s",
+  "arena.enemyBurning": "Ardiendo {{seconds}} s",
+  "arena.enemyRage": "Furia {{seconds}} s",
   "hud.temperature": "Temperatura",
   "hud.balance": "Saldo: {{value}}",
   "hud.pending": "Temporal",

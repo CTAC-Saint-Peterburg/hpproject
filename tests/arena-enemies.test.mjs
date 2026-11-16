@@ -60,8 +60,8 @@ function melee(f, overrides = {}) {
 }
 
 test('post-melee knockback and disorientation roll independently, including both effects together', () => {
-  assert.equal(config.afterAttack.knockback.chance, .5);
-  assert.equal(config.afterAttack.disorientation.chance, .1);
+  assert.equal(config.afterAttack.knockback.chance, .65);
+  assert.equal(config.afterAttack.disorientation.chance, .4);
   for (const knockback of [0, 1]) for (const disorientation of [0, 1]) afterAttack(knockback, disorientation, () => {
     const f = fixture(); const enemy = melee(f);
     f.step(.05);
@@ -205,7 +205,7 @@ test('interceptable shots survive their owner, block wave completion and grant n
   assert.equal(f.profile.mageCards[config.waves[0].cardId], 1);
 });
 
-test('sentinel warns for five seconds, then a fast unselectable shot deals exactly two damage', () => afterAttack(1, 1, () => {
+test('sentinel warns for five seconds, then a fast unselectable shot deals configured reduced damage', () => afterAttack(1, 1, () => {
   const f = fixture(), base = config.enemies.sentinel;
   const enemy = f.make('sentinel', { x: 4, z: 0, nextRangedAt: 1 });
   f.store.setState({ enemies: [enemy] }); f.random(0); f.step(.05);
@@ -214,10 +214,10 @@ test('sentinel warns for five seconds, then a fast unselectable shot deals exact
   f.advanceTo(until - .005); assert.equal(f.s().projectiles.length, 0); assert.equal(f.s().hp, 1000);
   f.advanceTo(until + .01); assert.equal(f.s().projectiles.length, 1);
   const shot = f.s().projectiles[0];
-  assert.equal(shot.damage, 2); assert.equal(shot.speed, base.ranged.projectileSpeed); assert.equal(shot.interceptable, false);
+  assert.equal(shot.damage, base.ranged.damage); assert.equal(shot.speed, base.ranged.projectileSpeed); assert.equal(shot.interceptable, false);
   f.s().select(shot.id); assert.equal(f.s().selected, null); assert.equal(f.s().cast(2), false);
-  f.step(1); assert.equal(f.s().hp, 998); assert.deepEqual(f.s().projectiles, []);
-  assert.equal(f.s().enemies[0].knockbackUntil, 0); assert.equal(f.s().enemies[0].disorientedUntil, 0);
+  f.step(1); assert.equal(f.s().hp, 1000-base.ranged.damage); assert.deepEqual(f.s().projectiles, []);
+  assert.equal(f.s().enemies[0].knockbackUntil, 0); assert.ok(f.s().enemies[0].disorientedUntil > f.s().time);
   assert.equal(f.profile.stones, 0);
 }));
 

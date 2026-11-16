@@ -163,10 +163,10 @@ test('burn deaths award temporary stones once; debug deaths flash but cannot ban
     f.step(.05);
     assert.equal(f.s().rewardEvents.length, 2); assert.equal(f.s().rewardSerial, 2);
     assert.equal(f.profile.stones, 0); assert.equal(f.s().runStones, 0);
-    assert.equal(f.s().pendingStones, debug ? 0 : 10 + config.waves[0].stonesReward);
-    assert.ok(f.s().rewardEvents.every(event => event.stones === (debug ? 0 : 5)));
+    assert.equal(f.s().pendingStones, debug ? 0 : 2 * config.enemies.fire.reward + config.waves[0].stonesReward);
+    assert.ok(f.s().rewardEvents.every(event => event.stones === (debug ? 0 : config.enemies.fire.reward)));
     f.step(.1); assert.equal(f.s().rewardSerial, 2);
-    f.s().next(); assert.equal(f.profile.stones, debug ? 0 : 10 + config.waves[0].stonesReward);
+    f.s().next(); assert.equal(f.profile.stones, debug ? 0 : 2 * config.enemies.fire.reward + config.waves[0].stonesReward);
   }
 });
 
@@ -175,7 +175,7 @@ test('visual pool caps never cap temporary rewards, and death forfeits only the 
   f.profile.stones = 900; f.store.setState({ runStones: 200 });
   const dead = Array.from({ length: 80 }, (_, index) => ({ ...f.s().enemies[0], id: 'bulk-' + index, hp: 0 }));
   f.s().awardKills(dead);
-  assert.equal(f.profile.stones, 900); assert.equal(f.s().runStones, 200); assert.equal(f.s().pendingStones, 400);
+  assert.equal(f.profile.stones, 900); assert.equal(f.s().runStones, 200); assert.equal(f.s().pendingStones, 80 * config.enemies.fire.reward);
   assert.equal(f.s().rewardSerial, 80); assert.equal(f.s().rewardEvents.length, 64);
   f.store.setState({ hp: 0 }); f.step(.05);
   assert.equal(f.s().phase, 'lost'); assert.equal(f.s().pendingStones, 0);

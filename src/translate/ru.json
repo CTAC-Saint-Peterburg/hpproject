@@ -1,4 +1,10 @@
 {
+  "menu.holdExit": "Удерживайте 3 секунды, чтобы выйти в меню",
+  "menu.holdSeconds": "Зажать 3 с",
+  "menu.exitCountdown": "Выход: {{seconds}} с",
+  "arena.enemyFrozen": "Заморожен {{seconds}} с",
+  "arena.enemyBurning": "Горение {{seconds}} с",
+  "arena.enemyRage": "Ярость {{seconds}} с",
   "hud.temperature": "Температура",
   "hud.balance": "На счету: {{value}}",
   "hud.pending": "Временно",

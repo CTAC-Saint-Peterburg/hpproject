@@ -6,5 +6,5 @@ export function brewingBookPosition(view, pixelHeight = 768) {
 // its full bounding sphere and the masonry projecting from the back wall.
 export function arenaControlPositions(field) {
   const z = -field.depth / 2 + .35;
-  return { book: [field.width * .3, 1.65, z], crest: [-field.width * .23, 1.65, z] };
+  return { book: [field.width * .3, 2.55, z], crest: [-field.width * .23, 1.65, z] };
 }

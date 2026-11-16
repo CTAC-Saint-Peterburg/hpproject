@@ -94,8 +94,18 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-top { position:absolute;top:12px;left:12px;right:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--color-arena-header);padding:12px;border:1px solid var(--color-arena-border);border-radius:10px; }
 .arena-health { height:6px;background:var(--color-health-track);border-radius:5px;overflow:hidden;min-width:90px; }
 .arena-health i { display:block;height:100%;background:var(--color-health); }
-.arena-enemy-label { background:var(--color-enemy-label);padding:4px 7px;border-radius:6px;color:var(--color-white);display:flex;flex-direction:column;align-items:center;font-size: var(--type-tiny); }
-.arena-enemy-label .arena-health { min-width:55px;width:55px; } .arena-rune { width:28px;height:28px;color:var(--color-rune); }
+.arena-enemy-hint { position:relative;color:var(--color-white);font-size:var(--type-tiny);text-shadow:0 1px 3px var(--color-black);pointer-events:none; }
+.arena-enemy-hint-content { width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:2px; }
+.arena-enemy-hint .arena-health { min-width:48px;width:48px;margin:0;height:7px;background:var(--color-black);outline:1px solid var(--color-white);box-shadow:0 0 0 2px var(--color-black),0 2px 4px var(--color-black); }
+.arena-enemy-hint .arena-health i { background:var(--color-white); }
+.arena-enemy-hint .arena-rune { color:var(--color-rune);background:rgba(0,0,0,.82);border-radius:6px;filter:drop-shadow(0 1px 2px var(--color-black)); }
+.arena-enemy-hint-content > span,.arena-enemy-hint-content > b { padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.88);color:var(--color-white);font-size:16px;font-weight:800;line-height:22px;font-variant-numeric:tabular-nums; }
+.arena-enemy-hint.is-selected::after { content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:12px;height:2px;background:var(--color-enemy-selected); }
+.arena-enemy-hint.is-dangerous { color:var(--color-hud-red); }
+.arena-enemy-hint.is-dangerous .arena-rune { color:var(--color-hud-red); }
+.arena-enemy-status-list { position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);width:156px;display:flex;flex-direction:column;align-items:center;gap:2px; }
+.arena-enemy-status-list > span { box-sizing:border-box;max-width:100%;height:16px;padding:0 4px;border-radius:3px;background:rgba(0,0,0,.88);color:var(--color-white);font-size:10px;font-weight:600;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.arena-rune { width:28px;height:28px;color:var(--color-rune); }
 .arena-counter-runes { display:flex;align-items:center;justify-content:center;gap:2px; }
 .arena-enemy-status { max-width:180px;text-align:center;line-height:1.2; }
 .arena-enemy-windup { outline:1px solid var(--color-burning-enemy); }

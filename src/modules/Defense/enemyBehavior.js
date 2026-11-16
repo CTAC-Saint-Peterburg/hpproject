@@ -12,6 +12,7 @@ export function createArenaEnemy(config, type, group, time, serial, random, posi
   const x = position?.x ?? (edge < 2 ? (edge === 0 ? -w : w) : (random() * 2 - 1) * w);
   const z = position?.z ?? (edge >= 2 ? (edge === 2 ? -d : d) : (random() * 2 - 1) * d);
   const maxHp = base.hp * (group.hpMultiplier ?? 1);
+  const spawnConfused = base.hostile !== false && random() < (config.spawnDisorientation?.chance ?? 0);
   return {
     id: 'arena-enemy-' + serial, type, x, z, y: base.orbit?.height ?? 0, hp: maxHp, maxHp,
     size: base.size * ((group.sizeMin ?? 1) + random() * ((group.sizeMax ?? 1) - (group.sizeMin ?? 1))),
@@ -20,7 +21,8 @@ export function createArenaEnemy(config, type, group, time, serial, random, posi
     rageAt: time + base.rageInterval * (.6 + random() * .5), rageUntil: 0, nextAttack: 0,
     frozenUntil: 0, frozenAt: null, burnUntil: 0, burnDps: 0,
     motion: base.split ? 'walk' : ['walk', 'dash', 'jump'][Math.floor(random() * 3)], seed: random() * Math.PI * 2,
-    disorientedUntil: 0, knockbackUntil: 0, wanderAngle: random() * Math.PI * 2, wanderTurnAt: 0,
+    disorientedUntil: spawnConfused ? time + config.spawnDisorientation.duration : 0,
+    knockbackUntil: 0, wanderAngle: random() * Math.PI * 2, wanderTurnAt: 0,
     windupUntil: 0, nextRangedAt: base.ranged ? time + rangedDelay(base.ranged, random) : 0,
     spawnGroup: { hpMultiplier: group.hpMultiplier ?? 1, attackMultiplier: group.attackMultiplier ?? 1,
       speedMultiplier: group.speedMultiplier ?? 1 },
@@ -49,7 +51,7 @@ function wander(enemy, config, time, dt, speed, turnInterval, random) {
 }
 
 function afterMeleeAttack(enemy, config, time, random) {
-  const { knockback, disorientation } = config.afterAttack;
+  const { knockback } = config.afterAttack;
   if (random() < knockback.chance) {
     const distance = Math.hypot(enemy.x, enemy.z);
     const angle = distance > .001 ? Math.atan2(enemy.z, enemy.x) : random() * Math.PI * 2;
@@ -61,6 +63,11 @@ function afterMeleeAttack(enemy, config, time, random) {
     enemy.knockbackStart = time;
     enemy.knockbackUntil = time + knockback.duration;
   }
+  disorientAfterAttack(enemy, config, time, random);
+}
+
+export function disorientAfterAttack(enemy, config, time, random) {
+  const { disorientation } = config.afterAttack;
   if (random() < disorientation.chance) {
     enemy.disorientedUntil = time + disorientation.duration;
     enemy.rageUntil = 0;
@@ -173,13 +180,14 @@ export function advanceArenaEnemy(original, config, potions, time, dt, random, c
   return enemy;
 }
 
-export function advanceArenaProjectiles(projectiles, time, dt, combat) {
+export function advanceArenaProjectiles(projectiles, time, dt, combat, onHit) {
   const active = [];
   for (const original of projectiles) {
     const shot = { ...original }, dx = -shot.x, dy = 1.1 - shot.y, dz = -shot.z;
     const distance = Math.hypot(dx, dy, dz), step = shot.speed * dt;
     if (distance <= step + shot.size + .35) {
       combat.hp -= shot.damage;
+      onHit?.(shot.sourceId);
       if (shot.element && shot.effectDuration > 0) {
         const previous = combat.effects[shot.element];
         combat.effects[shot.element] = { until: Math.max(previous?.until ?? 0, time + shot.effectDuration),

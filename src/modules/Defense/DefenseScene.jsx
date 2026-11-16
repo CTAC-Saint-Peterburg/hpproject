@@ -21,6 +21,8 @@ import ArenaCoin from './ArenaCoin';
 import ArenaRewards from './ArenaRewards';
 import { pendingRewardStones } from './rewardMotion';
 import ArenaEnemy from './ArenaEnemy';
+import ArenaEnemyHints from './ArenaEnemyHints';
+import ArenaDeathParticles from './ArenaDeathParticles';
 import ArenaProjectiles from './ArenaProjectiles';
 import ArenaPotions from './ArenaPotions';
 import ArenaCrystal from './ArenaCrystal';
@@ -56,6 +58,8 @@ function Board({walletRef,gestureRef,inputBridge,onHeldTest}){
  <ArenaEnemyCarry inputBridge={inputBridge} onHeldTest={onHeldTest}/>
  <ArenaCrystal selected={s.selected==='crystal'} effects={s.crystalEffects} gestureRef={gestureRef}/>
  {s.enemies.map(enemy=><ArenaEnemy key={enemy.id} enemy={enemy} selected={s.selected===enemy.id} time={s.time} gestureRef={gestureRef}/>)}
+ <ArenaEnemyHints enemies={s.enemies} selected={s.selected} time={s.time}/>
+ <ArenaDeathParticles events={s.rewardEvents} time={s.time}/>
  <ArenaProjectiles projectiles={s.projectiles} selected={s.selected} time={s.time} gestureRef={gestureRef}/>
  {['clear','coin'].includes(s.phase)&&<ArenaCoin selected={s.coinSelected} result={s.coinResult} time={s.time}
    toss={s.coinToss} startedAt={s.coinStartedAt} resolved={s.coinResolved} gestureRef={gestureRef}/>}

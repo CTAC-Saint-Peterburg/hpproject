@@ -1,6 +1,6 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **16.11.2026**, версия игры **4.3.0**, пункты **38–42**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+Снимок исходников от **16.11.2026**, версия игры **5.0.3**, пункты **38–44**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
 
 ## Как использовать этот документ
 
@@ -97,11 +97,11 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 
 Открытая панель: inset 16px, border 12px roomWood, outline 2px coinBorder, radius 4px; фон surface; боковые металлические полосы width 5px. Внутри padding 68px 24px 32px, gap 12px. Все непосредственные кнопки/label меню имеют width min(360px,100%), кнопки min-height 44px, текст по центру, white-space normal, overflow-wrap anywhere. Длинный текст увеличивает высоту, но не ширину. Содержимое прокручивается. Вложенные магазин/бестиарий сохраняют свои сетки. На ≤600px: inset 7px, border 8px, padding меню 84px 14px 24px. Появление панели .24с ease-out.
 
-В варке книжка в левой верхней зоне: [-viewport.width*.27, min(viewport.height*.42, viewport.height*(.5-46/screenHeight)),0], размер по высоте 76 CSS px. Герб по центру сверху: [0,viewport.height*.28,0], номинальная высота 76px. На арене оба объекта стоят за дальним краем стола: книжка [field.width*.3,1.65,-field.depth/2+.35], scale .6; герб [-field.width*.23,1.65,-field.depth/2+.35], scale 1. Камера и стол не менялись. Billboard направляет объекты к камере. Текст книжки — постоянное `menu`.
+В варке книжка в левой верхней зоне: [-viewport.width*.27, min(viewport.height*.42, viewport.height*(.5-46/screenHeight)),0], размер по высоте 76 CSS px. Герб по центру сверху: [0,viewport.height*.28,0], номинальная высота 76px. На арене оба объекта стоят за дальним краем стола: книжка [field.width*.3,2.55,-field.depth/2+.35], scale .6; герб [-field.width*.23,1.65,-field.depth/2+.35], scale 1. В 5.0.2 книжка поднята на 0,9 единицы. Камера и стол не менялись. Billboard направляет объекты к камере. Текст книжки — постоянное `menu`.
 
 Герб — два плоских octahedron (coinBorder/button), pause — два box, play — один треугольник circleGeometry с 3 сегментами, rune. Парение y ±.04. Нативные HTML-кнопки поверх моделей: книжка 52×76px (brewing), 72×110px (arena), герб 76×76px, фон прозрачный, текст 16px/600, rune; фокус 2px focus/offset 4px. У герба aria-pressed и локализованные pause/resume label. Html zIndexRange [20,15]; pointer down/move/up не передаются распознавателю жестов.
 
-Книжка и Esc запускают прежний выход в меню (завершают раунд), но перед выходом приостанавливают активный режим на время анимации. Награды и прогресс обрабатываются существующими exit-действиями. Герб и P переключают паузу отдельно. Старые кнопки меню/паузы и перекрывающее паузное окно удалены из игрового UI. Остался статус .pause-notice: top 86px (154px на ≤600px), centered, padding 6px 12px, radius 6px, surfaceVeil/rune, 13px, z-index 12, pointer-events none. Итоговые экраны с повтором/возвратом сохранены.
+Книжка запускает выход в меню (завершает раунд), но на арене с 5.0.2 требуется непрерывное удержание 3 с мышью/пальцем или Enter/пробела на кнопке. Короткий клик не действует. Отпускание, уход указателя за кнопку, pointercancel/lostcapture, потеря фокуса окна/кнопки и смена видимости отменяют отсчёт; следующий начинается заново. Справа от книжки подпись «Зажать 3 с», при удержании «Выход: 3/2/1 с»: absolute left 100%/top 50%, translateY(-50%), margin-left 4px, padding 3px 5px, radius 4px, фон rgba(0,0,0,.82), rune 11px/16px, tabular-nums, nowrap, pointer-events none. У кнопки touch-action none, отключён touch-callout. Отсчёт идёт по реальному времени, в том числе на паузе; после завершения срабатывает один выход. До завершения игра не приостанавливается. Esc и книжка варки сохраняют немедленный выход. Перед раскрытием меню активный режим приостанавливается на время анимации; награды обрабатываются прежними exit-действиями. Герб и P переключают паузу отдельно. Статус .pause-notice: top 86px (154px на ≤600px) для варки, 98px для арены; centered, padding 6px 12px, radius 6px, surfaceVeil/rune, 13px, z-index 12, pointer-events none. Итоговые экраны сохранены.
 
 При prefers-reduced-motion: reduce нет покачивания/частиц, раскрытие мгновенное, CSS появления отключён. В варке на паузе Canvas работает demand, чтобы герб обновлялся и оставался доступным; игровой tick остановлен. Экран раскрытия z-index 16777274, закрытый триптих 8, открытое главное меню auto (не изолирует модальное окно карточек от кошелька), trainer по-прежнему в top layer. Цветовых токенов не добавлено.
 
@@ -173,8 +173,9 @@ HTML рун котла привязан к [0,-.04,.82] с zIndexRange [5,0]. П
 | Подсказки слева | left 16px, top 110px, max-width 290px, padding 10px, radius 8px | arenaHint, 13px; p margin 5px 0, pointer-events none |
 | Бафы снизу | bottom/right 14px, left 78px, flex wrap gap 14px, padding 8px 12px, radius 10px | arenaFooter, 13px; строки nowrap, pointer-events none |
 | Межволновое окно | right 18px, top 140px, width min(280px,70vw), padding 18px, border 1px, radius 12px | coinBorder/coinPanel; p 13px; кнопки width 100%, margin-top 10px |
-| Подпись врага | padding 4px 7px, radius 6px, column centered | enemyLabel, белый, 10px; HP 55×6; руна 28×28 |
-| Статус врага | max-width 180px, centered, line-height 1.2 | Отсчёт атаки: outline 1px burningEnemy; показываются перенос, дезориентация, особые контрзаклинания |
+| Подпись врага / ArenaEnemyHints | 56×28px, без общей панели и рамки; внутренний flex center/gap 2px | Руна 28×28, rune на rgba(0,0,0,.82), radius 6px, drop-shadow 0 1px 2px black. Число HP и отсчёт: white, 16px/800, line-height 22px, tabular-nums; padding 1px 5px, radius 4px, фон rgba(0,0,0,.88). Полоска 48×7px: white на black, outline white 1px, внешняя чёрная обводка 2px и тень 0 2px 4px |
+| Выбор и опасность в подписи | Подчёркивание 12×2px снизу по центру; при отсчёте руна и число рядом | enemySelected; страж перед выстрелом — hudRed. Поднятый враг постоянно показывает жест сброса |
+| Статусы врага (5.0.2) | Отдельный absolute-блок под основной подписью: top calc(100% + 4px), left 50%, translateX(-50%), width 156px; flex column center, gap 2px. Каждая строка height 16px, padding 0 4px, radius 3px, max-width 100%, nowrap/ellipsis | white, 10px/600, line-height 16px, фон rgba(0,0,0,.88). Постоянно показываются действующие дезориентация, мороз, горение, ярость и отсчёт атаки с оставшимися секундами; перенос, любой жест для бомбера и доступные атаки выбранного стража. Не участвуют в цикле руны/HP |
 | Подпись снаряда | flex gap 5px, padding 2px, radius 5px | enemyLabel/rune, 10px; выбранный padding 5px, outline 1px enemySelected, max-width 200px; текст max-width 160px/1.2 |
 | Остаток зелья | min-width 24px, padding 3px 6px, radius 6px, nowrap | 11px bold 700, rune на arenaHint; пустой recipeUpcoming, opacity .7 |
 | Подсказка зелья | border-box, width min(240px,65vw), padding 9px 11px, border 1px, radius 9px | coinBorder/coinPanel, text, 11px/1.35; заголовок 12px rune; p margin 4px 0 7px, SpellHint 34×34; shadowMedium |
@@ -185,7 +186,11 @@ HTML рун котла привязан к [0,-.04,.82] с zIndexRange [5,0]. П
 
 На ≤650px: верхняя панель 12px/gap 7px, её кнопки padding 6px/font-size 11px; подсказки top 130px/max-width 180px/font-size 11px; бафы 11px/gap 8px; межволновая панель top 270px/padding 10px.
 
-Подписи врагов: Html на [0,enemy.size+.45,0] относительно группы; снарядов [0,size+.35,0]; счётчик бутылки [.43,.23,0]; выбранное зелье [0,1.65,0]; мини-кристалл [0,.99,0]; подсказки монеты [0,.8,0]. У всех center и pointer-events none, zIndexRange [5,0], у подсказки зелья [6,0]. Кликается 3D-объект, а не его подпись.
+Подписи врагов: Html на [enemy.x, enemy.y + enemy.size×1,6 + 0,45, enemy.z] в мире; снарядов [0,size+.35,0]; счётчик бутылки [.43,.23,0]; выбранное зелье [0,1.65,0]; мини-кристалл [0,.99,0]; подсказки монеты [0,.8,0]. У всех center и pointer-events none, zIndexRange [5,0], у подсказки зелья [6,0]. Кликается 3D-объект, а не его подпись.
+
+Пункт 44, правка 5.0.1: подпись меняет содержимое по игровому времени: жест 8 с (80% цикла), полоска HP 1 с, число текущего HP 1 с. В начале и конце каждой фазы opacity плавно меняется за 0,18 с; пауза останавливает цикл. Фазы сдвинуты на seed врага. У нескольких контрзаклинаний по очереди показывается одна руна. Экранные пересечения проверяются каждый кадр с зазором 6px, без измерений DOM и React setState. Приоритет: выбранный → готовящий выстрел страж → гигант → ближайший к камере; скрывается только подпись, меш остаётся доступен. Размеры и длительности настраиваются в defense.json / visuals.enemyHints; мобильные размеры те же. Дополнительные локальные значения оформления: 16px/800 для HP, чёрный rgba с alpha .82/.88 для подложек; новых глобальных токенов нет.
+
+Цвет врага зависит от максимального HP: исходный цвет стихии смешивается с white до 35% при 18 HP; доля белого линейно падает до нуля при 100 HP. Ранение цвет не меняет; фиолетовый помощник исключён. Новых токенов цвета/шрифта нет: используются white, black, health, healthTrack, rune, enemySelected, hudRed и tiny. При смерти 8 чёрных кубических частиц размером до 0,1 единицы разлетаются на 0,63 единицы и уменьшаются за 0,24 с; общий instancedMesh с пределом 512 частиц, один draw call. Светлая вспышка уменьшена до ×0,45 прежнего масштаба; монеты летят как раньше.
 
 3D-сигналы выбора также являются UI: обводка бутылки увеличением меша 1.07; кольцо под бутылкой радиусы .28/.36, 12 сегментов, coinSelected или arenaWoodLine; цвет выделения врага enemySelected, кристалла crystalSelected, котла potSelected, монеты coinSelected. Фактический оттенок 3D зависит от материала/освещения. Геометрия предметов и всей комнаты не является пиксельной вёрсткой и хранится в компонентах соответствующих моделей.
 
@@ -498,6 +503,7 @@ body { margin: 0; } #root { width: 100%; min-height: 100svh; } h1 { font-size: v
 
 
 
+
 ### CSS: src/App.css
 
 ```css
@@ -597,8 +603,18 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-top { position:absolute;top:12px;left:12px;right:12px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;background:var(--color-arena-header);padding:12px;border:1px solid var(--color-arena-border);border-radius:10px; }
 .arena-health { height:6px;background:var(--color-health-track);border-radius:5px;overflow:hidden;min-width:90px; }
 .arena-health i { display:block;height:100%;background:var(--color-health); }
-.arena-enemy-label { background:var(--color-enemy-label);padding:4px 7px;border-radius:6px;color:var(--color-white);display:flex;flex-direction:column;align-items:center;font-size: var(--type-tiny); }
-.arena-enemy-label .arena-health { min-width:55px;width:55px; } .arena-rune { width:28px;height:28px;color:var(--color-rune); }
+.arena-enemy-hint { position:relative;color:var(--color-white);font-size:var(--type-tiny);text-shadow:0 1px 3px var(--color-black);pointer-events:none; }
+.arena-enemy-hint-content { width:100%;height:100%;display:flex;align-items:center;justify-content:center;gap:2px; }
+.arena-enemy-hint .arena-health { min-width:48px;width:48px;margin:0;height:7px;background:var(--color-black);outline:1px solid var(--color-white);box-shadow:0 0 0 2px var(--color-black),0 2px 4px var(--color-black); }
+.arena-enemy-hint .arena-health i { background:var(--color-white); }
+.arena-enemy-hint .arena-rune { color:var(--color-rune);background:rgba(0,0,0,.82);border-radius:6px;filter:drop-shadow(0 1px 2px var(--color-black)); }
+.arena-enemy-hint-content > span,.arena-enemy-hint-content > b { padding:1px 5px;border-radius:4px;background:rgba(0,0,0,.88);color:var(--color-white);font-size:16px;font-weight:800;line-height:22px;font-variant-numeric:tabular-nums; }
+.arena-enemy-hint.is-selected::after { content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:12px;height:2px;background:var(--color-enemy-selected); }
+.arena-enemy-hint.is-dangerous { color:var(--color-hud-red); }
+.arena-enemy-hint.is-dangerous .arena-rune { color:var(--color-hud-red); }
+.arena-enemy-status-list { position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%);width:156px;display:flex;flex-direction:column;align-items:center;gap:2px; }
+.arena-enemy-status-list > span { box-sizing:border-box;max-width:100%;height:16px;padding:0 4px;border-radius:3px;background:rgba(0,0,0,.88);color:var(--color-white);font-size:10px;font-weight:600;line-height:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.arena-rune { width:28px;height:28px;color:var(--color-rune); }
 .arena-counter-runes { display:flex;align-items:center;justify-content:center;gap:2px; }
 .arena-enemy-status { max-width:180px;text-align:center;line-height:1.2; }
 .arena-enemy-windup { outline:1px solid var(--color-burning-enemy); }
@@ -709,6 +725,9 @@ button:disabled { opacity: .45; cursor: default; }
 
 
 
+
+
+
 ### CSS: src/modules/Gestures/MagicGestureTrail.css
 
 ```css
@@ -724,6 +743,7 @@ button:disabled { opacity: .45; cursor: default; }
   user-select: none;
 }
 ```
+
 
 
 
@@ -753,6 +773,9 @@ button:disabled { opacity: .45; cursor: default; }
 .scene-control:hover { background: transparent; color: var(--color-white); }
 .scene-control:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 4px; }
 .scene-menu-book { width: 72px; height: 110px; }
+.scene-book-hold { position:relative; }
+.scene-book-hold .scene-menu-book { touch-action:none; -webkit-touch-callout:none; }
+.scene-book-countdown { position:absolute;left:100%;top:50%;transform:translateY(-50%);margin-left:4px;padding:3px 5px;border-radius:4px;background:rgba(0,0,0,.82);color:var(--color-rune);font-size:11px;line-height:16px;white-space:nowrap;pointer-events:none;font-variant-numeric:tabular-nums; }
 .scene-menu-compact { width: 52px; height: 76px; font-size: 13px; }
 .hint-toggle { position: absolute; z-index: 25; left: 16px; bottom: 16px; box-sizing: border-box; width: 46px; height: 46px; padding: 0; border: 2px solid currentColor; border-radius: 50%; background: var(--color-surface); color: var(--color-hint-inactive); box-shadow: 0 0 6px var(--color-hint-inactive); font-size: 28px; font-weight: 700; line-height: 1; touch-action: manipulation; animation: hint-float 3s ease-in-out infinite; }
 .hint-toggle-on { color: var(--color-rune-start); box-shadow: 0 0 12px var(--color-rune-start); }
