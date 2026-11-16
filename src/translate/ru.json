@@ -1,4 +1,9 @@
 {
+  "hud.temperature": "Температура",
+  "hud.balance": "На счету: {{value}}",
+  "hud.pending": "Временно",
+  "hud.trainerCoin": "Монета — 10 быстрых нажатий открывают trainer",
+  "cheats.infiniteHealth": "Бесконечное здоровье кристалла",
   "brewing.stirringLabel": "Помешивание",
   "hints.title": "Подсказки",
   "hints.defaultEnabled": "Показывать подсказки при начале игры",
@@ -14,7 +19,7 @@
   "menu.achievements": "Достижения / карточки",
   "menu.help": "Как играть",
   "menu.back": "Назад",
-  "menu.settings": "Настройки звука",
+  "menu.settings": "Настройки",
   "audio.title": "Звук",
   "audio.description": "Музыка и звуковые эффекты. Настройки сохраняются на этом устройстве.",
   "audio.enabled": "Включить звук",

@@ -1,4 +1,9 @@
 {
+  "hud.temperature": "Temperature",
+  "hud.balance": "Balance: {{value}}",
+  "hud.pending": "Pending",
+  "hud.trainerCoin": "Coin — tap 10 times quickly to open the trainer",
+  "cheats.infiniteHealth": "Infinite crystal health",
   "brewing.stirringLabel": "Stirring",
   "hints.title": "Hints",
   "hints.defaultEnabled": "Show hints when starting a game",
@@ -14,7 +19,7 @@
   "menu.achievements": "Achievements / cards",
   "menu.help": "How to play",
   "menu.back": "Back",
-  "menu.settings": "Sound settings",
+  "menu.settings": "Settings",
   "audio.title": "Sound",
   "audio.description": "Music and sound effects. Settings are saved on this device.",
   "audio.enabled": "Enable sound",

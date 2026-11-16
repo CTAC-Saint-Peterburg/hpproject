@@ -21,6 +21,27 @@ function fixture(random=()=>.99, realProfile=null){
  const step=seconds=>{for(let i=0;i<Math.ceil(seconds/.05);i++)s().tick(s().lastTick+50);};
  return {store,s,profile,start,step};
 }
+
+test('infinite crystal health absorbs melee, projectiles and DOT; disabling keeps debug reward rules',()=>{
+ const f=fixture(()=>0);
+ assert.equal(f.s().toggleInfiniteHealth(),false);
+ f.start();f.store.setState({hp:5,pendingStones:123});
+ assert.equal(f.s().toggleInfiniteHealth(),true);
+ assert.equal(f.s().hp,config.crystal.maxHp);
+ assert.equal(f.s().pendingStones,0);assert.equal(f.s().debugUsed,true);
+ const enemy={...f.s().enemies[0],type:'fire',x:1.4,z:0,rageUntil:100,rageAt:100,nextAttack:0,critChance:1,specialChance:1};
+ f.store.setState({enemies:[enemy],queue:[],time:1,crystalEffects:{burn:{until:100,dps:10000}},
+   projectiles:[{id:'lethal',x:0,y:1.1,z:0,speed:1,size:.2,damage:10000}]});
+ f.step(.1);
+ assert.equal(f.s().hp,config.crystal.maxHp);assert.equal(f.s().phase,'wave');
+ assert.equal(f.s().projectiles.length,0);
+ f.s().toggleInfiniteHealth();assert.equal(f.s().infiniteHealth,false);assert.equal(f.s().debugUsed,true);
+ f.store.setState({crystalEffects:{burn:{until:100,dps:10000}}});f.step(.05);
+ assert.equal(f.s().phase,'lost');assert.equal(f.s().hp,0);
+ assert.equal(f.s().toggleInfiniteHealth(),false);
+ f.s().exit();f.start();assert.equal(f.s().infiniteHealth,false);assert.equal(f.s().debugUsed,false);
+ f.s().toggleInfiniteHealth();f.s().exit();assert.equal(f.s().infiniteHealth,false);
+});
 test('ten configurable waves, enemy parameters, cards and valid potion recipes',()=>{
  assert.equal(config.waves.length,10);
  for(const [i,w]of config.waves.entries()){

@@ -13,7 +13,7 @@ import { bomberSpawnAllowed, explodeBomber } from './arenaBomber.js';
 export { config, potionTypes };
 export function defenseState(profile, random = Math.random) {
   return (set, get) => ({
-    phase: 'idle', wave: 0, hp: config.crystal.maxHp, time: 0, lastTick: 0, paused: false,
+    phase: 'idle', wave: 0, hp: config.crystal.maxHp, time: 0, lastTick: 0, paused: false, infiniteHealth: false,
     enemies: [], projectiles: [], projectileSerial: 0, queue: [], serial: 0, selected: null, pendingStones: 0, runStones: 0, waveSettled: false,
     inventory: {}, potionQualities: {}, potionSlots: 3, potionCopies: 1, buffs: {}, buffEffects: {}, crystalEffects: {}, pendingPotion: null, potionFlight: null, spawnAt: 0,
     coinSelected: false, coinResult: null, coinEnd: 0, debugUsed: false, lastCast: -99,
@@ -31,7 +31,7 @@ export function defenseState(profile, random = Math.random) {
       if (!entry) return false;
       const qualities = Object.fromEntries(ids.map(id => [id,
         potionEffect(potionTypes.find(potion => potion.id === id), entry.qualities?.[id] ?? entry.consumed?.[id]).quality]));
-      set({ phase:'wave', wave:0, hp:config.crystal.maxHp, time:0, lastTick:Date.now(), paused:false,
+      set({ phase:'wave', wave:0, hp:config.crystal.maxHp, time:0, lastTick:Date.now(), paused:false, infiniteHealth:false,
         wandId:equippedArenaItem(profile(),'wand')?.id??'wand_default',
         crystalSkinId:equippedArenaItem(profile(),'crystal')?.id??'crystal_default',
         enemies:[], projectiles:[], projectileSerial:0, queue:[], serial:0, selected:null, pendingStones:0, runStones:0, waveSettled:false,
@@ -43,9 +43,16 @@ export function defenseState(profile, random = Math.random) {
       get().beginWave(0);
       return true;
     },
-    exit: () => set({phase:'idle',enemies:[],projectiles:[],projectileSerial:0,queue:[],inventory:{},potionQualities:{},buffs:{},buffEffects:{},crystalEffects:{},pendingPotion:null,potionFlight:null,selected:null,fx:null,carriedEnemyId:null,lastDisorient:-99,nextBomberAt:0,
+    exit: () => set({phase:'idle',infiniteHealth:false,enemies:[],projectiles:[],projectileSerial:0,queue:[],inventory:{},potionQualities:{},buffs:{},buffEffects:{},crystalEffects:{},pendingPotion:null,potionFlight:null,selected:null,fx:null,carriedEnemyId:null,lastDisorient:-99,nextBomberAt:0,
       coinSelected:false,coinResult:null,coinToss:null,coinStartedAt:0,coinResolved:false,coinEnd:0,rewardEvents:[],pendingStones:0,waveSettled:false}),
     setPaused: paused => set({paused,lastTick:Date.now()}),
+    toggleInfiniteHealth: () => {
+      const s = get();
+      if (!['wave', 'clear', 'coin'].includes(s.phase)) return false;
+      const infiniteHealth = !s.infiniteHealth;
+      set({ infiniteHealth, ...(infiniteHealth ? { hp: config.crystal.maxHp, debugUsed: true, pendingStones: 0, rewardEvents: [], message: 'arena.debug' } : {}) });
+      return true;
+    },
     select: target => {
       const s=get();
       if (s.paused || !['wave','clear'].includes(s.phase)) return;
@@ -342,6 +349,7 @@ export function defenseState(profile, random = Math.random) {
       const enemies=s.enemies.map(enemy=>advanceArenaEnemy(enemy,config,potionTypes,time,dt,random,combat));
       const projectiles=advanceArenaProjectiles(combat.projectiles,time,dt,combat);
       const dead=enemies.filter(e=>e.hp<=0), alive=enemies.filter(e=>e.hp>0);
+      if (s.infiniteHealth) combat.hp = config.crystal.maxHp;
       set({hp:Math.max(0,combat.hp),crystalEffects:effects,enemies:alive,projectiles,projectileSerial:combat.projectileSerial,
         selected:s.selected==='crystal'?'crystal':s.pendingPotion&&s.selected==='potion:'+s.pendingPotion||alive.some(e=>e.id===s.selected)||projectiles.some(shot=>shot.id===s.selected&&shot.interceptable)?s.selected:null});
       get().awardKills(dead);

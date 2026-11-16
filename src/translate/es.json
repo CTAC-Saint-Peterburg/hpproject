@@ -1,4 +1,9 @@
 {
+  "hud.temperature": "Temperatura",
+  "hud.balance": "Saldo: {{value}}",
+  "hud.pending": "Temporal",
+  "hud.trainerCoin": "Moneda — pulsa 10 veces rápidamente para abrir el trainer",
+  "cheats.infiniteHealth": "Salud infinita del cristal",
   "brewing.stirringLabel": "Mezcla",
   "hints.title": "Ayudas",
   "hints.defaultEnabled": "Mostrar ayudas al iniciar una partida",
@@ -14,7 +19,7 @@
   "menu.achievements": "Logros / cartas",
   "menu.help": "Cómo jugar",
   "menu.back": "Volver",
-  "menu.settings": "Ajustes de sonido",
+  "menu.settings": "Ajustes",
   "audio.title": "Sonido",
   "audio.description": "Música y efectos de sonido. Los ajustes se guardan en este dispositivo.",
   "audio.enabled": "Activar sonido",

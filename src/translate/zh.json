@@ -1,4 +1,9 @@
 {
+  "hud.temperature": "温度",
+  "hud.balance": "余额：{{value}}",
+  "hud.pending": "待结算",
+  "hud.trainerCoin": "金币 — 快速点击10次打开作弊菜单",
+  "cheats.infiniteHealth": "水晶无限生命",
   "brewing.stirringLabel": "搅拌",
   "hints.title": "提示",
   "hints.defaultEnabled": "开始游戏时显示提示",
@@ -14,7 +19,7 @@
   "menu.achievements": "成就 / 卡牌",
   "menu.help": "玩法说明",
   "menu.back": "返回",
-  "menu.settings": "声音设置",
+  "menu.settings": "设置",
   "audio.title": "声音",
   "audio.description": "音乐和音效。设置将保存在此设备上。",
   "audio.enabled": "开启声音",

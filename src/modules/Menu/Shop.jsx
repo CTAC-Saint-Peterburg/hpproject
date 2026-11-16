@@ -4,6 +4,7 @@ import { useGameStore } from '../Stores/GameStore';
 import { shopItems as items, potionTypes } from '../../static/themedConfigs';
 import { potionCount } from '../Stores/potionInventory';
 import { potionEffect } from '../Defense/potionEffects';
+import CurrencyCoin from './CurrencyCoin';
 
 function effectValues(item) {
   const effects = item.effects ?? {};
@@ -20,7 +21,7 @@ export default function Shop() {
   return <section className="shop">
     <h2>{t('shop.title')}</h2><p>{t('shop.intro')}</p>
     <p className="shop-effects-note">{t('shop.arenaEffects')}</p>
-    <p>{t('shop.balance', {stones: s.stones})}</p>
+    <p className="coin-inline"><CurrencyCoin />{t('hud.balance', {value: s.stones})}</p>
     <label>{t('shop.category')}<select value={filter} onChange={e => setFilter(e.target.value)}>
       {['all', 'wand', 'pot', 'crystal', 'potion', 'upgrade'].map(type => <option key={type} value={type}>{t('shop.category.' + type)}</option>)}
     </select></label>
@@ -47,7 +48,7 @@ export default function Shop() {
           <p>{t('shop.potionQuantity', { count: quantity })}</p>
           <p>{t('shop.potionQuality', { quality: t('potion.quality.' + (item.purchaseQuality ?? 'basic')) })}</p>
         </div>}
-        <p>{item.default ? t('shop.free') : '💎 ' + item.price}</p>
+        <p className="coin-inline">{item.default ? t('shop.free') : <><CurrencyCoin />{item.price}</>}</p>
         {consumable ? <><button disabled={s.stones < item.price} onClick={() => setFeedback(s.buyPotion(item.id))}>{t('shop.buyPotion')}</button>
           {s.stones < item.price && <small>{t('shop.need', { amount: item.price - s.stones })}</small>}</>
         : upgrade && owned ? <button disabled>{t('shop.upgradeActive')}</button>

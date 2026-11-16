@@ -1,5 +1,6 @@
 {
   "colors": {
+    "hudRed": "#ef5350",
     "hintInactive": "#90949b",
     "surface": "#242132",
     "surfaceCard": "#353044",

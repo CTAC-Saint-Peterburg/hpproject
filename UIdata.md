@@ -1,6 +1,6 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **15.11.2026**, версия игры **4.1.0**, пункты **38–39**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+Снимок исходников от **16.11.2026**, версия игры **4.3.0**, пункты **38–42**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
 
 ## Как использовать этот документ
 
@@ -38,7 +38,7 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 | --- | --- |
 | Вход / `TriptychMenu` | Сложенный парящий триптих, 18 частиц, постоянное название Hyped Pot; нажатие раскрывает две створки и увеличивает центральную панель до полноэкранного меню |
 | Главное меню / `MainMenu` | Hyped Pot (не переводится), версия, выбор языка, приветствие первого посещения с закрытием; select миссии (название, наградное зелье, время/без лимита, звёзды); кнопки одинаковой ширины: играть, защита кристалла, магазин, бестиарий, обучение, достижения, настройки, помощь |
-| Общая оболочка меню | Кошелёк справа сверху, скрытый вход в trainer через 💎, опционально FPS; на вложенных страницах кнопка назад. Обучение использует собственные кнопки возврата и не показывает общий заголовок игры |
+| Общая оболочка меню | Кошелёк справа сверху внутри рамки, скрытый вход в trainer через SVG монеты, опционально FPS; на вложенных страницах кнопка назад. Обучение использует собственные кнопки возврата и не показывает общий заголовок игры |
 | Помощь | Заголовок и три текстовых блока: нагрев, ингредиенты, правила |
 | Магазин / `Shop` | Заголовок, вводный текст, пояснение эффектов на арене, баланс; фильтр всё/палочки/котлы/кристаллы/зелья/улучшения; сообщение результата; сетка товаров: категория, изображение, название, описание эффекта, запас/качество для зелий, цена, покупка/выбор/уже выбрано/улучшение активно, нехватка средств или требуемое улучшение |
 | Подготовка защиты / `DefenseSetup` | Заголовок, условия входа, слоты и копии, пояснение инвентаря; четыре карточки зелий с описанием, общим количеством, разбивкой качества, качеством следующей бутылки, checkbox; счётчик выбранного, начать, ошибка входа, инструкции боя и монеты |
@@ -48,12 +48,26 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 | Настройки / `AudioSettings` | Заголовок, описание, checkbox звука, слайдер громкости 0–100 шаг 1 и проценты |
 | Варка / `GameHud` + сцена | FPS, таймер справа сверху (без баланса stones); книжка menu и герб pause/play в сцене; температура, огонь, текущий ингредиент и диапазон температуры, диапазон помешивания, очки/ошибки, инструкция по врагам, блокировка слизнем, статус действия; рецепт на доске, подсказки ингредиентов/котла/слизня, шкала помешивания, след жеста |
 | Результат варки | Победа/поражение, звёзды и очки, награда, предупреждение debug; при победе с зельем — 3D-бутылочка, название и качество; повторить, в меню |
-| Защита кристалла / `DefenseScene` | Верхняя панель: волна, HP/полоска, баланс/💎, временные stones; книжка menu и герб pause/play за столом; FPS; подсказки слева, враги/снаряды и эффекты кристалла; эффекты зелий снизу; на столе бутылочки/остатки/выбор, мини-кристалл со статусом, подписи врагов и снарядов; межволновое окно, монета, итог боя |
+| Защита кристалла / `DefenseScene` | Сверху слева SVG кристалла с заливкой HP, по центру волна римскими цифрами, справа баланс, SVG монеты и временные stones; книжка menu и герб pause/play за столом; FPS; подсказки слева, враги/снаряды и эффекты кристалла; эффекты зелий снизу; на столе бутылочки/остатки/выбор, мини-кристалл со статусом, подписи врагов и снарядов; межволновое окно, монета, итог боя |
 | Пауза | Парящий ромб-герб показывает pause во время игры, play на паузе; нажатие переключает состояние. Текстовый статус сверху, без полноэкранной завесы. Дублирующие кнопки из HUD и верхней панели арены убраны |
 | Trainer / `CheatsMenu` | Заголовок/закрыть, пояснение, баланс/режим; общие читы, варка, все враги защиты, select волны/переход, сброс/100%, пояснение последствий и наград, статус команды |
 | Android Back | Системный диалог «Выйти из игры?» с «Выйти» и «Остаться»; игра ставится на паузу |
 
 ## Меню, каталог, коллекция
+
+### Пункты 41–42 — помешивание, температура и верхние индикаторы
+
+**Помешивание (4.2.0).** Прежний Html/meter под 3D-котлом удалён. `Pot/StirringIndicator.jsx` — экранный SVG в нижнем центре: bottom 0, left 50%, translateX(-50%), z-index 24, pointer-events none; иконка 60×49.2px, viewBox 100×82. Центр по высоте около 44px от низа, рядом с «?» (39px). Корпус повторяет внешний профиль CAULDRON.profile, добавлены ручки/обод/три ножки; внутри пусто, контур rune, stroke 2.5 SVG-единицы. Rect runeStart #ffd46b обрезан clipPath корпуса и заполняется снизу вверх по agitation 0–100. Поверх белый процент stirPercent 22px/700 с чёрной тенью; под ним «Помешивание», stirLabel 14px/600, line-height 18px. Буквы подпрыгивают на 3px, цикл 1.8с, задержки .075с; пауза останавливает анимацию, reduced-motion отключает её. Role meter и доступные min/max/now/valuetext. Индикатор виден независимо от окна подсказок.
+
+**Температура (4.3.0).** `Pot/TemperatureIndicator.jsx`: контурный SVG-термометр с колбой и рисками над помешиванием; absolute bottom 78px/left 50%, width 64px/height 76px, z-index 24, pointer-events none. Жёлтая заливка через clipPath, снизу вверх: 20°C пусто, 110°C полностью. Белая температура 22px с °C поверх, чёрная тень. Role meter с min 20/max 110. Показания берутся из potTemperature; расчёты нагрева не менялись.
+
+**Валюта.** Общий `Menu/CurrencyCoin.jsx` проецирует реальные верхние треугольники спирали getCoinGeometries().spiral и восьмиугольный диск игровой монеты в SVG. Контур coin, лицевая грань coinGlow, спираль arenaWoodLine; нет текстур или дополнительного Canvas. Базовый размер 24×24px. В меню баланс теперь внутри рамки: top/right 40px, max-width calc(100% - 80px), border-box, flex gap 5px, перенос длинных чисел; на ≤600px top/right 24px/max-width calc(100% - 48px). В магазине монета используется у баланса и всех платных цен, gap 6px. Нажатия на монету в меню/защите открывают trainer по прежнему правилу десяти быстрых нажатий; в варке вход остался на «?».
+
+**Верх защиты.** `Defense/ArenaHeader.jsx`, .arena-top-indicators: top/left/right 16px, grid 1fr auto 1fr, gap 8px, без общей фоновой полосы/рамки, z-index 10. Слева вектор кристалла с подставкой, 80×80px (на ≤600px 64×70px), контур crystal; внутри hudRed #ef5350 opacity .5, снизу вверх по hp/maxHp; поверх белое число HP 24px. Сам контур и база остаются при нулевом здоровье.
+
+По центру «Волна» 14px, ниже линия шириной 56px/1px rune с margin 5px, ниже I–X красным hudRed 28px. Справа .arena-currency width min(160px,32vw), колонка: «На счету: число» 12px, монета 44×44px в кнопке 48×48px, «Временно» 12px и временное число 24px. walletRef теперь у этой монеты, поэтому поток наград летит к ней, а число сохраняет существующее обновление по завершении полёта. Анимация зачисления .4с и reduced-motion сохранены. Старые верхние полоска HP, строка валюты и запись волны с арабскими цифрами удалены из разметки; .arena-health остаётся у врагов. Подсказки арены top 120px; статус паузы top 98px на всех размерах экрана: селектор .defense-game .pause-notice приоритетнее мобильного правила Triptych.css.
+
+**Настройки и trainer.** Пункт меню называется просто «Настройки» на всех пяти языках, внутри остаются отдельные карточки звука и подсказок. В секции защиты trainer добавлен переключатель «Бесконечное здоровье кристалла», aria-pressed, подпись вкл/выкл, доступен в wave/clear/coin, в том числе на паузе. Восстанавливает HP до максимума и защищает от урона ближних атак, снарядов и периодических эффектов. Включение очищает текущую временную награду и включает существующий debug-режим без новых наград до следующей попытки. Выключение возвращает обычный урон; выход/новая попытка сбрасывают чит. Это временный флаг, не localStorage.
 
 ### Пункт 40 — 4.1.0
 
@@ -130,7 +144,7 @@ SVG сетка 30×30, trainingGrid opacity .15. Образец: ореол то
 
 | Элемент | Размеры / положение | Оформление |
 | --- | --- | --- |
-| Баланс меню | absolute top/right 16px, padding 10px, radius 6px, z-index 10 | surface; обычный текст; кнопка 💎 минимум 44×44. В варке отсутствует |
+| Баланс меню | absolute top/right 40px (24px на ≤600px), padding 10px, radius 6px, z-index 10, внутри рамки | surface; обычный текст; SVG монета 24px в кнопке минимум 44×44. В варке отсутствует |
 | FPS | left/top 12px, 44×44, z-index 10, grid centered | `18px monospace`, белый на чёрном, pointer-events none |
 | Таймер | top/right 16px, padding 10px, radius 6px, z-index 10, max-width calc(100% - 32px), border-box | surfaceVeil; одно положение на ПК и телефоне |
 | HUD | bottom 78px / left 16px, padding 12px, max-width calc(100% - 56px), z-index 10 | surfaceVeil, text-align left; p margin 6px 0; на ≤600px font-size 13px; кликабельны только кнопки |
@@ -138,23 +152,24 @@ SVG сетка 30×30, trainingGrid opacity .15. Образец: ореол то
 | Превью результата | 180×180, под ним текст; column gap 6px | Общая PotionModel, цвет зелья и качества; p margin 0 |
 | Общий SpellHint | 38×38, border 1px, radius 8px, inline-flex | surface, border, rune; SVG viewBox 100×100, stroke 7, round; стартовая точка r=5 runeStart |
 | Руны котла | ряд gap 5px; колонка 48px/gap 3px; иконка 30×30, круглая | heat #ff7733, cool #69d9ff, stir #b49aff; фон surfaceVeil; подпись 10px/1.1, nowrap, shadow 0 1px 3px black |
-| Помешивание | column, padding 6px, radius 6px, nowrap; meter width 100px | 11px, text, surfaceVeil; meter accent health; высота/отрисовка meter нативные |
+| Помешивание | bottom 0, left 50%, SVG 60×49.2px; z-index 24 | Полый котёл, жёлтая заливка снизу; процент 22px, подпись 14px с волной букв |
+| Температура | bottom 78px, left 50%, SVG 64×76px; z-index 24 | Контур термометра, жёлтая заливка 20–110°C; температура 22px поверх |
 | Руны слизня | ряд gap 5.6px, max-width 85vw; каждый блок width 53.2px + padding 3.5px + border .7px, radius 7px | slimeVeil, slimeBorder, slimeText; SVG 39.2×39.2/stroke 4 единицы viewBox; без текста; тень 0 1.4px 8.4px shadowMedium |
 
 Рецепт — Three.js Text на позиции [-3,1,0], максимум четыре строки (действия сейчас + следующие ингредиенты). Межстрочный шаг .45; текст смещён [-1.05,0,0], якорь left/middle; цветной квадрат .16×.16 на [-1.25,0,0]. Размер первой строки .24, затем уменьшается на .03 (нижний предел .12). Текущая строка recipeCurrent #ffd700, следующие recipeUpcoming #a6b8cf. Шрифт spatial=null: конкретный font не передаётся, используется библиотечный, а не system-ui.
 
 Превью зелья в результате: камера [0,0,2.15], FOV 36, DPR 1–1.5; ambient intensity 1.6, directional [3,4,4] intensity 3; модель вращается вокруг Y со скоростью .45 рад/с, наклон группы [.08,0,-.08]. Это текущая анимация UI, отдельное правило reduced-motion для неё не задано.
 
-HTML котла привязан к [0,-.04,.82] с zIndexRange [5,0]; помешивание [0,-1.35,0]. Подсказка ингредиента ниже модели на y=`-ingredientSize*.5-.36`. Руны слизня привязаны к [0,-1.12,0]. Эти HTML-подсказки center, без перехвата указателя; их экранная позиция меняется с камерой. У части Html zIndexRange явно не задан, поэтому применяется значение библиотеки.
+HTML рун котла привязан к [0,-.04,.82] с zIndexRange [5,0]. Помешивание и температура теперь отдельные экранные SVG в нижнем центре, к камере не привязаны. Подсказка ингредиента ниже модели на y=`-ingredientSize*.5-.36`. Руны слизня привязаны к [0,-1.12,0]. Эти HTML-подсказки center, без перехвата указателя; их экранная позиция меняется с камерой. У части Html zIndexRange явно не задан, поэтому применяется значение библиотеки.
 
 ## Защита кристалла
 
 | Элемент | Геометрия | Стиль |
 | --- | --- | --- |
 | Игровая область | defense-game/canvas absolute inset 0 | Canvas touch-action none |
-| Верхняя панель | top/left/right 12px, flex wrap gap 14px, padding 12px, border 1px, radius 10px | arenaHeader, arenaBorder; HP, волна, деньги; пауза/выход перенесены в сцену |
-| HP кристалла | height 6px, min-width 90px, radius 5px, overflow hidden | healthTrack / health; заполнение 100×hp/maxHp % |
-| Временные stones | padding 3px 6px, dashed border 1px, radius 6px, nowrap | coinBorder, arenaHint, rune; при зачислении .4s ease-out, scale 1.12→1, coinPanel/coinGlow; reduced-motion отключает анимацию |
+| Верхние индикаторы | top/left/right 16px, grid 1fr auto 1fr, gap 8px, без рамки/общего фона | Слева HP, по центру волна I–X, справа деньги; подробности в разделе 41–42 |
+| HP кристалла | SVG 80×80px (64×70px на ≤600px), число 24px | Контур crystal, красная заливка hudRed opacity .5, высота по hp/maxHp |
+| Временные stones | Справа, монета 44px, подпись 12px, число 24px | rune; монета — цель потока наград, анимация .4с; reduced-motion отключает анимацию |
 | Подсказки слева | left 16px, top 110px, max-width 290px, padding 10px, radius 8px | arenaHint, 13px; p margin 5px 0, pointer-events none |
 | Бафы снизу | bottom/right 14px, left 78px, flex wrap gap 14px, padding 8px 12px, radius 10px | arenaFooter, 13px; строки nowrap, pointer-events none |
 | Межволновое окно | right 18px, top 140px, width min(280px,70vw), padding 18px, border 1px, radius 12px | coinBorder/coinPanel; p 13px; кнопки width 100%, margin-top 10px |
@@ -217,6 +232,8 @@ Header flex wrap, gap 12px, space-between; h2 margin 0; h3 margin-bottom 10px; p
 | fonts | loader | --font-loader | system-ui, -apple-system, sans-serif |
 | fonts | mono | --font-mono | monospace |
 | fonts | spatial | not installed | null |
+| typography | stirPercent | --type-stir-percent | 22px |
+| typography | stirLabel | --type-stir-label | 14px |
 | typography | fps | --type-fps | 18px monospace |
 | typography | hotkey | --type-hotkey | 11px monospace |
 | typography | title | --type-title | clamp(24px, 4vw, 42px) |
@@ -240,6 +257,7 @@ Header flex wrap, gap 12px, space-between; h2 margin 0; h3 margin-bottom 10px; p
 
 | Token | CSS variable | Value |
 | --- | --- | --- |
+| hudRed | --color-hud-red | #ef5350 |
 | hintInactive | --color-hint-inactive | #90949b |
 | surface | --color-surface | #242132 |
 | surfaceCard | --color-surface-card | #353044 |
@@ -479,6 +497,7 @@ body { margin: 0; } #root { width: 100%; min-height: 100svh; } h1 { font-size: v
 
 
 
+
 ### CSS: src/App.css
 
 ```css
@@ -631,9 +650,17 @@ button:disabled { opacity: .45; cursor: default; }
 
 .spell-hint { display: inline-flex; width: 38px; height: 38px; color: var(--color-rune); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; }
 .spell-hint svg { width: 100%; height: 100%; } .spell-hint-start { fill: var(--color-rune-start); }
-.pot-guidance { display: flex; align-items: center; gap: 8px; }
-.agitation { display: flex; flex-direction: column; white-space: nowrap; font-size: var(--type-small); color: var(--color-text); background: var(--color-surface-veil); padding: 6px; border-radius: 6px; }
-.agitation meter { width: 100px; accent-color: var(--color-health); }
+.stirring-indicator { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 24; display: flex; flex-direction: column; align-items: center; gap: 1px; pointer-events: none; color: var(--color-rune); }
+.stirring-icon { position: relative; width: 60px; height: 49.2px; }
+.stirring-icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.stirring-outline { fill: none; stroke: currentColor; }
+.stirring-fill { fill: var(--color-rune-start); }
+.stirring-percent { position: absolute; inset: 0 0 9px; display: grid; place-items: center; font-size: var(--type-stir-percent); font-weight: 700; font-variant-numeric: tabular-nums; color: var(--color-white); text-shadow: 1px 1px 2px var(--color-black), -1px -1px 2px var(--color-black); }
+.stirring-label { font-size: var(--type-stir-label); font-weight: 600; line-height: 18px; white-space: nowrap; text-shadow: 0 1px 3px var(--color-black); }
+.stirring-label > span { display: inline-block; animation: stirring-letter-wave 1.8s ease-in-out infinite; }
+.stirring-paused .stirring-label > span { animation-play-state: paused; }
+@keyframes stirring-letter-wave { 0%, 40%, 100% { transform: translateY(0); } 20% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .stirring-label > span { animation: none; } }
 .potion-result { display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .potion-result-preview { width: 180px; height: 180px; }
 .potion-result p { margin: 0; }
@@ -653,7 +680,31 @@ button:disabled { opacity: .45; cursor: default; }
 .arena-coin-hint .spell-hint { flex: 0 0 34px; }
 .arena-coin-result { font-size: var(--type-hint); box-shadow: 0 2px 12px var(--color-shadow-medium); }
 @media (prefers-reduced-motion: reduce) { .arena-wallet-collected { animation: none; } }
+
+.currency-coin { display: inline-block; width: 24px; height: 24px; flex-shrink: 0; vertical-align: middle; }
+.coin-inline { display: flex; align-items: center; justify-content: center; gap: 6px; }
+.wallet { top: 40px; right: 40px; max-width: calc(100% - 80px); box-sizing: border-box; display: flex; align-items: center; gap: 5px; overflow-wrap: anywhere; }
+.temperature-indicator { position: absolute; bottom: 78px; left: 50%; transform: translateX(-50%); width: 64px; height: 76px; z-index: 24; pointer-events: none; }
+.temperature-indicator svg { display: block; width: 100%; height: 100%; }
+.temperature-indicator strong { position: absolute; inset: 0; display: grid; place-items: center; color: var(--color-white); font-size: 22px; font-variant-numeric: tabular-nums; text-shadow: 1px 1px 2px var(--color-black), -1px -1px 2px var(--color-black); }
+.arena-top.arena-top-indicators { top: 16px; left: 16px; right: 16px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; gap: 8px; padding: 0; border: 0; background: none; pointer-events: none; z-index: 10; }
+.arena-crystal-health { position: relative; width: 80px; height: 80px; }
+.arena-crystal-health svg { width: 100%; height: 100%; }
+.arena-crystal-health strong { position: absolute; inset: 0 0 8px; display: grid; place-items: center; color: var(--color-white); font-size: 24px; font-variant-numeric: tabular-nums; text-shadow: 0 1px 3px var(--color-black); }
+.arena-wave { text-align: center; min-width: 60px; color: var(--color-text); font-size: 14px; text-shadow: 0 1px 3px var(--color-black); }
+.arena-wave hr { width: 56px; border: 0; border-top: 1px solid var(--color-rune); margin: 5px auto; }
+.arena-wave strong { font-size: 28px; color: var(--color-hud-red); }
+.arena-currency { justify-self: end; width: min(160px, 32vw); display: flex; flex-direction: column; align-items: center; text-align: center; color: var(--color-rune); overflow-wrap: anywhere; text-shadow: 0 1px 3px var(--color-black); }
+.arena-currency small { font-size: 12px; line-height: 1.3; }
+.arena-currency strong { font-size: 24px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.arena-currency-target { width: 48px; height: 48px; }
+.arena-currency .trainer-crystal { width: 48px; height: 48px; padding: 0; pointer-events: auto; }
+.arena-currency .currency-coin { width: 44px; height: 44px; }
+.defense-game .arena-hints { top: 120px; }
+.defense-game .pause-notice { top: 98px; }
+@media (max-width: 600px) { .wallet { top: 24px; right: 24px; max-width: calc(100% - 48px); }.arena-crystal-health { width: 64px; height: 70px; } }
 ```
+
 
 
 
@@ -673,6 +724,7 @@ button:disabled { opacity: .45; cursor: default; }
   user-select: none;
 }
 ```
+
 
 
 

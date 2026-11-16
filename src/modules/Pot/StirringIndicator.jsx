@@ -5,7 +5,7 @@ import { CAULDRON } from './cauldronGeometry';
 // Front silhouette uses the same outer profile as the low-poly cauldron.
 const outer = CAULDRON.profile.slice(1, 10);
 const points = [...outer.map(([r, y]) => [50 + r * 38, 35 - y * 34]),
-  ...outer.toReversed().map(([r, y]) => [50 - r * 38, 35 - y * 34])];
+  ...outer.slice().reverse().map(([r, y]) => [50 - r * 38, 35 - y * 34])];
 const bodyPath = points.map(([x, y], i) => `${i ? 'L' : 'M'}${x},${y}`).join(' ') + 'Z';
 const top = Math.min(...points.map(point => point[1]));
 const bottom = Math.max(...points.map(point => point[1]));

@@ -1,4 +1,9 @@
 {
+  "hud.temperature": "Température",
+  "hud.balance": "Solde : {{value}}",
+  "hud.pending": "En attente",
+  "hud.trainerCoin": "Pièce — appuyez rapidement 10 fois pour ouvrir le trainer",
+  "cheats.infiniteHealth": "Vie infinie du cristal",
   "brewing.stirringLabel": "Mélange",
   "hints.title": "Astuces",
   "hints.defaultEnabled": "Afficher les astuces au début de la partie",
@@ -14,7 +19,7 @@
   "menu.achievements": "Succès / cartes",
   "menu.help": "Comment jouer",
   "menu.back": "Retour",
-  "menu.settings": "Réglages audio",
+  "menu.settings": "Réglages",
   "audio.title": "Son",
   "audio.description": "Musique et effets sonores. Les réglages sont enregistrés sur cet appareil.",
   "audio.enabled": "Activer le son",

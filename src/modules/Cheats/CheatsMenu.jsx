@@ -62,6 +62,10 @@ export default function CheatsMenu() {
         () => useGameStore.getState().spawnEnemy(id, true), !brewing, 'Alt Shift ' + (i + 1)))}
     </div></section>
     <section><h3>{t('arena.title')}</h3><div className="cheat-grid">
+      <button disabled={!['wave','clear','coin'].includes(arena.phase)} aria-pressed={arena.infiniteHealth}
+        onClick={() => run('cheats.infiniteHealth', () => useDefenseStore.getState().toggleInfiniteHealth())}>
+        {t('cheats.infiniteHealth')} · {t(arena.infiniteHealth ? 'cheats.on' : 'cheats.off')}
+      </button>
       {Object.entries(config.enemies).map(([id, enemy], i) => command(enemy.name,
         () => useDefenseStore.getState().debugSpawn(id), arena.phase !== 'wave' || arena.paused, 'Alt Shift ' + (i + 1)))}
     </div><div className="cheat-wave"><label>{t('arena.waveLabel')}<select value={wave} disabled={!inArena}

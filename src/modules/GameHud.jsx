@@ -10,6 +10,7 @@ import { useGameStore } from './Stores/GameStore';
 import { isPotBlocked } from '../static/enemies';
 import PotionResult from './Pot/PotionResult';
 import StirringIndicator from './Pot/StirringIndicator';
+import TemperatureIndicator from './Pot/TemperatureIndicator';
 import { useInputStore } from './Input/inputStore';
 
 export function FrameCounter() {
@@ -66,7 +67,7 @@ export default function GameHud() {
     {s.startGame && <>
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
       <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="brewing-hints" trainer />
-      {s.status === 'playing' && <StirringIndicator value={s.agitation} paused={s.paused} />}
+      {s.status === 'playing' && <><TemperatureIndicator value={s.potTemperature} /><StirringIndicator value={s.agitation} paused={s.paused} /></>}
       <div className="hud" id="brewing-hints" hidden={!hintsVisible}>
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>

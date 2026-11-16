@@ -1,4 +1,4 @@
-import TrainerCrystal from '../Cheats/TrainerCrystal';
+import ArenaHeader from './ArenaHeader';
 import { HintToggle } from '../Menu/HintControls';
 import { useHintVisibility } from '../Menu/useHintVisibility';
 import SceneMenuControls from '../Menu/SceneMenuControls';
@@ -136,12 +136,7 @@ export default function DefenseScene(){
  }}><Board walletRef={walletRef} gestureRef={gestureRef} inputBridge={inputBridge} onHeldTest={registerHeldTest}/></Canvas>
  <MagicGestureTrail points={stroke} paused={s.paused} enabled={['wave','clear'].includes(s.phase)}/>
  </div>
- <header className="arena-top"><strong>{t('arena.wave',{wave:s.wave+1})}</strong>
- <div><span>{t('arena.crystal')} {Math.ceil(s.hp)}/{config.crystal.maxHp}</span><div className="arena-health"><i style={{width:100*s.hp/config.crystal.maxHp+'%'}}/></div></div>
- <span><TrainerCrystal /> {t('arena.balance',{stones})}</span><span key={s.rewardCollectedSerial} ref={walletRef}
-   className={s.rewardCollectedSerial?'arena-wallet arena-wallet-collected':'arena-wallet'} aria-live="polite">
-   {t('arena.pending',{stones:Math.max(0,s.pendingStones-visualPending)})}</span>
- </header>
+ <ArenaHeader state={s} stones={stones} pending={Math.max(0,s.pendingStones-visualPending)} walletRef={walletRef} />
  {showFps&&<div className="fps">{fps}</div>}
  <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="arena-hints" />
  <aside className="arena-hints" id="arena-hints" hidden={!hintsVisible}><p>{t(s.message)}</p>
