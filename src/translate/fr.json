@@ -1,4 +1,5 @@
 {
+  "cheats.freezeTimer": "Arrêter le chronomètre",
   "menu.holdExit": "Maintenez 3 secondes pour revenir au menu",
   "menu.holdSeconds": "Maintenir 3 s",
   "menu.exitCountdown": "Sortie : {{seconds}} s",

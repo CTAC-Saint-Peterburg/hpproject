@@ -169,7 +169,16 @@ export const useGameStore = create(persist((set, get) => ({
     set(s => ({ tutorialProgress: { ...s.tutorialProgress, [id]: Math.min(2, (s.tutorialProgress[id] || 0) + 1) } }));
   },
   stones: 0, unlocked: [], records: {}, completed: [], selectedLevel: 'level_01',
-  runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, mission: null, currentStage: 0,
+  runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, mission: null, currentStage: 0, timerFrozen: false,
+  toggleTimerFrozen: () => {
+    let s = get();
+    if (!s.startGame || s.status !== 'playing' || s.paused || s.deadline === null) return false;
+    get().tick(Date.now());
+    s = get();
+    if (s.status !== 'playing') return false;
+    set({ timerFrozen: !s.timerFrozen, debugUsed: true });
+    return true;
+  },
   setPaused: paused => {
     const s = get();
     if (!s.startGame || s.status !== 'playing' || s.paused === paused) return;
@@ -284,23 +293,24 @@ export const useGameStore = create(persist((set, get) => ({
       currentSpell: null, spellCast: null, spellCastSerial: 0, isPotSelected: false, potTemperature: 20, heatLevel: 0,
       selectedIngredientId: null, heldIngredientId: null, agitation: 0, stirUntil: 0, resultQuality: null,
       ingredientFlight: null, ingredientFlightSerial: 0, ingredientRefills: {},
-      score: 0, mistakes: 0, rating: 0, reward: 0, message: '', debugUsed: false,
+      score: 0, mistakes: 0, rating: 0, reward: 0, message: '', debugUsed: false, timerFrozen: false,
       remaining: mission.timeLimit ?? null, deadline: mission.timeLimit ? now + mission.timeLimit * 1000 : null,
       lastTick: now, enemies: [], projectiles: [], selectedEnemyId: null, enemiesSpawned: 0, enemySerial: 0, slimeRespawnAt: null,
       nextEnemyAt: mission.enemySpawn?.allowed?.length ? now +
         (mission.enemySpawn.spawnWindow ?? mission.timeLimit ?? 150) * 1000 /
         (Math.max(1, Math.min(10, Math.trunc(mission.enemySpawn.rarity || 1))) + 1) : null });
   },
-  exitToMenu: () => set({ ingredientFlight: null, ingredientRefills: {}, runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, currentSpell: null, spellCast: null, isPotSelected: false, heatLevel: 0, selectedIngredientId: null, heldIngredientId: null, agitation: 0, stirUntil: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null, slimeRespawnAt: null }),
+  exitToMenu: () => set({ timerFrozen: false, ingredientFlight: null, ingredientRefills: {}, runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, currentSpell: null, spellCast: null, isPotSelected: false, heatLevel: 0, selectedIngredientId: null, heldIngredientId: null, agitation: 0, stirUntil: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null, slimeRespawnAt: null }),
   tick: now => {
     const s = get();
     if (!s.startGame || s.status !== 'playing' || s.paused) return;
     const dt = Math.max(0, (now - s.lastTick) / 1000);
     const target = 20 + s.heatLevel * 30;
     const change = (target - s.potTemperature) * (1 - Math.exp(-dt / 4));
-    const remaining = s.deadline === null ? null : Math.max(0, (s.deadline - now) / 1000);
+    const deadline = s.deadline !== null && s.timerFrozen ? s.deadline + dt * 1000 : s.deadline;
+    const remaining = deadline === null ? null : Math.max(0, (deadline - now) / 1000);
     const stirring = { ...brewing.stirring, ...s.mission?.stirring };
-    set({ potTemperature: Math.max(20, Math.min(110, s.potTemperature + change)), remaining, lastTick: now,
+    set({ potTemperature: Math.max(20, Math.min(110, s.potTemperature + change)), remaining, deadline, lastTick: now,
       agitation: Math.max(0, s.agitation - stirring.decayPerSecond * dt) });
     if (remaining === 0) { get().finish(false); return; }
     get().updateEnemies(now);
@@ -356,7 +366,7 @@ export const useGameStore = create(persist((set, get) => ({
     const resultQuality = won ? ['basic','fine','masterwork'][rating - 1] : null;
     const potionInventory = won && !s.debugUsed && s.mission.rewardPotion
       ? addPotionInventory(s.potionInventory, [s.mission.rewardPotion], resultQuality) : s.potionInventory;
-    set({ status: won ? 'won' : 'lost', spellCast: null, rating, resultQuality, reward, stones: s.stones + reward, potionInventory,
+    set({ status: won ? 'won' : 'lost', timerFrozen: false, spellCast: null, rating, resultQuality, reward, stones: s.stones + reward, potionInventory,
       heldIngredientId: null, selectedIngredientId: null, stirUntil: 0,
       ingredientFlight: null, ingredientRefills: {},
       completed, records, unlocked: [...unlocked], heatLevel: 0, enemies: [], projectiles: [], selectedEnemyId: null, nextEnemyAt: null, slimeRespawnAt: null });

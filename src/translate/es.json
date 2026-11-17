@@ -1,4 +1,5 @@
 {
+  "cheats.freezeTimer": "Detener temporizador",
   "menu.holdExit": "Mantén pulsado 3 segundos para volver al menú",
   "menu.holdSeconds": "Mantén 3 s",
   "menu.exitCountdown": "Salir: {{seconds}} s",

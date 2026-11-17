@@ -1,4 +1,5 @@
 {
+  "cheats.freezeTimer": "暂停计时器",
   "menu.holdExit": "长按3秒返回菜单",
   "menu.holdSeconds": "长按3秒",
   "menu.exitCountdown": "退出：{{seconds}}秒",

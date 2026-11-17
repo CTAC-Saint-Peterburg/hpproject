@@ -20,6 +20,28 @@ test('all recipes and quality achievements use completed recipes and permit thei
 const animation = JSON.parse(readFileSync(new URL('../src/static/brewing.json', import.meta.url))).ingredientAnimation;
 
 let serial = 0;
+test('timer cheat freezes only countdown, preserves ingredient bonus and resumes without elapsed-time loss',async()=>{
+ const {store,s,saved}=await fixture({potionInventory:{},stones:0});
+ const original=Date.now;let now=100000;Date.now=()=>now;
+ try{
+  assert.equal(s().toggleTimerFrozen(),false);
+  s().beginMission('level_01');assert.equal(s().toggleTimerFrozen(),false);
+  s().beginMission('level_02');store.setState({heatLevel:1,agitation:80});
+  now+=1000;assert.equal(s().toggleTimerFrozen(),true);
+  const remaining=s().remaining,temperature=s().potTemperature,agitation=s().agitation;
+  now+=60000;s().tick(now);
+  assert.equal(s().remaining,remaining);assert.ok(s().potTemperature>temperature);assert.ok(s().agitation<agitation);
+  assert.ok(s().enemies.length>0,'enemy simulation keeps running');
+  const stage=s().mission.stages[0];store.setState({potTemperature:stage.temperature.min,agitation:stage.stirring.min,enemies:[],projectiles:[]});
+  s().addIngredient(stage.id);assert.equal(s().remaining,remaining+5);
+  s().setPaused(true);now+=10000;s().setPaused(false);assert.equal(s().remaining,remaining+5);
+  now+=1000;s().toggleTimerFrozen();assert.equal(s().timerFrozen,false);
+  now+=2000;s().tick(now);assert.equal(s().remaining,remaining+3);
+  assert.equal(s().debugUsed,true);s().finish(true);assert.equal(s().reward,0);assert.deepEqual(s().potionInventory,{});
+  assert.equal(JSON.parse(saved.get('hpproject-save-v1')).state.timerFrozen,undefined);
+  s().beginMission('level_02');assert.equal(s().timerFrozen,false);s().toggleTimerFrozen();s().exitToMenu();assert.equal(s().timerFrozen,false);
+ }finally{Date.now=original;}
+});
 test('ingredient rises above the rim, shrinks and falls into the cauldron; refill fades in smoothly', () => {
   const from = [.7, .2, 0];
   const start = ingredientFlightPose(from, 0, animation);

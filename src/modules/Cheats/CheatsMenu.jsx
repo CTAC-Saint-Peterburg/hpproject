@@ -55,6 +55,10 @@ export default function CheatsMenu() {
       <button onClick={toggleFps} aria-pressed={showFps}>{t('cheats.fps')} · {t(showFps ? 'cheats.on' : 'cheats.off')}<kbd>F8</kbd></button>
     </div></section>
     <section><h3>{t('cheats.brewing')}</h3><div className="cheat-grid">
+      <button disabled={!brewing || game.deadline === null} aria-pressed={game.timerFrozen}
+        onClick={() => run('cheats.freezeTimer', () => useGameStore.getState().toggleTimerFrozen())}>
+        {t('cheats.freezeTimer')} · {t(game.timerFrozen ? 'cheats.on' : 'cheats.off')}
+      </button>
       {command('cheats.heatUp', () => useGameStore.getState().changePotTemperature(1), !brewing, 'Alt Shift ↑')}
       {command('cheats.heatDown', () => useGameStore.getState().changePotTemperature(-1), !brewing, 'Alt Shift ↓')}
       {command('cheats.levitate', () => useGameStore.getState().setCurrentSpell(3), !brewing, 'Alt Shift L')}

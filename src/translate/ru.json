@@ -1,4 +1,5 @@
 {
+  "cheats.freezeTimer": "Остановка таймера",
   "menu.holdExit": "Удерживайте 3 секунды, чтобы выйти в меню",
   "menu.holdSeconds": "Зажать 3 с",
   "menu.exitCountdown": "Выход: {{seconds}} с",
