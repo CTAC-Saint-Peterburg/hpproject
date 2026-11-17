@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../Stores/GameStore';
 import { shopItems as items, potionTypes } from '../../static/themedConfigs';
-import { potionCount } from '../Stores/potionInventory';
+import { potionCount, POTION_QUALITIES } from '../Stores/potionInventory';
+import { potionPrice } from '../Potions/potionCatalog';
 import { potionEffect } from '../Defense/potionEffects';
 import CurrencyCoin from './CurrencyCoin';
 
-function effectValues(item) {
+function effectValues(item, quality) {
   const effects = item.effects ?? {};
-  return { ...effects, ...(item.type === 'potion' ? potionEffect(item, 'basic') : {}), chance: Math.round((effects.instantKillChance ?? 0) * 100),
+  return { ...effects, chance: Math.round((effects.instantKillChance ?? 0) * 100), ...(item.type === 'potion' ? potionEffect(item, quality) : {}),
     radius: effects.splashRadius ?? 0, percent: Math.round((effects.splashMultiplier ?? 0) * 100) };
 }
 
@@ -17,6 +18,7 @@ export default function Shop() {
   const s = useGameStore();
   const [feedback, setFeedback] = useState('');
   const [filter, setFilter] = useState('all');
+  const [qualities,setQualities]=useState({});
   const catalog = [...items, ...potionTypes.map(potion => ({ ...potion, type: 'potion' }))];
   return <section className="shop">
     <h2>{t('shop.title')}</h2><p>{t('shop.intro')}</p>
@@ -28,6 +30,8 @@ export default function Shop() {
     <p className="shop-feedback" role="status" aria-live="polite">{feedback ? t(feedback) : ''}</p>
     <div className="shop-grid">{catalog.filter(item => filter === 'all' || item.type === filter).map(item => {
       const consumable = item.type === 'potion';
+      const quality=qualities[item.id]??'basic';
+      const price=consumable?potionPrice(item,quality):item.price;
       const upgrade = item.type === 'upgrade';
       const owned = item.default || s.ownedItems.includes(item.id);
       const equipped = s.equippedItems[item.type] === item.id;
@@ -43,14 +47,16 @@ export default function Shop() {
         </span> : <span
           className={'shop-preview-' + item.type + (consumable ? ' shop-potion-' + (item.model ?? 'vial') : '')}
           style={{backgroundColor:item.color, boxShadow:'0 0 24px ' + item.color + '66'}} />}</div>
-        <h3>{t(item.name)}</h3><p>{t(item.description, effectValues(item))}</p>
+        <h3>{t(item.name)}</h3><p>{t(item.description, effectValues(item,quality))}</p>
         {consumable && <div className="shop-potion-stock">
           <p>{t('shop.potionQuantity', { count: quantity })}</p>
-          <p>{t('shop.potionQuality', { quality: t('potion.quality.' + (item.purchaseQuality ?? 'basic')) })}</p>
+          <label>{t('potion.chooseQuality')}<select value={quality} onChange={event=>setQualities(previous=>({...previous,[item.id]:event.target.value}))}>
+            {POTION_QUALITIES.map((q,index)=><option key={q} value={q}>{'★'.repeat(index+1)} · {t('potion.quality.'+q)}</option>)}
+          </select></label>
         </div>}
-        <p className="coin-inline">{item.default ? t('shop.free') : <><CurrencyCoin />{item.price}</>}</p>
-        {consumable ? <><button disabled={s.stones < item.price} onClick={() => setFeedback(s.buyPotion(item.id))}>{t('shop.buyPotion')}</button>
-          {s.stones < item.price && <small>{t('shop.need', { amount: item.price - s.stones })}</small>}</>
+        <p className="coin-inline">{item.default ? t('shop.free') : <><CurrencyCoin />{price}</>}</p>
+        {consumable ? <><button disabled={s.stones < price} onClick={() => setFeedback(s.buyPotion(item.id,quality))}>{t('shop.buyPotion')}</button>
+          {s.stones < price && <small>{t('shop.need', { amount: price - s.stones })}</small>}</>
         : upgrade && owned ? <button disabled>{t('shop.upgradeActive')}</button>
         : owned ? <button disabled={equipped} onClick={() => setFeedback(s.equipItem(item.id))}>
           {t(equipped ? 'shop.equipped' : 'shop.equip')}

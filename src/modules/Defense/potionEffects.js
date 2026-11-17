@@ -14,6 +14,8 @@ export function potionEffect(potion, requestedQuality = 'basic') {
     effect.targets = Math.max(1, Math.min(qualityConfig.maxTargets, potion.targets + settings.extraTargets));
   }
   if (Array.isArray(potion.spells)) effect.spells = [...potion.spells];
+  Object.assign(effect, potion.qualityEffects?.[quality]);
+  if (Number.isFinite(effect.instantKillChance)) effect.chance = Math.round(effect.instantKillChance * 100);
   return effect;
 }
 

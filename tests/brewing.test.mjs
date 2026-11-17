@@ -6,6 +6,17 @@ import { brewingActions } from '../src/modules/RecipeStages/brewingActions.js';
 import { ingredientFlightPose, ingredientFlightSeconds, ingredientRefillProgress } from '../src/modules/Ingredients/ingredientAnimation.js';
 import { readFileSync } from 'node:fs';
 
+test('all recipes and quality achievements use completed recipes and permit their configured mistakes',async()=>{
+ const missions=JSON.parse(readFileSync(new URL('../src/static/missions.json',import.meta.url)));
+ const {store,s}=await fixture({potionInventory:{},records:{},completed:[],unlocked:[]});
+ for(const [id,mission]of Object.entries(missions)){
+  s().beginMission(id);store.setState({mistakes:mission.rating.threeStarMistakes,score:0});s().finish(true);
+  assert.equal(s().rating,3);assert.equal(s().potionInventory[mission.rewardPotion].masterwork,1);
+ }
+ for(const id of ['all','master_alchemist','full_master','advanced'])assert.ok(s().unlocked.includes(id));
+ assert.ok(!s().unlocked.includes('perfect'),'three stars with tolerated mistakes is not a flawless run');
+});
+
 const animation = JSON.parse(readFileSync(new URL('../src/static/brewing.json', import.meta.url))).ingredientAnimation;
 
 let serial = 0;
@@ -212,10 +223,10 @@ test('stirring uses mission settings, decays over time, blocks out-of-range ingr
 
 test('three ratings produce distinct persisted potion qualities once, while failures and debug runs add none', async () => {
   const { store, s, saved } = await fixture({ potionInventory: {}, stones: 0 });
-  for (const [ratio, quality] of [[.5,'basic'],[.7,'fine'],[1,'masterwork']]) {
+  for (const [mistakes, quality] of [[4,'basic'],[2,'fine'],[1,'masterwork']]) {
     s().beginMission('level_01');
     const max = s().mission.stages.reduce((sum,stage) => sum + stage.points_add, 0);
-    store.setState({ score: max * ratio }); s().finish(true); s().finish(true);
+    store.setState({ score: max, mistakes }); s().finish(true); s().finish(true);
     assert.equal(s().resultQuality, quality);
     assert.equal(s().potionInventory.frost[quality], 1);
   }

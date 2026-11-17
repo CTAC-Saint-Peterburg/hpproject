@@ -60,7 +60,7 @@ test('bottles have three distinguishable silhouettes and can be selected through
 
 test('every potion configuration maps to a shared model and unknown models reuse the vial', () => {
   const potions = JSON.parse(readFileSync(new URL('../src/static/potions.json', import.meta.url), 'utf8'));
-  assert.equal(potions.length, 4);
+  assert.equal(potions.length, 11);
   for (const potion of potions) {
     assert.ok(POTION_MODELS.includes(potion.model));
     assert.equal(getPotionGeometry(potion.model), getPotionGeometry(potion.model));

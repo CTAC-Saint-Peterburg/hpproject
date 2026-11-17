@@ -12,6 +12,7 @@ import PotionResult from './Pot/PotionResult';
 import StirringIndicator from './Pot/StirringIndicator';
 import TemperatureIndicator from './Pot/TemperatureIndicator';
 import { useInputStore } from './Input/inputStore';
+import { POTION_IDS } from './Stores/potionInventory';
 
 export function FrameCounter() {
   const sample = useRef({ time: 0, frames: 0 });
@@ -40,7 +41,7 @@ export default function GameHud() {
       if (e.altKey && e.shiftKey && useInputStore.getState().mode === 'desktop') {
         if (e.code === 'Equal') { e.preventDefault(); s.changeStones(100); }
         if (e.code === 'Minus') { e.preventDefault(); s.changeStones(-100); }
-        if (e.code === 'KeyP') { e.preventDefault(); s.addPotions(['frost','flame','echo','healing']); }
+        if (e.code === 'KeyP') { e.preventDefault(); s.addPotions(POTION_IDS); }
         if (s.startGame && s.status === 'playing' && !s.paused) {
           if (e.code === 'ArrowUp') { e.preventDefault(); s.changePotTemperature(1); }
           if (e.code === 'ArrowDown') { e.preventDefault(); s.changePotTemperature(-1); }
@@ -69,6 +70,7 @@ export default function GameHud() {
       <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="brewing-hints" trainer />
       {s.status === 'playing' && <><TemperatureIndicator value={s.potTemperature} /><StirringIndicator value={s.agitation} paused={s.paused} /></>}
       <div className="hud" id="brewing-hints" hidden={!hintsVisible}>
+        <p className="recipe-quality-rule">{t('brewing.qualityRule',{three:s.mission.rating.threeStarMistakes,two:s.mission.rating.twoStarMistakes})}</p>
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>
         <p>{stage ? stage.icon + ' ' + t(stage.name) + ' · ' + stage.temperature.min + '–' + stage.temperature.max + ' °C' : t('hud.complete')}</p>
         {stage && <p>{t('brewing.requiredStirring', { min: stage.stirring?.min ?? 0, max: stage.stirring?.max ?? 100 })}</p>}

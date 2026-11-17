@@ -9,6 +9,7 @@ import { potionEffect, applyPotionImpact } from './potionEffects.js';
 import { canCarryEnemy, beginEnemyCarry, dropCarriedEnemy, clampCarriedPosition } from './enemyCarry.js';
 import { crystalThreats, applyCrystalDisorientation } from './arenaTactics.js';
 import { bomberSpawnAllowed, explodeBomber } from './arenaBomber.js';
+import { specialPotionImpact } from './specialPotionEffects.js';
 
 export { config, potionTypes };
 export function defenseState(profile, random = Math.random) {
@@ -22,12 +23,13 @@ export function defenseState(profile, random = Math.random) {
     message: 'arena.instructions', fx: null, fxSerial: 0,
     wandId: 'wand_default', crystalSkinId: 'crystal_default',
     carriedEnemyId: null, lastDisorient: -99, nextBomberAt: 0,
-    start: ids => {
+    start: selections => {
       if (get().phase !== 'idle') return false;
+      const ids=Array.isArray(selections)?selections.map(item=>typeof item==='string'?item:item?.id):null;
       const { slots, copies } = arenaLoadoutSettings(profile());
       if (!Array.isArray(ids) || ids.length < 3 || ids.length > slots || new Set(ids).size !== ids.length ||
         ids.some(id => !potionTypes.some(potion => potion.id === id))) return false;
-      const entry = profile().consumeEntryPotions(ids);
+      const entry = profile().consumeEntryPotions(selections);
       if (!entry) return false;
       const qualities = Object.fromEntries(ids.map(id => [id,
         potionEffect(potionTypes.find(potion => potion.id === id), entry.qualities?.[id] ?? entry.consumed?.[id]).quality]));
@@ -199,12 +201,15 @@ export function defenseState(profile, random = Math.random) {
       const effect=potionEffect(potion,flight.quality), heal=effect.effect==='heal';
       const previous=s.buffs[effect.effect]>s.time?s.buffEffects[effect.effect]:null;
       const activeEffect=previous?.multiplier>effect.multiplier?previous:effect;
+      const timed=Number.isFinite(effect.duration) && !['madness','poison'].includes(effect.effect);
       set({potionFlight:null,enemies:applyPotionImpact(s.enemies,effect,s.time),
         ...(heal?{hp:Math.min(config.crystal.maxHp,s.hp+effect.heal)}:
-        {buffs:{...s.buffs,[effect.effect]:Math.max(s.buffs[effect.effect]??0,s.time+effect.duration)},
-          buffEffects:{...s.buffEffects,[effect.effect]:activeEffect}}),message:heal?'arena.healed':'arena.buffActive',
+        timed?{buffs:{...s.buffs,[effect.effect]:Math.max(s.buffs[effect.effect]??0,s.time+effect.duration)},
+          buffEffects:{...s.buffEffects,[effect.effect]:activeEffect}}:{}),
+        ...specialPotionImpact(s,effect,config,random),message:heal?'arena.healed':'arena.buffActive',
         fx:{id:s.fxSerial+1,time:s.time,color:potion.color,target:[flight.to[0],flight.to[1]+.18,flight.to[2]],
           spellId:({freeze:2,burn:1,multicast:6,heal:5})[potion.effect]??3,kind:'potionImpact'},fxSerial:s.fxSerial+1});
+      get().finishWave();
       return true;
     },
     cast: spell => {
@@ -309,7 +314,9 @@ export function defenseState(profile, random = Math.random) {
         const area=splash && enemy.id!==target.id && enemyDistance(enemy,target)<=wand.splashRadius+1e-9;
         if (!direct && !area) return enemy;
         hits++;
-        const instant=wand.instantKillChance>0 && random()<wand.instantKillChance;
+        const potionChance=direct && s.buffs.critical>s.time ? s.buffEffects.critical?.instantKillChance??0 : 0;
+        const chance=1-(1-wand.instantKillChance)*(1-potionChance);
+        const instant=chance>0 && random()<chance;
         const critical=!instant && random()<config.waves[s.wave].playerCritChance;
         const damage=(config.player.damage+wand.damageBonus)*(critical?config.player.criticalMultiplier:1)*(direct?1:wand.splashMultiplier);
         let e={...enemy,hp:instant?0:enemy.hp-damage};
@@ -354,14 +361,16 @@ export function defenseState(profile, random = Math.random) {
       if (s.phase!=='wave') return;
       s=get();
       const effects=Object.fromEntries(Object.entries(s.crystalEffects).filter(([,effect])=>effect.until>time));
-      const combat={hp:s.hp,effects,projectiles:[...s.projectiles],projectileSerial:s.projectileSerial};
+      const combat={hp:s.hp,effects,projectiles:[...s.projectiles],projectileSerial:s.projectileSerial,enemies:s.enemies,enemyDamage:new Map()};
       for(const effect of Object.values(effects))combat.hp-=effect.dps*dt;
       const enemies=s.enemies.map(enemy=>advanceArenaEnemy(enemy,config,potionTypes,time,dt,random,combat));
+      for(const enemy of enemies) enemy.hp-=combat.enemyDamage.get(enemy.id)??0;
       const projectiles=advanceArenaProjectiles(combat.projectiles,time,dt,combat,sourceId=>{
         const shooter=enemies.find(enemy=>enemy.id===sourceId && enemy.hp>0);
         if(shooter) disorientAfterAttack(shooter,config,time,random);
       });
       const dead=enemies.filter(e=>e.hp<=0), alive=enemies.filter(e=>e.hp>0);
+      if (s.buffs.invulnerability>s.time) combat.hp=s.hp;
       if (s.infiniteHealth) combat.hp = config.crystal.maxHp;
       set({hp:Math.max(0,combat.hp),crystalEffects:effects,enemies:alive,projectiles,projectileSerial:combat.projectileSerial,
         selected:s.selected==='crystal'?'crystal':s.pendingPotion&&s.selected==='potion:'+s.pendingPotion||alive.some(e=>e.id===s.selected)||projectiles.some(shot=>shot.id===s.selected&&shot.interceptable)?s.selected:null});

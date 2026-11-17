@@ -3,6 +3,21 @@ import test from 'node:test';
 import { prepareStoreSource } from './loadGameStore.mjs';
 import { shopItems as catalog, potionTypes } from '../src/static/themedConfigs.js';
 import { potionCount } from '../src/modules/Stores/potionInventory.js';
+import { potionPrice } from '../src/modules/Potions/potionCatalog.js';
+
+test('buying any quality uses its own price, persists that exact bottle and rejects unaffordable or invalid choices', async()=>{
+ const {s,saved}=await fixture({stones:100000,potionInventory:{}});
+ for(const potion of potionTypes)for(const quality of ['basic','fine','masterwork']){
+  const balance=s().stones,price=potionPrice(potion,quality);
+  assert.equal(s().buyPotion(potion.id,quality),'shop.potionPurchased');
+  assert.equal(s().stones,balance-price);assert.equal(s().potionInventory[potion.id][quality],1);
+ }
+ const restored=await fixture(JSON.parse(saved.get('hpproject-save-v1')).state);
+ assert.deepEqual(restored.s().potionInventory,s().potionInventory);
+ const balance=s().stones;assert.equal(s().buyPotion('coins','invalid'),'shop.invalid');assert.equal(s().stones,balance);
+ const poor=await fixture({stones:1,potionInventory:{}});
+ assert.equal(poor.s().buyPotion('coins','masterwork'),'shop.insufficient');assert.equal(poor.s().stones,1);
+});
 
 const defaults = { wand: 'wand_default', pot: 'pot_default', crystal: 'crystal_default' };
 
@@ -69,7 +84,7 @@ test('permanent catalog has equipment and upgrades while consumables retain sepa
   for (const type of Object.keys(defaults)) {
     assert.equal(catalog.filter(item => item.type === type && item.default && item.price === 0).length, 1);
   }
-  assert.equal(potionTypes.length, 4);
+  assert.equal(potionTypes.length, 11);
   for (const potion of potionTypes) {
     assert.ok(Number.isInteger(potion.price) && potion.price > 0);
     assert.equal(potion.purchaseQuality, 'basic');

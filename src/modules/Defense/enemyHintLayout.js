@@ -15,6 +15,8 @@ export function enemyStatusHints(enemy, base, time, selected) {
   timed(enemy.disorientedUntil, 'arena.disoriented');
   timed(enemy.frozenUntil, 'arena.enemyFrozen');
   timed(enemy.burnUntil, 'arena.enemyBurning');
+  timed(enemy.poisonUntil, 'arena.enemyPoisoned');
+  timed(enemy.madnessUntil, 'arena.enemyMadness');
   if (enemy.disorientedUntil <= time) {
     timed(enemy.windupUntil, 'arena.windup');
     if (!enemy.carried && enemy.frozenUntil <= time && enemy.windupUntil <= time) timed(enemy.rageUntil, 'arena.enemyRage');

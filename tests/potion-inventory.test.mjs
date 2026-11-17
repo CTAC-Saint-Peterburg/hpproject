@@ -10,7 +10,7 @@ test('first visit grants four different potions without touching stones and neve
   assert.equal(first.firstVisitGranted, true);
   assert.equal(first.showFirstVisitWelcome, true);
   assert.equal(Object.hasOwn(first, 'stones'), false);
-  for (const id of POTION_IDS) assert.deepEqual(first.potionInventory[id], { basic: 0, fine: 1, masterwork: 0 });
+  for (const id of POTION_IDS.slice(0,4)) assert.deepEqual(first.potionInventory[id], { basic: 0, fine: 1, masterwork: 0 });
   const consumed = consumePotionEntry(first.potionInventory, POTION_IDS.slice(0, 3));
   const saved = resolvePotionProfile({ potionInventory: consumed.inventory, firstVisitGranted: true });
   assert.equal(saved.showFirstVisitWelcome, false);

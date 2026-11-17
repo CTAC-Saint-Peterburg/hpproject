@@ -8,6 +8,8 @@ import brewing from '../../static/brewing.json';
 import { addPotionInventory, consumePotionEntry, resolvePotionProfile, POTION_IDS, POTION_QUALITIES } from './potionInventory';
 import { ingredientFlightSeconds } from '../Ingredients/ingredientAnimation';
 import { arenaLoadoutSettings } from './arenaUpgrades';
+import { potionPrice } from '../Potions/potionCatalog';
+import { brewingRating } from '../Pot/brewingRating';
 
 const equipmentTypes = ['wand', 'pot', 'crystal'];
 const permanentTypes = [...equipmentTypes, 'upgrade'];
@@ -141,15 +143,16 @@ export const useGameStore = create(persist((set, get) => ({
     });
     return result;
   },
-  buyPotion: id => {
+  buyPotion: (id, requestedQuality) => {
     const potion = potionTypes.find(entry => entry.id === id);
-    const quality = potion?.purchaseQuality ?? 'basic';
-    if (!potion || !POTION_IDS.includes(id) || !Number.isInteger(potion.price) || potion.price < 0 || !POTION_QUALITIES.includes(quality)) return 'shop.invalid';
+    const quality = requestedQuality ?? potion?.purchaseQuality ?? 'basic';
+    const price = potionPrice(potion, quality);
+    if (!potion || !POTION_IDS.includes(id) || price === null || !POTION_QUALITIES.includes(quality)) return 'shop.invalid';
     let result;
     set(s => {
-      if (s.stones < potion.price) { result = 'shop.insufficient'; return s; }
+      if (s.stones < price) { result = 'shop.insufficient'; return s; }
       result = 'shop.potionPurchased';
-      return { stones: s.stones - potion.price, potionInventory: addPotionInventory(s.potionInventory, [id], quality) };
+      return { stones: s.stones - price, potionInventory: addPotionInventory(s.potionInventory, [id], quality) };
     });
     return result;
   },
@@ -335,15 +338,15 @@ export const useGameStore = create(persist((set, get) => ({
   finish: won => {
     const s = get();
     if (s.status !== 'playing' || s.paused) return;
-    const maximum = s.mission.stages.reduce((sum, stage) => sum + stage.points_add, 0);
-    const ratio = s.score / maximum;
-    const rating = won ? (ratio >= 0.9 ? 3 : ratio >= 0.6 ? 2 : 1) : 0;
+    const rating = won ? brewingRating(s.mission, s.mistakes) : 0;
     const reward = won && !s.debugUsed ? s.mission.stonesReward * rating : 0;
     const completed = won && !s.debugUsed ? [...new Set([...s.completed, s.selectedLevel])] : s.completed;
     const records = won && !s.debugUsed ? { ...s.records, [s.selectedLevel]: Math.max(s.records[s.selectedLevel] || 0, rating) } : s.records;
     const unlocked = new Set(s.unlocked);
     if (won && !s.debugUsed) {
-      const facts = { wins: completed.length, rating, mistakes: s.mistakes,
+      const facts = { wins: completed.length, rating, mistakes: s.mistakes, difficulty: s.mission.difficulty ?? 1,
+        recipes: new Set(completed.map(id => missions[id]?.rewardPotion).filter(Boolean)).size,
+        masterRecipes: new Set(Object.entries(records).filter(([,stars])=>stars===3).map(([id])=>missions[id]?.rewardPotion).filter(Boolean)).size,
         timed: s.mission.timeLimit != null, remaining: s.remaining ?? 0 };
       achievements.forEach(a => {
         if (Object.entries(a.conditions).every(([key, rule]) =>

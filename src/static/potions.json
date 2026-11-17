@@ -12,7 +12,53 @@
     "duration": 12,
     "onHitDuration": 4,
     "impactDuration": 4,
-    "slowMultiplier": 0
+    "slowMultiplier": 0,
+    "difficulty": 1,
+    "qualityEffects": {
+      "basic": {
+        "duration": 12,
+        "impactDuration": 4,
+        "onHitDuration": 4
+      },
+      "fine": {
+        "duration": 14,
+        "impactDuration": 5,
+        "onHitDuration": 5
+      },
+      "masterwork": {
+        "duration": 16,
+        "impactDuration": 6,
+        "onHitDuration": 6
+      }
+    }
+  },
+  {
+    "id": "repulsion",
+    "model": "phial",
+    "color": "@colors.potionsFrostColor",
+    "price": 450,
+    "difficulty": 2,
+    "purchaseQuality": "basic",
+    "name": "potions.repulsion.name",
+    "description": "potions.repulsion.description",
+    "icon": "✦",
+    "effect": "repel",
+    "disorientSeconds": 1,
+    "travelSeconds": 0.8,
+    "qualityEffects": {
+      "basic": {
+        "disorientSeconds": 1,
+        "travelSeconds": 0.8
+      },
+      "fine": {
+        "disorientSeconds": 2,
+        "travelSeconds": 0.65
+      },
+      "masterwork": {
+        "disorientSeconds": 3,
+        "travelSeconds": 0.5
+      }
+    }
   },
   {
     "id": "flame",
@@ -27,7 +73,80 @@
     "duration": 12,
     "onHitDuration": 5,
     "impactDuration": 5,
-    "dps": 4
+    "dps": 4,
+    "difficulty": 3,
+    "qualityEffects": {
+      "basic": {
+        "duration": 12,
+        "impactDuration": 5,
+        "onHitDuration": 5,
+        "dps": 4
+      },
+      "fine": {
+        "duration": 14,
+        "impactDuration": 6,
+        "onHitDuration": 6,
+        "dps": 6
+      },
+      "masterwork": {
+        "duration": 16,
+        "impactDuration": 7,
+        "onHitDuration": 7,
+        "dps": 8
+      }
+    }
+  },
+  {
+    "id": "healing",
+    "model": "vial",
+    "price": 1400,
+    "purchaseQuality": "basic",
+    "name": "potions.healing.name",
+    "description": "potions.healing.description",
+    "icon": "💚",
+    "color": "@colors.potionsHealingColor",
+    "effect": "heal",
+    "heal": 35,
+    "difficulty": 4,
+    "qualityEffects": {
+      "basic": {
+        "heal": 35
+      },
+      "fine": {
+        "heal": 47
+      },
+      "masterwork": {
+        "heal": 61
+      }
+    }
+  },
+  {
+    "id": "critical",
+    "model": "flask",
+    "color": "@colors.potionsFlameColor",
+    "price": 1100,
+    "difficulty": 5,
+    "purchaseQuality": "basic",
+    "name": "potions.critical.name",
+    "description": "potions.critical.description",
+    "icon": "✦",
+    "effect": "critical",
+    "duration": 8,
+    "instantKillChance": 0.1,
+    "qualityEffects": {
+      "basic": {
+        "duration": 8,
+        "instantKillChance": 0.1
+      },
+      "fine": {
+        "duration": 10,
+        "instantKillChance": 0.15
+      },
+      "masterwork": {
+        "duration": 12,
+        "instantKillChance": 0.2
+      }
+    }
   },
   {
     "id": "echo",
@@ -47,18 +166,160 @@
       6
     ],
     "targets": 3,
-    "chainRadius": 5
+    "chainRadius": 5,
+    "difficulty": 6,
+    "qualityEffects": {
+      "basic": {
+        "duration": 12,
+        "targets": 3,
+        "chainRadius": 5
+      },
+      "fine": {
+        "duration": 14,
+        "targets": 4,
+        "chainRadius": 6
+      },
+      "masterwork": {
+        "duration": 16,
+        "targets": 5,
+        "chainRadius": 7
+      }
+    }
   },
   {
-    "id": "healing",
+    "id": "invulnerability",
     "model": "vial",
-    "price": 1400,
+    "color": "@colors.crystal",
+    "price": 1300,
+    "difficulty": 7,
     "purchaseQuality": "basic",
-    "name": "potions.healing.name",
-    "description": "potions.healing.description",
-    "icon": "💚",
+    "name": "potions.invulnerability.name",
+    "description": "potions.invulnerability.description",
+    "icon": "✦",
+    "effect": "invulnerability",
+    "duration": 3,
+    "qualityEffects": {
+      "basic": {
+        "duration": 3
+      },
+      "fine": {
+        "duration": 4
+      },
+      "masterwork": {
+        "duration": 5
+      }
+    }
+  },
+  {
+    "id": "madness",
+    "model": "phial",
+    "color": "@colors.potionsEchoColor",
+    "price": 1600,
+    "difficulty": 8,
+    "purchaseQuality": "basic",
+    "name": "potions.madness.name",
+    "description": "potions.madness.description",
+    "icon": "✦",
+    "effect": "madness",
+    "duration": 6,
+    "enemyDamage": 10,
+    "attackEvery": 1.5,
+    "qualityEffects": {
+      "basic": {
+        "duration": 6,
+        "enemyDamage": 10,
+        "attackEvery": 1.5
+      },
+      "fine": {
+        "duration": 8,
+        "enemyDamage": 14,
+        "attackEvery": 1.5
+      },
+      "masterwork": {
+        "duration": 10,
+        "enemyDamage": 18,
+        "attackEvery": 1.5
+      }
+    }
+  },
+  {
+    "id": "poison",
+    "model": "flask",
     "color": "@colors.potionsHealingColor",
-    "effect": "heal",
-    "heal": 35
+    "price": 1800,
+    "difficulty": 9,
+    "purchaseQuality": "basic",
+    "name": "potions.poison.name",
+    "description": "potions.poison.description",
+    "icon": "✦",
+    "effect": "poison",
+    "duration": 6,
+    "tickEvery": 2,
+    "tickDamage": 12,
+    "qualityEffects": {
+      "basic": {
+        "duration": 6,
+        "tickEvery": 2,
+        "tickDamage": 12
+      },
+      "fine": {
+        "duration": 6,
+        "tickEvery": 2,
+        "tickDamage": 18
+      },
+      "masterwork": {
+        "duration": 6,
+        "tickEvery": 2,
+        "tickDamage": 24
+      }
+    }
+  },
+  {
+    "id": "replacement",
+    "model": "phial",
+    "color": "@colors.defenseEnemiesBomberColor",
+    "price": 2000,
+    "difficulty": 10,
+    "purchaseQuality": "basic",
+    "name": "potions.replacement.name",
+    "description": "potions.replacement.description",
+    "icon": "✦",
+    "effect": "replacement",
+    "targets": 2,
+    "qualityEffects": {
+      "basic": {
+        "targets": 2
+      },
+      "fine": {
+        "targets": 3
+      },
+      "masterwork": {
+        "targets": 4
+      }
+    }
+  },
+  {
+    "id": "coins",
+    "model": "flask",
+    "color": "@colors.coin",
+    "price": 1500,
+    "difficulty": 11,
+    "purchaseQuality": "basic",
+    "name": "potions.coins.name",
+    "description": "potions.coins.description",
+    "icon": "✦",
+    "effect": "coins",
+    "stones": 400,
+    "qualityEffects": {
+      "basic": {
+        "stones": 400
+      },
+      "fine": {
+        "stones": 700
+      },
+      "masterwork": {
+        "stones": 1000
+      }
+    }
   }
 ]

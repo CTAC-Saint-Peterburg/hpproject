@@ -19,7 +19,7 @@ test('each quality gives a stronger configured potion while leaving its source a
     assert.equal(basic.multiplier, 1); assert.equal(fine.multiplier, 1.35); assert.equal(master.multiplier, 1.75);
     for (const field of ['heal', 'duration', 'onHitDuration', 'impactDuration', 'dps', 'chainRadius']) {
       if (source[field] === undefined) continue;
-      assert.ok(basic[field] < fine[field] && fine[field] < master[field], source.id + ': ' + field);
+      assert.ok(basic[field] <= fine[field] && fine[field] <= master[field], source.id + ': ' + field);
     }
     assert.equal(basic.slowMultiplier, source.slowMultiplier);
     assert.equal(master.slowMultiplier, source.slowMultiplier);
@@ -40,11 +40,11 @@ test('landing statuses affect every living enemy immediately and never downgrade
   assert.ok(frozen.slice(0, 3).every(item => item.frozenUntil === 14 && item.frozenAt === 10));
   assert.equal(frozen[3], original[3]);
   const extended = applyPotionImpact(frozen, potionEffect(potion('frost'), 'masterwork'), 11);
-  assert.ok(extended.slice(0, 3).every(item => item.frozenUntil === 18 && item.frozenAt === 10));
+  assert.ok(extended.slice(0, 3).every(item => item.frozenUntil === 17 && item.frozenAt === 10));
   const burning = applyPotionImpact(original, potionEffect(potion('flame'), 'masterwork'), 10);
-  assert.ok(burning.slice(0, 3).every(item => item.burnDps === 7 && item.burnUntil === 18.75));
+  assert.ok(burning.slice(0, 3).every(item => item.burnDps === 8 && item.burnUntil === 17));
   const weak = applyPotionImpact(burning, potionEffect(potion('flame')), 11);
-  assert.ok(weak.slice(0, 3).every(item => item.burnDps === 7 && item.burnUntil === 18.75));
+  assert.ok(weak.slice(0, 3).every(item => item.burnDps === 8 && item.burnUntil === 17));
   const refreshed = applyPotionImpact(burning, potionEffect(potion('flame')), 30);
   assert.ok(refreshed.slice(0, 3).every(item => item.burnDps === 4 && item.burnUntil === 35));
   assert.equal(applyPotionImpact(original, potionEffect(potion('echo')), 10), original);

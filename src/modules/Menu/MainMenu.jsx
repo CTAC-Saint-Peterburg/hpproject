@@ -24,8 +24,9 @@ export default function MainMenu() {
  {page === 'main' && <>
  {s.showFirstVisitWelcome && <article role="status"><p>{t('firstVisit.welcome')}</p><button onClick={s.dismissFirstVisit}>{t('collection.close')}</button></article>}
  <label>{t('menu.mission')}<select value={s.selectedLevel} onChange={e => s.setLevel(e.target.value)}>
- {Object.entries(missions).map(([id,m]) => <option key={id} value={id}>{t(m.name)} · {m.rewardPotion ? t('potions.'+m.rewardPotion+'.name') : ''} · {m.timeLimit ? t('time.seconds',{value:m.timeLimit}) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}</option>)}
+ {Object.entries(missions).sort(([,a],[,b])=>a.difficulty-b.difficulty).map(([id,m]) => <option key={id} value={id}>{t(m.name)} · {m.rewardPotion ? t('potions.'+m.rewardPotion+'.name') : ''} · {m.timeLimit ? t('time.seconds',{value:m.timeLimit}) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}</option>)}
  </select></label>
+ <p className="recipe-quality-rule">{t('brewing.qualityRule',{three:missions[s.selectedLevel].rating.threeStarMistakes,two:missions[s.selectedLevel].rating.twoStarMistakes})}</p>
  <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.play')}</button>
  <button onClick={() => setPage('defense')}>{t('arena.title')}</button>
  <button onClick={() => setPage('shop')}>{t('shop.title')}</button>

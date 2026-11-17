@@ -129,7 +129,7 @@ test('echo quality expands duration, chain radius and number of actual damaged t
     assert.equal(f.s().buffEffects.multicast.targets, effect.targets);
     assert.equal(f.s().buffEffects.multicast.chainRadius, effect.chainRadius);
     assert.ok(Math.abs(f.s().buffs.multicast - f.s().time - effect.duration) < .002);
-    const enemies = [0, 1, 2, 3, 7.5, 9.5].map(x => f.make('moss', { x, z: 0 }));
+    const enemies = [0, 1, 2, 3, 6.5, 9.5].map(x => f.make('moss', { x, z: 0 }));
     f.store.setState({ enemies });
     f.s().select(enemies[0].id);
     assert.equal(f.s().cast(7), true, 'Echo adds the moss counterspell to a normally incorrect non-utility gesture');

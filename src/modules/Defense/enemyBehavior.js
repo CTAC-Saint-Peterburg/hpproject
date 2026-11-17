@@ -89,6 +89,10 @@ function shoot(enemy, base, combat) {
 export function advanceArenaEnemy(original, config, potions, time, dt, random, combat) {
   const enemy = { ...original }, base = config.enemies[enemy.type];
   if (enemy.burnUntil > time) enemy.hp -= enemy.burnDps * dt;
+  while (enemy.poisonEvery>0 && enemy.poisonNextAt<=time+1e-9 && enemy.poisonNextAt<=enemy.poisonUntil+1e-9) {
+    enemy.hp-=enemy.poisonDamage;
+    enemy.poisonNextAt+=enemy.poisonEvery;
+  }
   if (enemy.hp <= 0) return enemy;
   if (advanceEnemyCarry(enemy, config, time, dt)) return enemy;
   const frozenSpeed = potions.find(p => p.effect === 'freeze').slowMultiplier;
@@ -112,6 +116,20 @@ export function advanceArenaEnemy(original, config, potions, time, dt, random, c
     const eased = 1 - (1 - progress) ** 2;
     enemy.x = enemy.knockbackFrom[0] + (enemy.knockbackTo[0] - enemy.knockbackFrom[0]) * eased;
     enemy.z = enemy.knockbackFrom[1] + (enemy.knockbackTo[1] - enemy.knockbackFrom[1]) * eased;
+    return enemy;
+  }
+  if (enemy.madnessUntil > time) {
+    const target=(combat.enemies??[]).filter(other=>other.id!==enemy.id && other.hp>0 && config.enemies[other.type].hostile!==false)
+      .sort((a,b)=>Math.hypot(a.x-enemy.x,a.z-enemy.z)-Math.hypot(b.x-enemy.x,b.z-enemy.z))[0];
+    if(target) {
+      const dx=target.x-enemy.x,dz=target.z-enemy.z,distance=Math.hypot(dx,dz);
+      const step=Math.min(Math.max(0,distance-1.1),Math.max(.8,enemy.speed*2)*slow*dt);
+      if(distance>.001){enemy.x+=dx/distance*step;enemy.z+=dz/distance*step;constrain(enemy,config);}
+      if(distance<=1.5 && time>=enemy.nextMadnessAttack) {
+        combat.enemyDamage.set(target.id,(combat.enemyDamage.get(target.id)??0)+enemy.madnessDamage);
+        enemy.nextMadnessAttack=time+enemy.madnessInterval;
+      }
+    }
     return enemy;
   }
   if (disoriented) {

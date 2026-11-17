@@ -76,6 +76,8 @@ button:disabled { opacity: .45; cursor: default; }
 .shop-card .shop-item-type { font-size:var(--type-small); }
 .shop-potion-stock { text-align:center;font-size:var(--type-hint); }
 .shop-potion-stock p { margin:3px 0; }
+.shop-potion-stock select,.potion-card select { width:100%;max-width:100%;box-sizing:border-box;font-size:14px; }
+.recipe-quality-rule { max-width:360px;font-size:12px;line-height:1.4;color:var(--color-rune); }
 .slime-runes { display: flex; gap: 5.6px; width: max-content; max-width: 85vw; justify-content: center; }
 .slime-rune { width: 53.2px; padding: 3.5px; border: .7px solid var(--color-slime-border); border-radius: 7px; background: var(--color-slime-veil); color: var(--color-slime-text); text-align: center; box-shadow: 0 1.4px 8.4px var(--color-shadow-medium); }
 .slime-rune svg { display: block; width: 39.2px; height: 39.2px; margin: auto; }

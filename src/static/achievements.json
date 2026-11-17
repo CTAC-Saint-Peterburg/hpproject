@@ -40,7 +40,40 @@
     "name": "achievements.all.name",
     "description": "achievements.all.description",
     "conditions": {
-      "wins": {
+      "recipes": {
+        "min": 11
+      }
+    }
+  },
+  {
+    "id": "master_alchemist",
+    "name": "achievements.master_alchemist.name",
+    "description": "achievements.master_alchemist.description",
+    "conditions": {
+      "masterRecipes": {
+        "min": 5
+      }
+    }
+  },
+  {
+    "id": "full_master",
+    "name": "achievements.full_master.name",
+    "description": "achievements.full_master.description",
+    "conditions": {
+      "masterRecipes": {
+        "min": 11
+      }
+    }
+  },
+  {
+    "id": "advanced",
+    "name": "achievements.advanced.name",
+    "description": "achievements.advanced.description",
+    "conditions": {
+      "difficulty": {
+        "min": 8
+      },
+      "rating": {
         "min": 3
       }
     }

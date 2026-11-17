@@ -60,7 +60,7 @@ test('a rack click only selects; gesture three consumes once and each effect sta
     f.advanceTo(flight.startedAt + flight.duration + .001);
     assert.equal(f.s().potionFlight, null);
     if (potion.effect === 'heal') assert.equal(f.s().hp, config.crystal.maxHp);
-    else {
+    else if (Number.isFinite(potion.duration) && !['madness','poison'].includes(potion.effect)) {
       assert.ok(Math.abs(f.s().buffs[potion.effect] - f.s().time - potion.duration) < 1e-8);
       const expires = f.s().buffs[potion.effect]; f.step(.1); assert.equal(f.s().buffs[potion.effect], expires);
     }

@@ -77,6 +77,11 @@
       "perCast": 25,
       "decayPerSecond": 1,
       "swaySeconds": 1.5
+    },
+    "difficulty": 1,
+    "rating": {
+      "threeStarMistakes": 1,
+      "twoStarMistakes": 3
     }
   },
   "level_02": {
@@ -159,6 +164,11 @@
       "perCast": 25,
       "decayPerSecond": 2,
       "swaySeconds": 1.5
+    },
+    "difficulty": 3,
+    "rating": {
+      "threeStarMistakes": 2,
+      "twoStarMistakes": 5
     }
   },
   "level_03": {
@@ -241,6 +251,11 @@
       "perCast": 25,
       "decayPerSecond": 2,
       "swaySeconds": 1.5
+    },
+    "difficulty": 6,
+    "rating": {
+      "threeStarMistakes": 3,
+      "twoStarMistakes": 7
     }
   },
   "level_04": {
@@ -323,6 +338,904 @@
       "perCast": 25,
       "decayPerSecond": 2,
       "swaySeconds": 1.5
+    },
+    "difficulty": 4,
+    "rating": {
+      "threeStarMistakes": 3,
+      "twoStarMistakes": 6
+    }
+  },
+  "level_05": {
+    "name": "missions.level_05",
+    "difficulty": 2,
+    "timeLimit": 210,
+    "stonesReward": 90,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 140,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 140,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 140,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 140,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 140,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire"
+      ],
+      "rarity": 2,
+      "spawnWindow": 180
+    },
+    "rewardPotion": "repulsion",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 1.5,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 2,
+      "twoStarMistakes": 5
+    }
+  },
+  "level_06": {
+    "name": "missions.level_06",
+    "difficulty": 5,
+    "timeLimit": 210,
+    "stonesReward": 120,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 170,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 170,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 170,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 170,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 170,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 170,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 95
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 5,
+      "spawnWindow": 180
+    },
+    "rewardPotion": "critical",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 1.5,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 3,
+      "twoStarMistakes": 7
+    }
+  },
+  "level_07": {
+    "name": "missions.level_07",
+    "difficulty": 7,
+    "timeLimit": 240,
+    "stonesReward": 140,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 190,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 190,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 190,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 190,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 190,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 190,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 95
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 7,
+      "spawnWindow": 180
+    },
+    "rewardPotion": "invulnerability",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 1.5,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 3,
+      "twoStarMistakes": 7
+    }
+  },
+  "level_08": {
+    "name": "missions.level_08",
+    "difficulty": 8,
+    "timeLimit": 240,
+    "stonesReward": 150,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 200,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 8,
+      "spawnWindow": 210
+    },
+    "rewardPotion": "madness",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 4,
+      "twoStarMistakes": 9
+    }
+  },
+  "level_09": {
+    "name": "missions.level_09",
+    "difficulty": 9,
+    "timeLimit": 270,
+    "stonesReward": 160,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 210,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 9,
+      "spawnWindow": 210
+    },
+    "rewardPotion": "poison",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 4,
+      "twoStarMistakes": 9
+    }
+  },
+  "level_10": {
+    "name": "missions.level_10",
+    "difficulty": 10,
+    "timeLimit": 270,
+    "stonesReward": 170,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 220,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 10,
+      "spawnWindow": 210
+    },
+    "rewardPotion": "replacement",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 4,
+      "twoStarMistakes": 9
+    }
+  },
+  "level_11": {
+    "name": "missions.level_11",
+    "difficulty": 11,
+    "timeLimit": 270,
+    "stonesReward": 180,
+    "stages": [
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 0,
+          "max": 100
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 95
+        }
+      },
+      {
+        "id": 1,
+        "name": "ingredients.1",
+        "icon": "🌸",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 80
+        }
+      },
+      {
+        "id": 2,
+        "name": "ingredients.2",
+        "icon": "🐸",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 25,
+          "max": 50
+        },
+        "stirring": {
+          "min": 50,
+          "max": 95
+        }
+      },
+      {
+        "id": 3,
+        "name": "ingredients.3",
+        "icon": "💧",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 70,
+          "max": 95
+        },
+        "stirring": {
+          "min": 20,
+          "max": 80
+        }
+      },
+      {
+        "id": 4,
+        "name": "ingredients.4",
+        "icon": "🌿",
+        "points_add": 230,
+        "points_deduct": 50,
+        "temperature": {
+          "min": 45,
+          "max": 70
+        },
+        "stirring": {
+          "min": 35,
+          "max": 95
+        }
+      }
+    ],
+    "enemySpawn": {
+      "allowed": [
+        "enemycold",
+        "enemyfire",
+        "enemyslime"
+      ],
+      "rarity": 10,
+      "spawnWindow": 210
+    },
+    "rewardPotion": "coins",
+    "stirring": {
+      "perCast": 25,
+      "decayPerSecond": 2,
+      "swaySeconds": 1.5
+    },
+    "rating": {
+      "threeStarMistakes": 4,
+      "twoStarMistakes": 9
     }
   }
 }

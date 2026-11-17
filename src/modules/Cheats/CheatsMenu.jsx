@@ -5,6 +5,7 @@ import { useDefenseStore } from '../Defense/DefenseStore';
 import { config } from '../Defense/defenseState';
 import { useCheatUiStore } from './cheatUiStore';
 import { useInputStore } from '../Input/inputStore';
+import { POTION_IDS } from '../Stores/potionInventory';
 
 export default function CheatsMenu() {
   const { t } = useTranslation();
@@ -50,7 +51,7 @@ export default function CheatsMenu() {
     <section><h3>{t('cheats.general')}</h3><div className="cheat-grid">
       {command('cheats.addStones', () => useGameStore.getState().changeStones(100), false, 'Alt Shift =')}
       {command('cheats.removeStones', () => useGameStore.getState().changeStones(-100), false, 'Alt Shift −')}
-      {command('cheats.potions', () => useGameStore.getState().addPotions(['frost','flame','echo','healing']), inArena, 'Alt Shift P')}
+      {command('cheats.potions', () => useGameStore.getState().addPotions(POTION_IDS), inArena, 'Alt Shift P')}
       <button onClick={toggleFps} aria-pressed={showFps}>{t('cheats.fps')} · {t(showFps ? 'cheats.on' : 'cheats.off')}<kbd>F8</kbd></button>
     </div></section>
     <section><h3>{t('cheats.brewing')}</h3><div className="cheat-grid">

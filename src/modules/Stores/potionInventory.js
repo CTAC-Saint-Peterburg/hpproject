@@ -1,4 +1,5 @@
-export const POTION_IDS = ['frost', 'flame', 'echo', 'healing'];
+import { potionIds, starterPotionIds } from '../Potions/potionCatalog.js';
+export const POTION_IDS = potionIds;
 export const POTION_QUALITIES = ['basic', 'fine', 'masterwork'];
 
 const validCount = value => Number.isFinite(value) ? Math.max(0, Math.trunc(value)) : 0;
@@ -34,13 +35,16 @@ export function addPotionInventory(inventory, ids, quality = 'fine') {
 
 export function consumePotionEntry(inventory, ids, slots = 3) {
   const maxSlots = slots === 4 ? 4 : 3;
-  if (!Array.isArray(ids) || ids.length < 3 || ids.length > maxSlots || new Set(ids).size !== ids.length ||
-      ids.some(id => !POTION_IDS.includes(id) || potionCount(inventory, id) < 1)) return null;
+  if (!Array.isArray(ids)) return null;
+  const selections = ids.map(item => typeof item === 'string' ? { id: item } : item);
+  if (ids.length < 3 || ids.length > maxSlots || new Set(selections.map(item => item?.id)).size !== ids.length ||
+      selections.some(item => !item || !POTION_IDS.includes(item.id) || potionCount(inventory, item.id) < 1 ||
+        item.quality !== undefined && (!POTION_QUALITIES.includes(item.quality) || !potionQualities(inventory,item.id)[item.quality]))) return null;
   const next = normalizePotionInventory(inventory), consumed = {};
   // Save the rarest bottles until last. Upgrades duplicate this consumed quality
   // inside the arena; they never remove extra bottles from the profile.
-  for (const id of ids) {
-    const quality = POTION_QUALITIES.find(key => next[id][key] > 0);
+  for (const {id, quality: chosen} of selections) {
+    const quality = chosen ?? POTION_QUALITIES.find(key => next[id][key] > 0);
     next[id][quality]--;
     consumed[id] = quality;
   }
@@ -50,7 +54,7 @@ export function consumePotionEntry(inventory, ids, slots = 3) {
 export function resolvePotionProfile(saved) {
   const existing = saved && typeof saved === 'object' && !Array.isArray(saved);
   return {
-    potionInventory: existing ? normalizePotionInventory(saved.potionInventory) : addPotionInventory({}, POTION_IDS),
+    potionInventory: existing ? normalizePotionInventory(saved.potionInventory) : addPotionInventory({}, starterPotionIds),
     firstVisitGranted: true,
     showFirstVisitWelcome: !existing,
   };
