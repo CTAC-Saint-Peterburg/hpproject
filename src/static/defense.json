@@ -435,7 +435,7 @@
         {
           "type": "fire",
           "count": 8,
-          "hpMultiplier": 1.5,
+          "hpMultiplier": 1.325,
           "attackMultiplier": 1.04,
           "speedMultiplier": 1.015,
           "critChance": 0.04,
@@ -446,7 +446,7 @@
         {
           "type": "frost",
           "count": 7,
-          "hpMultiplier": 1.5,
+          "hpMultiplier": 1.325,
           "attackMultiplier": 1.04,
           "speedMultiplier": 1.015,
           "critChance": 0.04,
@@ -457,7 +457,7 @@
         {
           "type": "moss",
           "count": 3,
-          "hpMultiplier": 1.5,
+          "hpMultiplier": 1.325,
           "attackMultiplier": 1.04,
           "speedMultiplier": 1.015,
           "critChance": 0.04,
@@ -468,7 +468,7 @@
         {
           "type": "giant",
           "count": 1,
-          "hpMultiplier": 1.3541666666666667,
+          "hpMultiplier": 1.230208,
           "attackMultiplier": 1.04,
           "speedMultiplier": 1.015,
           "critChance": 0.04,
@@ -479,7 +479,7 @@
         {
           "type": "flyerFire",
           "count": 1,
-          "hpMultiplier": 1.2916666666666667,
+          "hpMultiplier": 1.189583,
           "attackMultiplier": 1.04,
           "speedMultiplier": 1.015,
           "critChance": 0.04,
@@ -501,7 +501,7 @@
         {
           "type": "fire",
           "count": 7,
-          "hpMultiplier": 1.75,
+          "hpMultiplier": 1.4875,
           "attackMultiplier": 1.08,
           "speedMultiplier": 1.03,
           "critChance": 0.04,
@@ -512,7 +512,7 @@
         {
           "type": "frost",
           "count": 7,
-          "hpMultiplier": 1.75,
+          "hpMultiplier": 1.4875,
           "attackMultiplier": 1.08,
           "speedMultiplier": 1.03,
           "critChance": 0.04,
@@ -523,7 +523,7 @@
         {
           "type": "moss",
           "count": 3,
-          "hpMultiplier": 1.7666666666666666,
+          "hpMultiplier": 1.498333,
           "attackMultiplier": 1.08,
           "speedMultiplier": 1.03,
           "critChance": 0.04,
@@ -534,7 +534,7 @@
         {
           "type": "giant",
           "count": 1,
-          "hpMultiplier": 1.5833333333333333,
+          "hpMultiplier": 1.379167,
           "attackMultiplier": 1.08,
           "speedMultiplier": 1.03,
           "critChance": 0.04,
@@ -545,7 +545,7 @@
         {
           "type": "flyerFire",
           "count": 1,
-          "hpMultiplier": 1.5,
+          "hpMultiplier": 1.325,
           "attackMultiplier": 1.08,
           "speedMultiplier": 1.03,
           "critChance": 0.04,
@@ -556,7 +556,7 @@
         {
           "type": "flyerFrost",
           "count": 1,
-          "hpMultiplier": 1.5,
+          "hpMultiplier": 1.325,
           "attackMultiplier": 1.08,
           "speedMultiplier": 1.03,
           "critChance": 0.04,
@@ -578,7 +578,7 @@
         {
           "type": "fire",
           "count": 7,
-          "hpMultiplier": 2,
+          "hpMultiplier": 1.65,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -589,7 +589,7 @@
         {
           "type": "frost",
           "count": 6,
-          "hpMultiplier": 2,
+          "hpMultiplier": 1.65,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -600,7 +600,7 @@
         {
           "type": "moss",
           "count": 3,
-          "hpMultiplier": 2,
+          "hpMultiplier": 1.65,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -611,7 +611,7 @@
         {
           "type": "giant",
           "count": 1,
-          "hpMultiplier": 1.7916666666666667,
+          "hpMultiplier": 1.514583,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -622,7 +622,7 @@
         {
           "type": "flyerFire",
           "count": 1,
-          "hpMultiplier": 1.7083333333333333,
+          "hpMultiplier": 1.460417,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -633,7 +633,7 @@
         {
           "type": "flyerFrost",
           "count": 1,
-          "hpMultiplier": 1.7083333333333333,
+          "hpMultiplier": 1.460417,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -644,7 +644,7 @@
         {
           "type": "sentinel",
           "count": 1,
-          "hpMultiplier": 1.7666666666666666,
+          "hpMultiplier": 1.498333,
           "attackMultiplier": 1.12,
           "speedMultiplier": 1.045,
           "critChance": 0.04,
@@ -666,7 +666,7 @@
         {
           "type": "fire",
           "count": 6,
-          "hpMultiplier": 2.25,
+          "hpMultiplier": 1.8125,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -677,7 +677,7 @@
         {
           "type": "frost",
           "count": 6,
-          "hpMultiplier": 2.25,
+          "hpMultiplier": 1.8125,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -688,7 +688,7 @@
         {
           "type": "moss",
           "count": 3,
-          "hpMultiplier": 2.2666666666666666,
+          "hpMultiplier": 1.823333,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -699,7 +699,7 @@
         {
           "type": "giant",
           "count": 2,
-          "hpMultiplier": 2.0208333333333335,
+          "hpMultiplier": 1.663542,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -710,7 +710,7 @@
         {
           "type": "flyerFire",
           "count": 1,
-          "hpMultiplier": 1.9166666666666667,
+          "hpMultiplier": 1.595833,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -721,7 +721,7 @@
         {
           "type": "flyerFrost",
           "count": 1,
-          "hpMultiplier": 1.9166666666666667,
+          "hpMultiplier": 1.595833,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -732,7 +732,7 @@
         {
           "type": "sentinel",
           "count": 1,
-          "hpMultiplier": 1.9666666666666666,
+          "hpMultiplier": 1.628333,
           "attackMultiplier": 1.16,
           "speedMultiplier": 1.06,
           "critChance": 0.04,
@@ -754,7 +754,7 @@
         {
           "type": "fire",
           "count": 10,
-          "hpMultiplier": 2.5,
+          "hpMultiplier": 1.975,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -765,7 +765,7 @@
         {
           "type": "frost",
           "count": 9,
-          "hpMultiplier": 2.5,
+          "hpMultiplier": 1.975,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -776,7 +776,7 @@
         {
           "type": "moss",
           "count": 4,
-          "hpMultiplier": 2.5,
+          "hpMultiplier": 1.975,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -787,7 +787,7 @@
         {
           "type": "giant",
           "count": 2,
-          "hpMultiplier": 2.25,
+          "hpMultiplier": 1.8125,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -798,7 +798,7 @@
         {
           "type": "flyerFire",
           "count": 2,
-          "hpMultiplier": 2.125,
+          "hpMultiplier": 1.73125,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -809,7 +809,7 @@
         {
           "type": "flyerFrost",
           "count": 2,
-          "hpMultiplier": 2.125,
+          "hpMultiplier": 1.73125,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -820,7 +820,7 @@
         {
           "type": "sentinel",
           "count": 1,
-          "hpMultiplier": 2.2,
+          "hpMultiplier": 1.78,
           "attackMultiplier": 1.2,
           "speedMultiplier": 1.075,
           "critChance": 0.04,
@@ -842,7 +842,7 @@
         {
           "type": "fire",
           "count": 9,
-          "hpMultiplier": 2.75,
+          "hpMultiplier": 2.1375,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -853,7 +853,7 @@
         {
           "type": "frost",
           "count": 9,
-          "hpMultiplier": 2.75,
+          "hpMultiplier": 2.1375,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -864,7 +864,7 @@
         {
           "type": "moss",
           "count": 4,
-          "hpMultiplier": 2.7666666666666666,
+          "hpMultiplier": 2.148333,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -875,7 +875,7 @@
         {
           "type": "giant",
           "count": 3,
-          "hpMultiplier": 2.4791666666666665,
+          "hpMultiplier": 1.961458,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -886,7 +886,7 @@
         {
           "type": "flyerFire",
           "count": 2,
-          "hpMultiplier": 2.3333333333333335,
+          "hpMultiplier": 1.866667,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -897,7 +897,7 @@
         {
           "type": "flyerFrost",
           "count": 2,
-          "hpMultiplier": 2.3333333333333335,
+          "hpMultiplier": 1.866667,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -908,7 +908,7 @@
         {
           "type": "sentinel",
           "count": 1,
-          "hpMultiplier": 2.433333333333333,
+          "hpMultiplier": 1.931667,
           "attackMultiplier": 1.24,
           "speedMultiplier": 1.09,
           "critChance": 0.04,
@@ -930,7 +930,7 @@
         {
           "type": "fire",
           "count": 8,
-          "hpMultiplier": 3,
+          "hpMultiplier": 2.3,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,
@@ -941,7 +941,7 @@
         {
           "type": "frost",
           "count": 8,
-          "hpMultiplier": 3,
+          "hpMultiplier": 2.3,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,
@@ -952,7 +952,7 @@
         {
           "type": "moss",
           "count": 5,
-          "hpMultiplier": 3,
+          "hpMultiplier": 2.3,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,
@@ -963,7 +963,7 @@
         {
           "type": "giant",
           "count": 3,
-          "hpMultiplier": 2.7083333333333335,
+          "hpMultiplier": 2.110417,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,
@@ -974,7 +974,7 @@
         {
           "type": "flyerFire",
           "count": 2,
-          "hpMultiplier": 2.5416666666666665,
+          "hpMultiplier": 2.002083,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,
@@ -985,7 +985,7 @@
         {
           "type": "flyerFrost",
           "count": 2,
-          "hpMultiplier": 2.5416666666666665,
+          "hpMultiplier": 2.002083,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,
@@ -996,7 +996,7 @@
         {
           "type": "sentinel",
           "count": 2,
-          "hpMultiplier": 2.6333333333333333,
+          "hpMultiplier": 2.061667,
           "attackMultiplier": 1.28,
           "speedMultiplier": 1.105,
           "critChance": 0.04,

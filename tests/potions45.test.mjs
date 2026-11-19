@@ -52,11 +52,11 @@ test('every recipe has escalating quality characteristics and prices; coin purch
 test('replacement preserves population, removes old projectiles and awards no transformation kills',()=>{
  for(const [index,quality]of qualities.entries()){
   const f=fixture('replacement',quality);
-  const enemies=Array.from({length:6},(_,i)=>f.make(i===0?'giant':'fire',{hp:1000+i,x:4+i*.1}));
-  f.store.setState({enemies,projectiles:[{id:'old-shot',sourceId:enemies[5].id,x:9,y:1,z:4,speed:0,size:.1,damage:1}]});
+  const enemies=Array.from({length:8},(_,i)=>f.make(i===0?'giant':'fire',{hp:1000+i,x:4+i*.1}));
+  f.store.setState({enemies,projectiles:[{id:'old-shot',sourceId:enemies[7].id,x:9,y:1,z:4,speed:0,size:.1,damage:1}]});
   f.land();
-  assert.equal(f.s().enemies.length,6);assert.equal(new Set(f.s().enemies.map(e=>e.id)).size,6);
-  assert.equal(f.s().enemies.filter(e=>e.type==='bomber').length,index+2);
+  assert.equal(f.s().enemies.length,8);assert.equal(new Set(f.s().enemies.map(e=>e.id )).size,8);
+  assert.equal(f.s().enemies.filter(e=>e.type==='bomber').length,[3,5,6][index]);
   assert.equal(f.s().pendingStones,0);assert.equal(f.s().projectiles.length,0);
   assert.equal(f.s().phase,'wave');
  }
@@ -66,7 +66,7 @@ test('critical potion only executes on matching attacks, begins on impact and ex
  const victim=f.s().enemies[0];f.s().select(victim.id);
  assert.equal(f.s().cast(1),false);assert.equal(f.s().enemies[0].hp,1000);
  f.step(.5);assert.equal(f.s().cast(2),true);assert.equal(f.s().enemies.length,0);
- const expired=fixture('critical','masterwork',()=>.05);expired.land();expired.step(12.1);
+ const expired=fixture('critical','masterwork',()=>.05);expired.land();expired.step(18.1);
  expired.s().select(expired.s().enemies[0].id);expired.s().cast(2);assert.ok(expired.s().enemies[0].hp>0);
 });
 test('repulsion moves all types smoothly to legal table edges and releases carried enemies',()=>{
@@ -86,7 +86,7 @@ test('invulnerability absorbs all crystal damage without healing and freezes its
  f.store.setState({crystalEffects:{burn:{until:100,dps:30}},projectiles:[{id:'hit',x:0,y:1.1,z:0,size:1,speed:10,damage:999}]});
  f.step(.1);assert.equal(f.s().hp,42);
  const time=f.s().time;f.s().setPaused(true);f.step(10);assert.equal(f.s().time,time);assert.equal(f.s().hp,42);
- f.s().setPaused(false);f.step(4.8);assert.equal(f.s().hp,42);
+ f.s().setPaused(false);f.step(7.3);assert.equal(f.s().hp,42);
  f.step(.3);assert.ok(f.s().hp<42);
 });
 test('coin potion funds temporary balance once, banks on victory and is forfeited on loss or debug',()=>{
@@ -99,13 +99,13 @@ test('coin potion funds temporary balance once, banks on victory and is forfeite
  const lost=fixture('coins');lost.land();lost.store.setState({hp:0});lost.step(.05);assert.equal(lost.s().pendingStones,0);assert.equal(lost.profile.stones,0);
  const debug=fixture('coins');debug.store.setState({debugUsed:true});debug.land();assert.equal(debug.s().pendingStones,0);
 });
-test('poison deals exactly three delayed ticks, with quality damage and normal kill credit',()=>{
+test('poison deals exactly four delayed ticks, with quality damage and normal kill credit',()=>{
  for(const [index,quality]of qualities.entries()){
   const f=fixture('poison',quality);f.land();const hp=f.s().enemies[0].hp;
   f.step(1.95);assert.equal(f.s().enemies[0].hp,hp);
-  f.step(.05);assert.equal(f.s().enemies[0].hp,hp-[12,18,24][index]);
-  f.step(4);assert.equal(f.s().enemies[0].hp,hp-[36,54,72][index]);
-  f.step(1);assert.equal(f.s().enemies[0].hp,hp-[36,54,72][index]);
+  f.step(.05);assert.equal(f.s().enemies[0].hp,hp-[18,27,36][index]);
+  f.step(6);assert.equal(f.s().enemies[0].hp,hp-[72,108,144][index]);
+  f.step(2);assert.equal(f.s().enemies[0].hp,hp-[72,108,144][index]);
  }
  const f=fixture('poison');f.store.setState({enemies:[f.make('fire',{hp:10})]});f.land();f.step(2);
  assert.equal(f.s().phase,'clear');assert.equal(f.s().pendingStones,config.enemies.fire.reward+config.waves[0].stonesReward);
@@ -113,9 +113,9 @@ test('poison deals exactly three delayed ticks, with quality damage and normal k
 test('madness damages other enemies while suppressing their crystal attacks, then expires',()=>{
  const f=fixture('madness');
  f.store.setState({enemies:[f.make('fire',{x:1.4,z:0,attack:50}),f.make('frost',{x:1.5,z:0,attack:50})]});f.land();
- f.step(1.5);assert.equal(f.s().hp,100);assert.ok(f.s().enemies.every(e=>e.hp===990));
+ f.step(1.5);assert.equal(f.s().hp,100);assert.ok(f.s().enemies.every(e=>e.hp===985));
  f.s().setPaused(true);const snapshot=structuredClone(f.s().enemies);f.step(3);assert.deepEqual(f.s().enemies,snapshot);f.s().setPaused(false);
- f.step(5);const hp=f.s().enemies.map(e=>e.hp);f.step(2);assert.deepEqual(f.s().enemies.map(e=>e.hp),hp);
+ f.step(8);const hp=f.s().enemies.map(e=>e.hp);f.step(2);assert.deepEqual(f.s().enemies.map(e=>e.hp),hp);
 });
 test('all eleven recipes have explicit mistake allowances, a matching potion and difficulty ordering',()=>{
  const missions=JSON.parse(readFileSync(new URL('../src/static/missions.json',import.meta.url)));

@@ -1,6 +1,24 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **17.11.2026**, версия игры **5.1.1**, пункты **38–45**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+Снимок исходников от **19.11.2026**, версия игры **5.4.0**, пункты **38–48**, ветка `master`. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+
+## Пункт 48 — надпись на створках и загрузка
+
+Hyped Pot — геометрия двух строк Hyped / Pot на створках, rune, MeshBasicMaterial: 142 треугольника/2 меша, общий размер первой строки 1,682 единицы; ячейка штриха .058, верх строк y=.35 и −.24, лицевая плоскость z=.155 относительно шарнира. Половины разрезаны по x=0 и наследуют раскрытие, масштаб и парение. Вместе с базовыми 248 треугольниками модель входа содержит 390. HTML-кнопка без видимого текста, aria-label Hyped Pot; прежние размеры зоны нажатия и focus-visible сохранены. Счётчик монет отсутствует в closed/opening, появляется в открытом меню.
+
+`StartupGate`: fullscreen fixed inset 0, z-index 16777274, flex column centered, gap 16px, padding 24px, border-box; surface/text, заголовок Hyped Pot rune и общий title. Локализованный статус — обычный абзац, role=status/aria-live=polite, aria-busy при загрузке. Нативный progress width min(280px,80vw), height 12px, accent rune; при ошибке вместо него общая кнопка повторной загрузки. Игра недоступна до готовности ресурсов. Новых цветовых/шрифтовых токенов нет; используются surface, text, rune, title и общие кнопки. Снимки CSS обновлены ниже.
+
+## Пункт 47 — выбор зелий и обучение
+
+Карточка подготовки арены: label качества теперь column, width 100%, gap 8px; select занимает всю внутреннюю ширину карточки. Вместо checkbox — `.potion-select-button` шириной 100%, border-box, min-height 44px, margin-top 12px, перенос текста. Текст «Взять», у выбранного состояния префикс ✓ и `aria-pressed=true`; повторный клик снимает выбор. Выбранная кнопка использует selectedBorder/selectedSurface, шрифт и padding наследуются от общей кнопки. Disabled при отсутствии запаса или заполненных слотах для ещё не выбранного зелья. Сетка и мобильные правила прежние.
+
+В обучении нет выбора языка и кнопки перехода к игре без обучения; остаётся возврат в меню. Под вводным текстом обычный абзац с условиями достижения «Ученик чародея» и разовой наградой 1000 stones. Достижение показывается в общей коллекции. Цвета, размеры шрифта и токены не добавлялись; новые правила используют существующие токены из таблицы ниже.
+
+## Пункт 46 — размещение на арене
+
+Мини-кристалл со статусом находится на левом конце переднего бортика: `[-field.width/2 + 3.2, border.top + .01, border.z]`, сейчас `[-6.8, .41, 7.1]`. Отступ оставляет место подписи `width:min(150px,32vw)`, в том числе в портретной ориентации. Положение больше не зависит от количества бутылок. Подпись по-прежнему на `[0,.99,0]` относительно модели; её шрифт, цвета, состояния и CSS не менялись.
+
+Нижняя граница меша врага, включая выделение `scale=1.1` и наклон микроанимации, удерживается над столом на Y ≥ .012. `enemyGroundedLift` вычисляет только необходимую поправку по геометрии и текущему масштабу; высота полёта и переноса сохраняется. Цвет обводки `enemySelected`, BackSide и толщина прежние. Новых токенов и CSS-правил нет; таблицы токенов и снимки CSS ниже остаются актуальны. Числа в описаниях зелий обновляются из `qualityEffects`; крит 2★ отображается точно как 22,5% (числовое значение 22.5).
 
 ## Как использовать этот документ
 
@@ -43,10 +61,10 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 | Общая оболочка меню | Кошелёк справа сверху внутри рамки, скрытый вход в trainer через SVG монеты, опционально FPS; на вложенных страницах кнопка назад. Обучение использует собственные кнопки возврата и не показывает общий заголовок игры |
 | Помощь | Заголовок и три текстовых блока: нагрев, ингредиенты, правила |
 | Магазин / `Shop` | Заголовок, вводный текст, пояснение эффектов на арене, баланс; фильтр всё/палочки/котлы/кристаллы/зелья/улучшения; сообщение результата; сетка товаров: категория, изображение, название, описание эффекта, запас/качество для зелий, цена, покупка/выбор/уже выбрано/улучшение активно, нехватка средств или требуемое улучшение |
-| Подготовка защиты / `DefenseSetup` | Заголовок, условия входа, слоты и копии, пояснение инвентаря; 11 карточек зелий по сложности с описанием выбранного качества, общим количеством, запасом по качествам, select качества 1★/2★/3★ и checkbox; счётчик выбранного, начать, ошибка входа, инструкции боя и монеты |
+| Подготовка защиты / `DefenseSetup` | Заголовок, условия входа, слоты и копии, пояснение инвентаря; 11 карточек зелий по сложности с описанием выбранного качества, общим количеством, запасом по качествам, select качества 1★/2★/3★ и кнопкой «Взять» на всю ширину; счётчик выбранного, начать, ошибка входа, инструкции боя и монеты |
 | Коллекция / `Collection` | Вкладки достижения и карточки (счётчик /10); достижения с 🏆/🔒 и описанием; карточки магов с цветным ромбом, именем, количеством или условием получения; отдельное окно открытой карточки |
 | Бестиарий / `Bestiary` | Заголовок, описание, фильтры всё/варка/защита/предметы, количество; список записей с миниатюрой и категорией; карточка записи с 3D-превью, описанием, взаимодействиями, рабочими жестами и неэффективными заклинаниями; пустое состояние |
-| Обучение / `SpellTraining` | Заголовок, вводный текст, прогресс, select десяти заклинаний с /2; название текущего и повторы, эффект; поле обводки; результат, сообщение о завершении всех уроков; очистить, предыдущее, следующее, в меню, перейти к игре |
+| Обучение / `SpellTraining` | Заголовок, вводный текст, условия разовой награды 1000 stones, прогресс, select десяти заклинаний с /2; название текущего и повторы, эффект; поле обводки; результат, сообщение о завершении всех уроков; очистить, предыдущее, следующее, в меню |
 | Настройки / `AudioSettings` | Заголовок, описание, checkbox звука, слайдер громкости 0–100 шаг 1 и проценты |
 | Варка / `GameHud` + сцена | FPS, таймер справа сверху (без баланса stones); книжка menu и герб pause/play в сцене; температура, огонь, текущий ингредиент и диапазон температуры, диапазон помешивания, очки/ошибки, инструкция по врагам, блокировка слизнем, статус действия; рецепт на доске, подсказки ингредиентов/котла/слизня, шкала помешивания, след жеста |
 | Результат варки | Победа/поражение, звёзды и очки, награда, предупреждение debug; при победе с зельем — 3D-бутылочка, название и качество; повторить, в меню |
@@ -95,7 +113,7 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 
 Модель: центральная панель 2.2×3.2×.12, две створки 1.1×3.2×.12 на шарнирах x=±1.1/z=.16. Каждая панель — шесть box-мешей; четыре декоративных ромба — octahedron detail 0. Итого 248 треугольников у триптиха, без текстур. Моноцветные материалы: roomWood, button, surfaceCard, coinBorder. Парение y ±.055, наклон z ±.012 радиан. Начальный Canvas: камера [0,0,7.8]/FOV 42/DPR 1–1.5, ambient 1.8, directional [3,4,5]/2. Фон вокруг surface, без декораций комнаты.
 
-Пул 18 точек (один points draw call), size .035, opacity .55, runeStart; частицы поднимаются от нижней кромки и расходятся. В раскрытии 0.85с используется smoothstep: створки до ±2.25 рад, общий масштаб от 1 до 4.6; затем 3D Canvas удаляется, открывается HTML-панель. Бренд Hyped Pot не локализуется. Начальная кнопка: width min(34svh,72vw), height 52svh, шрифт clamp(26px,5vw,46px)/700, rune, letter-spacing .06em, центр экрана.
+Пул 18 точек (один points draw call), size .035, opacity .55, runeStart; частицы поднимаются от нижней кромки и расходятся. В раскрытии 0.85с используется smoothstep: створки до ±2.25 рад, общий масштаб от 1 до 4.6; затем 3D Canvas удаляется, открывается HTML-панель. Бренд Hyped Pot не локализуется и выполнен геометрией створок (см. пункт 48). Невидимая начальная кнопка: width min(34svh,72vw), height 52svh, центр экрана, aria-label Hyped Pot.
 
 Открытая панель: inset 16px, border 12px roomWood, outline 2px coinBorder, radius 4px; фон surface; боковые металлические полосы width 5px. Внутри padding 68px 24px 32px, gap 12px. Все непосредственные кнопки/label меню имеют width min(360px,100%), кнопки min-height 44px, текст по центру, white-space normal, overflow-wrap anywhere. Длинный текст увеличивает высоту, но не ширину. Содержимое прокручивается. Вложенные магазин/бестиарий сохраняют свои сетки. На ≤600px: inset 7px, border 8px, padding меню 84px 14px 24px. Появление панели .24с ease-out.
 
@@ -617,7 +635,10 @@ button:disabled { opacity: .45; cursor: default; }
 .potion-grid,.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr)); gap:16px; width:100%; }
 .menu .potion-card { width:auto; box-sizing:border-box; border:1px solid var(--color-potion-border); border-radius:12px; padding:18px; }
 .chosen,.menu .potion-card.chosen { border:2px solid var(--color-selected-border); background:var(--color-selected-surface); }
-.potion-symbol { font-size: var(--type-potion-symbol); } .potion-card label { display:flex;flex-direction:row;justify-content:center; } .potion-card input { width:20px;height:20px; }
+.potion-symbol { font-size: var(--type-potion-symbol); }
+.potion-card label { display:flex;flex-direction:column;width:100%;gap:8px; }
+.potion-card .potion-select-button { width:100%;box-sizing:border-box;min-height:44px;margin-top:12px;white-space:normal; }
+.potion-select-button[aria-pressed=true] { border-color:var(--color-selected-border);background:var(--color-selected-surface); }
 .mage-card { min-height:240px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px; }
 .mage-diamond { display:grid;place-items:center;width:70px;height:90px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);color:var(--color-card-glyph);font-size: var(--type-card-glyph); }
 .mage-diamond.large { width:170px;height:220px;font-size: var(--type-card-large); }
@@ -744,6 +765,9 @@ button:disabled { opacity: .45; cursor: default; }
 .defense-game .arena-hints { top: 120px; }
 .defense-game .pause-notice { top: 98px; }
 @media (max-width: 600px) { .wallet { top: 24px; right: 24px; max-width: calc(100% - 48px); }.arena-crystal-health { width: 64px; height: 70px; } }
+.startup-loading { position:fixed;inset:0;z-index:16777274;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;box-sizing:border-box;background:var(--color-surface);color:var(--color-text);text-align:center; }
+.startup-loading h1 { color:var(--color-rune);margin:0; }
+.startup-loading progress { width:min(280px,80vw);height:12px;accent-color:var(--color-rune); }
 ```
 
 
@@ -782,7 +806,7 @@ button:disabled { opacity: .45; cursor: default; }
 .triptych-open { z-index: auto; }
 .triptych-opening { z-index: 16777274; overflow: hidden; }
 .triptych-intro-model { position: absolute; inset: 0; }
-.triptych-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34svh, 72vw); height: 52svh; border: 0; background: transparent; padding: 24px; color: var(--color-rune); font-size: clamp(26px, 5vw, 46px); font-weight: 700; letter-spacing: .06em; line-height: 1.25; overflow-wrap: anywhere; text-align: center; text-shadow: 0 2px 0 var(--color-room-wood-dark); touch-action: manipulation; }
+.triptych-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34svh, 72vw); height: 52svh; border: 0; background: transparent; padding: 24px; touch-action: manipulation; }
 .triptych-title:hover { background: transparent; color: var(--color-white); }
 .triptych-title:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 8px; }
 .triptych-content { position: absolute; inset: 16px; box-sizing: border-box; border: 12px solid var(--color-room-wood); outline: 2px solid var(--color-coin-border); border-radius: 4px; background: var(--color-surface); box-shadow: inset 0 0 0 2px var(--color-coin-border); animation: triptych-reveal .24s ease-out; }

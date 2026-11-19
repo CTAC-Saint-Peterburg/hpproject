@@ -2,6 +2,9 @@ import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { theme } from '../../static/theme';
 import { openingPose } from './triptychState';
+import { createTriptychTitleGeometry } from './triptychTitleGeometry';
+
+const titleGeometry = [-1, 1].map(createTriptychTitleGeometry);
 
 const colors = theme.colors;
 function Block({ size, position, color = colors.roomWood, ...props }) {
@@ -22,7 +25,7 @@ function Panel({ width, door = false }) {
   </>;
 }
 
-export default function TriptychModel({ opening = false, reduced = false, floating = true }) {
+export default function TriptychModel({ opening = false, reduced = false, floating = true, title = false }) {
   const root = useRef(), left = useRef(), right = useRef(), elapsed = useRef(0);
   useFrame((state, delta) => {
     elapsed.current = opening ? elapsed.current + Math.min(delta, .05) : 0;
@@ -35,8 +38,12 @@ export default function TriptychModel({ opening = false, reduced = false, floati
   });
   return <group ref={root}>
     <Panel width={2.2} />
-    <group ref={left} position={[-1.1, 0, .16]}><group position={[.55, 0, 0]}><Panel width={1.1} door /></group></group>
-    <group ref={right} position={[1.1, 0, .16]}><group position={[-.55, 0, 0]}><Panel width={1.1} door /></group></group>
+    <group ref={left} position={[-1.1, 0, .16]}><group position={[.55, 0, 0]}><Panel width={1.1} door /></group>
+      {title && <mesh geometry={titleGeometry[0]}><meshBasicMaterial color={colors.rune} /></mesh>}
+    </group>
+    <group ref={right} position={[1.1, 0, .16]}><group position={[-.55, 0, 0]}><Panel width={1.1} door /></group>
+      {title && <mesh geometry={titleGeometry[1]}><meshBasicMaterial color={colors.rune} /></mesh>}
+    </group>
   </group>;
 }
 

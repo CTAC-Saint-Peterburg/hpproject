@@ -167,7 +167,14 @@ export const useGameStore = create(persist((set, get) => ({
   recordTraining: id => {
     if (!Number.isInteger(id) || id < 1 || id > 10) return;
     set(s => ({ tutorialProgress: { ...s.tutorialProgress, [id]: Math.min(2, (s.tutorialProgress[id] || 0) + 1) } }));
+    get().claimTrainingReward();
   },
+  claimTrainingReward: () => set(s => {
+    const achievement = achievements.find(item => item.id === 'training');
+    if (s.unlocked.includes('training') || !Array.from({ length: 10 }, (_, i) => i + 1)
+      .every(id => s.tutorialProgress[id] >= 2)) return s;
+    return { stones: s.stones + achievement.stonesReward, unlocked: [...s.unlocked, 'training'] };
+  }),
   stones: 0, unlocked: [], records: {}, completed: [], selectedLevel: 'level_01',
   runId: 0, startGame: false, status: 'idle', paused: false, pausedAt: null, mission: null, currentStage: 0, timerFrozen: false,
   toggleTimerFrozen: () => {

@@ -2,7 +2,7 @@
 .triptych-open { z-index: auto; }
 .triptych-opening { z-index: 16777274; overflow: hidden; }
 .triptych-intro-model { position: absolute; inset: 0; }
-.triptych-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34svh, 72vw); height: 52svh; border: 0; background: transparent; padding: 24px; color: var(--color-rune); font-size: clamp(26px, 5vw, 46px); font-weight: 700; letter-spacing: .06em; line-height: 1.25; overflow-wrap: anywhere; text-align: center; text-shadow: 0 2px 0 var(--color-room-wood-dark); touch-action: manipulation; }
+.triptych-title { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(34svh, 72vw); height: 52svh; border: 0; background: transparent; padding: 24px; touch-action: manipulation; }
 .triptych-title:hover { background: transparent; color: var(--color-white); }
 .triptych-title:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 8px; }
 .triptych-content { position: absolute; inset: 16px; box-sizing: border-box; border: 12px solid var(--color-room-wood); outline: 2px solid var(--color-coin-border); border-radius: 4px; background: var(--color-surface); box-shadow: inset 0 0 0 2px var(--color-coin-border); animation: triptych-reveal .24s ease-out; }

@@ -1,4 +1,10 @@
 {
+  "loading.preparing": "正在加载声音和字体…",
+  "loading.failed": "无法加载游戏资源。请检查网络连接后重试。",
+  "loading.retry": "重新加载",
+  "training.reward": "将全部10个课程各完成两次，即可获得“魔法学徒”成就和1000 stones。奖励只能领取一次。",
+  "achievements.training.name": "魔法学徒",
+  "achievements.training.description": "完成全部训练：成功描绘10种法术，每种两次。一次性奖励：1000 stones。",
   "cheats.freezeTimer": "暂停计时器",
   "menu.holdExit": "长按3秒返回菜单",
   "menu.holdSeconds": "长按3秒",

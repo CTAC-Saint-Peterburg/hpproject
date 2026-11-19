@@ -1,4 +1,10 @@
 {
+  "loading.preparing": "Cargando sonidos y fuentes…",
+  "loading.failed": "No se pudieron cargar los recursos. Comprueba la conexión e inténtalo de nuevo.",
+  "loading.retry": "Reintentar",
+  "training.reward": "Completa las 10 lecciones dos veces para obtener el logro Aprendiz de hechicero y 1000 stones. Recompensa única.",
+  "achievements.training.name": "Aprendiz de hechicero",
+  "achievements.training.description": "Completa el entrenamiento: traza correctamente cada uno de los 10 hechizos dos veces. Recompensa única: 1000 stones.",
   "cheats.freezeTimer": "Detener temporizador",
   "menu.holdExit": "Mantén pulsado 3 segundos para volver al menú",
   "menu.holdSeconds": "Mantén 3 s",

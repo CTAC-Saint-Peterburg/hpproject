@@ -73,6 +73,25 @@ function fixture(options = {}) {
   return { manager, context, config, requests, alive, bytes, creations: () => creations };
 }
 
+test('startup preloads and decodes unique sounds without autoplay, retries failures and reuses buffers', async () => {
+  let fail = true;
+  const f = fixture({ fetchAudio: async (url, bytes) => {
+    if (fail && url.includes('slow')) throw new Error('offline');
+    return bytes(1);
+  } });
+  await assert.rejects(f.manager.preload(), /offline/);
+  assert.equal(f.manager.unlocked, false);
+  assert.equal(f.context.sources.length, 0);
+  fail = false;
+  const progress = [];
+  await f.manager.preload(value => progress.push(value));
+  assert.equal(f.manager.buffers.size, 4);
+  assert.equal(progress.at(-1), 1);
+  const count = f.requests.length;
+  await f.manager.preload(); await f.manager.unlock(); await f.manager.play('spell.1');
+  assert.equal(f.requests.length, count, 'gameplay uses decoded preload buffers');
+});
+
 test('a zero-volume configured cue stays silent without fetching or fading an audible effect', async () => {
   const f=fixture();
   f.config.sounds.find(entry=>entry.code==='ui.select').value=0;

@@ -23,9 +23,9 @@ export default function TriptychMenu({ activeGame }) {
     {phase !== 'open' ? <>
       <div className="triptych-intro-model" aria-hidden="true"><Canvas frameloop={reduced ? 'demand' : 'always'} camera={{ position: [0, 0, 7.8], fov: 42 }} dpr={[1, 1.5]}>
         <ambientLight intensity={1.8} /><directionalLight position={[3, 4, 5]} intensity={2} />
-        <TriptychModel opening={phase === 'opening'} reduced={reduced} /><TriptychSparks reduced={reduced} />
+        <TriptychModel title opening={phase === 'opening'} reduced={reduced} /><TriptychSparks reduced={reduced} />
       </Canvas></div>
-      {phase === 'closed' && <button className="triptych-title" onClick={openTriptych} autoFocus>Hyped Pot</button>}
+      {phase === 'closed' && <button className="triptych-title" aria-label="Hyped Pot" onClick={openTriptych} autoFocus />}
     </> : <div className="triptych-content" ref={content} tabIndex={-1}><MainMenu /></div>}
   </div>;
 }

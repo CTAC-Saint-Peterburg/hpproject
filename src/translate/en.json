@@ -1,4 +1,10 @@
 {
+  "loading.preparing": "Loading sounds and fonts…",
+  "loading.failed": "Game resources could not be loaded. Check your connection and try again.",
+  "loading.retry": "Retry loading",
+  "training.reward": "Complete all 10 lessons twice to earn the Sorcerer's Apprentice achievement and 1000 stones. One-time reward.",
+  "achievements.training.name": "Sorcerer's Apprentice",
+  "achievements.training.description": "Complete training: successfully trace each of the 10 spells twice. One-time reward: 1000 stones.",
   "cheats.freezeTimer": "Freeze timer",
   "menu.holdExit": "Hold for 3 seconds to return to the menu",
   "menu.holdSeconds": "Hold 3 s",

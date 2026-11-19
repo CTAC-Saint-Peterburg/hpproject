@@ -160,7 +160,7 @@ test('echo and splash form a union without double damage, and bonus damage also 
   f.install([f.make('fire'), f.make('frost', { x: 2.3 }), f.make('moss', { x: 2.6 }),
     f.make('frost', { x: 3.5 }), f.make('frost', { x: 6 })]);
   f.store.setState({ buffs: { multicast: 100 } }); assert.equal(f.s().cast(2), true);
-  assert.deepEqual(f.s().enemies.map(enemy => enemy.hp), [176, 176, 176, 188, 200]);
+  assert.deepEqual(f.s().enemies.map(enemy => enemy.hp), [176, 176, 176, 176, 176]);
   const item = shopItems.find(entry => entry.id === 'wand_splash'), original = item.effects;
   item.effects = { ...original, damageBonus: 9 };
   try {

@@ -18,7 +18,7 @@ export default function MainMenu() {
  const [page, setPage] = useState('main');
  const languageSelect = <label>{t('language')}<select value={i18n.resolvedLanguage} onChange={e => i18n.changeLanguage(e.target.value)}>
  {Object.entries(languages).map(([code,name]) => <option key={code} value={code}>{name}</option>)}</select></label>;
- if (page === 'training') return <section className="menu training-menu">{languageSelect}<SpellTraining onBack={() => setPage('main')} /></section>;
+ if (page === 'training') return <section className="menu training-menu"><SpellTraining onBack={() => setPage('main')} /></section>;
  return <section className={'menu triptych-page' + (page === 'bestiary' ? ' bestiary-menu' : '')}><h1>Hyped Pot</h1><p>{t('app.version', {version:pkg.version})}</p>
  {languageSelect}
  {page === 'main' && <>

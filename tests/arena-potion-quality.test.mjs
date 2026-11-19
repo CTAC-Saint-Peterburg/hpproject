@@ -74,9 +74,9 @@ test('quality healing applies only on landing, uses current crystal health and r
     assert.equal(f.s().hp, 80);
     f.store.setState({ hp: 10 });
     f.advanceTo(flight.startedAt + flight.duration + .001);
-    assert.equal(f.s().hp, 10 + potionEffect(potion('healing'), quality).heal);
+    assert.equal(f.s().hp, Math.min(config.crystal.maxHp, 10 + potionEffect(potion('healing'), quality).heal));
     f.advanceTo(f.s().time + .1);
-    assert.equal(f.s().hp, 10 + potionEffect(potion('healing'), quality).heal, 'landing cannot heal twice');
+    assert.equal(f.s().hp, Math.min(config.crystal.maxHp, 10 + potionEffect(potion('healing'), quality).heal), 'landing cannot heal twice');
     const cap = fixture(quality, 'healing'); cap.store.setState({ hp: 90 }); cap.land('healing');
     assert.equal(cap.s().hp, config.crystal.maxHp);
   }
@@ -129,14 +129,13 @@ test('echo quality expands duration, chain radius and number of actual damaged t
     assert.equal(f.s().buffEffects.multicast.targets, effect.targets);
     assert.equal(f.s().buffEffects.multicast.chainRadius, effect.chainRadius);
     assert.ok(Math.abs(f.s().buffs.multicast - f.s().time - effect.duration) < .002);
-    const enemies = [0, 1, 2, 3, 6.5, 9.5].map(x => f.make('moss', { x, z: 0 }));
+    const enemies = [0, 1, 2, 3, 4, 5, 6, 7, 12].map(x => f.make('moss', { x, z: 0 }));
     f.store.setState({ enemies });
     f.s().select(enemies[0].id);
     assert.equal(f.s().cast(7), true, 'Echo adds the moss counterspell to a normally incorrect non-utility gesture');
     const damaged = f.s().enemies.filter(enemy => enemy.hp < 1000);
     assert.equal(damaged.length, effect.targets);
-    assert.equal(f.s().enemies.find(enemy => enemy.id === enemies[5].id).hp, 1000);
-    assert.equal(f.s().enemies.find(enemy => enemy.id === enemies[4].id).hp < 1000, quality === 'masterwork');
+    assert.equal(f.s().enemies.find(enemy => enemy.id === enemies[8].id).hp, 1000);
     f.advanceTo(f.s().buffs.multicast + .05);
     f.store.setState({ enemies: f.s().enemies.map(enemy => ({ ...enemy, hp: 1000 })) });
     f.s().select(enemies[0].id); assert.equal(f.s().cast(6), true);

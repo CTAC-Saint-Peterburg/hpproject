@@ -15,7 +15,7 @@ export function potionEffect(potion, requestedQuality = 'basic') {
   }
   if (Array.isArray(potion.spells)) effect.spells = [...potion.spells];
   Object.assign(effect, potion.qualityEffects?.[quality]);
-  if (Number.isFinite(effect.instantKillChance)) effect.chance = Math.round(effect.instantKillChance * 100);
+  if (Number.isFinite(effect.instantKillChance)) effect.chance = Math.round(effect.instantKillChance * 10000) / 100;
   return effect;
 }
 

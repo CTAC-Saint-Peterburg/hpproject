@@ -9,26 +9,26 @@
     "icon": "❄️",
     "color": "@colors.potionsFrostColor",
     "effect": "freeze",
-    "duration": 12,
-    "onHitDuration": 4,
-    "impactDuration": 4,
+    "duration": 18,
+    "onHitDuration": 6,
+    "impactDuration": 6,
     "slowMultiplier": 0,
     "difficulty": 1,
     "qualityEffects": {
       "basic": {
-        "duration": 12,
-        "impactDuration": 4,
-        "onHitDuration": 4
-      },
-      "fine": {
-        "duration": 14,
-        "impactDuration": 5,
-        "onHitDuration": 5
-      },
-      "masterwork": {
-        "duration": 16,
+        "duration": 18,
         "impactDuration": 6,
         "onHitDuration": 6
+      },
+      "fine": {
+        "duration": 21,
+        "impactDuration": 7.5,
+        "onHitDuration": 7.5
+      },
+      "masterwork": {
+        "duration": 24,
+        "impactDuration": 9,
+        "onHitDuration": 9
       }
     }
   },
@@ -43,19 +43,19 @@
     "description": "potions.repulsion.description",
     "icon": "✦",
     "effect": "repel",
-    "disorientSeconds": 1,
+    "disorientSeconds": 1.5,
     "travelSeconds": 0.8,
     "qualityEffects": {
       "basic": {
-        "disorientSeconds": 1,
+        "disorientSeconds": 1.5,
         "travelSeconds": 0.8
       },
       "fine": {
-        "disorientSeconds": 2,
+        "disorientSeconds": 3,
         "travelSeconds": 0.65
       },
       "masterwork": {
-        "disorientSeconds": 3,
+        "disorientSeconds": 4.5,
         "travelSeconds": 0.5
       }
     }
@@ -70,29 +70,29 @@
     "icon": "🔥",
     "color": "@colors.potionsFlameColor",
     "effect": "burn",
-    "duration": 12,
-    "onHitDuration": 5,
-    "impactDuration": 5,
-    "dps": 4,
+    "duration": 18,
+    "onHitDuration": 7.5,
+    "impactDuration": 7.5,
+    "dps": 6,
     "difficulty": 3,
     "qualityEffects": {
       "basic": {
-        "duration": 12,
-        "impactDuration": 5,
-        "onHitDuration": 5,
-        "dps": 4
-      },
-      "fine": {
-        "duration": 14,
-        "impactDuration": 6,
-        "onHitDuration": 6,
+        "duration": 18,
+        "impactDuration": 7.5,
+        "onHitDuration": 7.5,
         "dps": 6
       },
+      "fine": {
+        "duration": 21,
+        "impactDuration": 9,
+        "onHitDuration": 9,
+        "dps": 9
+      },
       "masterwork": {
-        "duration": 16,
-        "impactDuration": 7,
-        "onHitDuration": 7,
-        "dps": 8
+        "duration": 24,
+        "impactDuration": 10.5,
+        "onHitDuration": 10.5,
+        "dps": 12
       }
     }
   },
@@ -106,17 +106,17 @@
     "icon": "💚",
     "color": "@colors.potionsHealingColor",
     "effect": "heal",
-    "heal": 35,
+    "heal": 53,
     "difficulty": 4,
     "qualityEffects": {
       "basic": {
-        "heal": 35
+        "heal": 53
       },
       "fine": {
-        "heal": 47
+        "heal": 71
       },
       "masterwork": {
-        "heal": 61
+        "heal": 92
       }
     }
   },
@@ -131,20 +131,20 @@
     "description": "potions.critical.description",
     "icon": "✦",
     "effect": "critical",
-    "duration": 8,
-    "instantKillChance": 0.1,
+    "duration": 12,
+    "instantKillChance": 0.15,
     "qualityEffects": {
       "basic": {
-        "duration": 8,
-        "instantKillChance": 0.1
-      },
-      "fine": {
-        "duration": 10,
+        "duration": 12,
         "instantKillChance": 0.15
       },
+      "fine": {
+        "duration": 15,
+        "instantKillChance": 0.22
+      },
       "masterwork": {
-        "duration": 12,
-        "instantKillChance": 0.2
+        "duration": 18,
+        "instantKillChance": 0.3
       }
     }
   },
@@ -158,31 +158,31 @@
     "icon": "✨",
     "color": "@colors.potionsEchoColor",
     "effect": "multicast",
-    "duration": 12,
+    "duration": 18,
     "spells": [
       1,
       2,
       3,
       6
     ],
-    "targets": 3,
-    "chainRadius": 5,
+    "targets": 5,
+    "chainRadius": 7.5,
     "difficulty": 6,
     "qualityEffects": {
       "basic": {
-        "duration": 12,
-        "targets": 3,
-        "chainRadius": 5
+        "duration": 18,
+        "targets": 5,
+        "chainRadius": 7.5
       },
       "fine": {
-        "duration": 14,
-        "targets": 4,
-        "chainRadius": 6
+        "duration": 21,
+        "targets": 6,
+        "chainRadius": 9
       },
       "masterwork": {
-        "duration": 16,
-        "targets": 5,
-        "chainRadius": 7
+        "duration": 24,
+        "targets": 8,
+        "chainRadius": 10.5
       }
     }
   },
@@ -197,16 +197,16 @@
     "description": "potions.invulnerability.description",
     "icon": "✦",
     "effect": "invulnerability",
-    "duration": 3,
+    "duration": 4.5,
     "qualityEffects": {
       "basic": {
-        "duration": 3
+        "duration": 4.5
       },
       "fine": {
-        "duration": 4
+        "duration": 6
       },
       "masterwork": {
-        "duration": 5
+        "duration": 7.5
       }
     }
   },
@@ -221,23 +221,23 @@
     "description": "potions.madness.description",
     "icon": "✦",
     "effect": "madness",
-    "duration": 6,
-    "enemyDamage": 10,
+    "duration": 9,
+    "enemyDamage": 15,
     "attackEvery": 1.5,
     "qualityEffects": {
       "basic": {
-        "duration": 6,
-        "enemyDamage": 10,
+        "duration": 9,
+        "enemyDamage": 15,
         "attackEvery": 1.5
       },
       "fine": {
-        "duration": 8,
-        "enemyDamage": 14,
+        "duration": 12,
+        "enemyDamage": 21,
         "attackEvery": 1.5
       },
       "masterwork": {
-        "duration": 10,
-        "enemyDamage": 18,
+        "duration": 15,
+        "enemyDamage": 27,
         "attackEvery": 1.5
       }
     }
@@ -253,24 +253,24 @@
     "description": "potions.poison.description",
     "icon": "✦",
     "effect": "poison",
-    "duration": 6,
+    "duration": 9,
     "tickEvery": 2,
-    "tickDamage": 12,
+    "tickDamage": 18,
     "qualityEffects": {
       "basic": {
-        "duration": 6,
-        "tickEvery": 2,
-        "tickDamage": 12
-      },
-      "fine": {
-        "duration": 6,
+        "duration": 9,
         "tickEvery": 2,
         "tickDamage": 18
       },
-      "masterwork": {
-        "duration": 6,
+      "fine": {
+        "duration": 9,
         "tickEvery": 2,
-        "tickDamage": 24
+        "tickDamage": 27
+      },
+      "masterwork": {
+        "duration": 9,
+        "tickEvery": 2,
+        "tickDamage": 36
       }
     }
   },
@@ -285,16 +285,16 @@
     "description": "potions.replacement.description",
     "icon": "✦",
     "effect": "replacement",
-    "targets": 2,
+    "targets": 3,
     "qualityEffects": {
       "basic": {
-        "targets": 2
-      },
-      "fine": {
         "targets": 3
       },
+      "fine": {
+        "targets": 5
+      },
       "masterwork": {
-        "targets": 4
+        "targets": 6
       }
     }
   },
@@ -309,16 +309,16 @@
     "description": "potions.coins.description",
     "icon": "✦",
     "effect": "coins",
-    "stones": 400,
+    "stones": 600,
     "qualityEffects": {
       "basic": {
-        "stones": 400
+        "stones": 600
       },
       "fine": {
-        "stones": 700
+        "stones": 1050
       },
       "masterwork": {
-        "stones": 1000
+        "stones": 1500
       }
     }
   }

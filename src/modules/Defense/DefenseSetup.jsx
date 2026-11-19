@@ -33,8 +33,8 @@ export default function DefenseSetup() {
         onChange={event=>setChosenQualities(previous=>({...previous,[p.id]:event.target.value}))}>
         {POTION_QUALITIES.map((q,index)=><option key={q} value={q} disabled={!qualities[q]}>{'★'.repeat(index+1)} · {t('potion.quality.'+q)} ×{qualities[q]}</option>)}
       </select></label>
-      <label><input type="checkbox" checked={selected.includes(p.id)} disabled={!(potionCount(inventory,p.id)>0)||(!selected.includes(p.id)&&selected.length>=slots)}
-        onChange={()=>setSelected(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])}/>{t('arena.take')}</label>
+      <button className="potion-select-button" aria-pressed={selected.includes(p.id)} disabled={!(potionCount(inventory,p.id)>0)||(!selected.includes(p.id)&&selected.length>=slots)}
+        onClick={()=>setSelected(ids=>ids.includes(p.id)?ids.filter(id=>id!==p.id):[...ids,p.id])}>{selected.includes(p.id)?'✓ ':''}{t('arena.take')}</button>
     </article>;})}</div>
     <p>{t('arena.selectedPotionsUpgraded',{count:selected.length,slots})}</p>
     <button disabled={!valid} onClick={()=>setError(!useDefenseStore.getState().start(selected.map(id=>({id,quality:qualityFor(id)}))))}>{t('arena.start')}</button>

@@ -91,7 +91,7 @@ test('healing at full health rejects launch without consuming; landing heals cur
   f.store.setState({ hp: 90 }); const flight = f.launch('healing');
   assert.equal(f.s().hp, 90); f.store.setState({ hp: 50 });
   f.advanceTo(flight.startedAt + flight.duration + .001);
-  assert.equal(f.s().hp, 50 + potionTypes.find(potion => potion.id === 'healing').heal);
+  assert.equal(f.s().hp, Math.min(config.crystal.maxHp, 50 + potionTypes.find(potion => potion.id === 'healing').heal));
   assert.equal(f.s().inventory.healing, 0);
 });
 

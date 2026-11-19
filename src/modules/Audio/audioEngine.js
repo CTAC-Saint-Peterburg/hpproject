@@ -57,6 +57,23 @@ export class AudioManager {
     } catch { return false; }
   }
 
+  async preload(onProgress = () => {}) {
+    // Decoding works while suspended; playback still requires a user gesture.
+    if (!this.context) {
+      this.context = this.createContext();
+      if (!this.context) throw new Error('Audio context unavailable');
+      this.masterGain = this.context.createGain();
+      this.masterGain.gain.value = this.enabled ? this.volume : 0;
+      this.masterGain.connect(this.context.destination);
+    }
+    const entries = [...new Map([...this.entries.values()].map(entry => [entry.file, entry])).values()];
+    let completed = 0;
+    await Promise.all(entries.map(async entry => {
+      await this._buffer(entry);
+      onProgress(++completed / entries.length);
+    }));
+  }
+
   _ready(code) {
     return !this.disposed && this.unlocked && this.context?.state === 'running' && this.enabled && this.volume > 0 &&
       (!this.paused || code === 'ui.select');

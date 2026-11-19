@@ -9,6 +9,7 @@ export default function SpellTraining({ onBack }) {
   const { t } = useTranslation();
   const progress = useGameStore(s => s.tutorialProgress);
   const record = useGameStore(s => s.recordTraining);
+  useEffect(() => { useGameStore.getState().claimTrainingReward(); }, []);
   const [index, setIndex] = useState(() => Math.max(0, spellLessons.findIndex(lesson => (progress[lesson.id] || 0) < 2)));
   const [stroke, setStroke] = useState([]);
   const [message, setMessage] = useState('training.start');
@@ -65,6 +66,7 @@ export default function SpellTraining({ onBack }) {
   return <div className="training">
     <h2>{t('training.title')}</h2>
     <p>{t('training.intro')}</p>
+    <p>{t('training.reward')}</p>
     <p>{t('training.progress', {completed, total: Object.values(progress).reduce((sum, value) => sum + value, 0)})}</p>
     <label>{t('training.spell')}<select value={index} onChange={e => choose(Number(e.target.value))}>
       {spellLessons.map((item, i) => <option key={item.id} value={i}>{i + 1}. {t(item.name)} · {progress[item.id] || 0}/2</option>)}
@@ -97,8 +99,7 @@ export default function SpellTraining({ onBack }) {
     <div className="training-actions"><button onClick={() => { release(); setStroke([]); setMessage('training.cleared'); }}>{t('training.clear')}</button>
       <button disabled={index === 0} onClick={() => choose(index - 1)}>{t('training.previous')}</button>
       <button disabled={index === spellLessons.length - 1} onClick={() => choose(index + 1)}>{t('training.next')}</button>
-      <button onClick={onBack}>{t('menu.return')}</button>
-      <button onClick={() => useGameStore.getState().beginMission(useGameStore.getState().selectedLevel)}>{t('training.skip')}</button></div>
+      <button onClick={onBack}>{t('menu.return')}</button></div>
   </div>;
 }
 

@@ -85,7 +85,10 @@ button:disabled { opacity: .45; cursor: default; }
 .potion-grid,.card-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(200px,100%),1fr)); gap:16px; width:100%; }
 .menu .potion-card { width:auto; box-sizing:border-box; border:1px solid var(--color-potion-border); border-radius:12px; padding:18px; }
 .chosen,.menu .potion-card.chosen { border:2px solid var(--color-selected-border); background:var(--color-selected-surface); }
-.potion-symbol { font-size: var(--type-potion-symbol); } .potion-card label { display:flex;flex-direction:row;justify-content:center; } .potion-card input { width:20px;height:20px; }
+.potion-symbol { font-size: var(--type-potion-symbol); }
+.potion-card label { display:flex;flex-direction:column;width:100%;gap:8px; }
+.potion-card .potion-select-button { width:100%;box-sizing:border-box;min-height:44px;margin-top:12px;white-space:normal; }
+.potion-select-button[aria-pressed=true] { border-color:var(--color-selected-border);background:var(--color-selected-surface); }
 .mage-card { min-height:240px; display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px; }
 .mage-diamond { display:grid;place-items:center;width:70px;height:90px;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);color:var(--color-card-glyph);font-size: var(--type-card-glyph); }
 .mage-diamond.large { width:170px;height:220px;font-size: var(--type-card-large); }
@@ -212,3 +215,6 @@ button:disabled { opacity: .45; cursor: default; }
 .defense-game .arena-hints { top: 120px; }
 .defense-game .pause-notice { top: 98px; }
 @media (max-width: 600px) { .wallet { top: 24px; right: 24px; max-width: calc(100% - 48px); }.arena-crystal-health { width: 64px; height: 70px; } }
+.startup-loading { position:fixed;inset:0;z-index:16777274;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;box-sizing:border-box;background:var(--color-surface);color:var(--color-text);text-align:center; }
+.startup-loading h1 { color:var(--color-rune);margin:0; }
+.startup-loading progress { width:min(280px,80vw);height:12px;accent-color:var(--color-rune); }

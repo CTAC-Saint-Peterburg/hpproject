@@ -24,29 +24,29 @@ test('each quality gives a stronger configured potion while leaving its source a
     assert.equal(basic.slowMultiplier, source.slowMultiplier);
     assert.equal(master.slowMultiplier, source.slowMultiplier);
     if (source.effect === 'multicast') {
-      assert.deepEqual([basic.targets, fine.targets, master.targets], [3, 4, 5]);
+      assert.deepEqual([basic.targets, fine.targets, master.targets], [5, 6, 8]);
       assert.deepEqual(master.spells, source.spells); assert.notEqual(master.spells, source.spells);
     }
     assert.equal(JSON.stringify(source), before);
     assert.deepEqual(potionEffect(source, 'unknown'), basic);
   }
-  assert.deepEqual(['basic', 'fine', 'masterwork'].map(quality => potionEffect(potion('healing'), quality).heal), [35, 47, 61]);
+  assert.deepEqual(['basic', 'fine', 'masterwork'].map(quality => potionEffect(potion('healing'), quality).heal), [53, 71, 92]);
 });
 
 test('landing statuses affect every living enemy immediately and never downgrade an active stronger effect', () => {
   const original = [enemy('fire'), enemy('flyerFire'), enemy('moss'), enemy('giant', { hp: 0 })];
   const frozen = applyPotionImpact(original, potionEffect(potion('frost')), 10);
   assert.ok(original.slice(0, 3).every(item => item.frozenUntil === 0));
-  assert.ok(frozen.slice(0, 3).every(item => item.frozenUntil === 14 && item.frozenAt === 10));
+  assert.ok(frozen.slice(0, 3).every(item => item.frozenUntil === 16 && item.frozenAt === 10));
   assert.equal(frozen[3], original[3]);
   const extended = applyPotionImpact(frozen, potionEffect(potion('frost'), 'masterwork'), 11);
-  assert.ok(extended.slice(0, 3).every(item => item.frozenUntil === 17 && item.frozenAt === 10));
+  assert.ok(extended.slice(0, 3).every(item => item.frozenUntil === 20 && item.frozenAt === 10));
   const burning = applyPotionImpact(original, potionEffect(potion('flame'), 'masterwork'), 10);
-  assert.ok(burning.slice(0, 3).every(item => item.burnDps === 8 && item.burnUntil === 17));
+  assert.ok(burning.slice(0, 3).every(item => item.burnDps === 12 && item.burnUntil === 20.5));
   const weak = applyPotionImpact(burning, potionEffect(potion('flame')), 11);
-  assert.ok(weak.slice(0, 3).every(item => item.burnDps === 8 && item.burnUntil === 17));
+  assert.ok(weak.slice(0, 3).every(item => item.burnDps === 12 && item.burnUntil === 20.5));
   const refreshed = applyPotionImpact(burning, potionEffect(potion('flame')), 30);
-  assert.ok(refreshed.slice(0, 3).every(item => item.burnDps === 4 && item.burnUntil === 35));
+  assert.ok(refreshed.slice(0, 3).every(item => item.burnDps === 6 && item.burnUntil === 37.5));
   assert.equal(applyPotionImpact(original, potionEffect(potion('echo')), 10), original);
 });
 
@@ -59,16 +59,16 @@ test('complete freeze pauses knockback, wandering, melee attacks and the remaini
       wanderTurnAt: 2, disorientedUntil: type === 'moss' ? 8 : 0 });
     let frozen = applyPotionImpact([source], frost, 1)[0];
     const combat = combatState();
-    for (let time = 1.1; time < 5 + 1e-8; time += .1) {
-      frozen = advanceArenaEnemy(frozen, config, potionTypes, Math.min(time, 5), .1, () => .99, combat);
+    for (let time = 1.1; time < 7 + 1e-8; time += .1) {
+      frozen = advanceArenaEnemy(frozen, config, potionTypes, Math.min(time, 7), .1, () => .99, combat);
       assert.deepEqual([frozen.x, frozen.y, frozen.z], [source.x, source.y, source.z], type);
     }
     assert.equal(combat.hp, 100); assert.deepEqual(combat.projectiles, []);
-    assert.ok(Math.abs(frozen.knockbackStart - 4) < 1e-8);
-    assert.ok(Math.abs(frozen.knockbackUntil - 6) < 1e-8);
-    assert.ok(Math.abs(frozen.nextRangedAt - 14) < 1e-8);
-    if (type === 'sentinel') assert.ok(Math.abs(frozen.windupUntil - 10) < 1e-8);
-    const resumed = advanceArenaEnemy(frozen, config, potionTypes, 5.1, .1, () => .99, combat);
+    assert.ok(Math.abs(frozen.knockbackStart - 6) < 1e-8);
+    assert.ok(Math.abs(frozen.knockbackUntil - 8) < 1e-8);
+    assert.ok(Math.abs(frozen.nextRangedAt - 16) < 1e-8);
+    if (type === 'sentinel') assert.ok(Math.abs(frozen.windupUntil - 12) < 1e-8);
+    const resumed = advanceArenaEnemy(frozen, config, potionTypes, 7.1, .1, () => .99, combat);
     assert.ok(resumed.x > frozen.x, type + ' resumes its knockback after thawing');
   }
 });

@@ -1,5 +1,12 @@
 [
   {
+    "id": "training",
+    "name": "achievements.training.name",
+    "description": "achievements.training.description",
+    "stonesReward": 1000,
+    "conditions": { "trainingCompleted": { "eq": true } }
+  },
+  {
     "id": "first",
     "name": "achievements.first.name",
     "description": "achievements.first.description",

@@ -1,4 +1,10 @@
 {
+  "loading.preparing": "Chargement des sons et des polices…",
+  "loading.failed": "Impossible de charger les ressources. Vérifiez la connexion et réessayez.",
+  "loading.retry": "Réessayer",
+  "training.reward": "Terminez les 10 leçons deux fois pour obtenir le succès Apprenti sorcier et 1000 stones. Récompense unique.",
+  "achievements.training.name": "Apprenti sorcier",
+  "achievements.training.description": "Terminez l’entraînement : tracez correctement chacun des 10 sorts deux fois. Récompense unique : 1000 stones.",
   "cheats.freezeTimer": "Arrêter le chronomètre",
   "menu.holdExit": "Maintenez 3 secondes pour revenir au menu",
   "menu.holdSeconds": "Maintenir 3 s",
