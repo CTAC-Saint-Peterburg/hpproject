@@ -51,10 +51,12 @@ test('actual i18n setup switches languages, updates HTML and remembers the choic
   const saved = new Map([['hpproject-language', 'fr']]);
   globalThis.localStorage = { getItem: key => saved.get(key) ?? null, setItem: (key,value) => saved.set(key,value) };
   globalThis.document = { documentElement: {lang: ''}, title: '' };
+  globalThis.window = {};
   const require = createRequire(import.meta.url);
   let source = read('src/translate/i18n.js');
   source = source.replace("'i18next'", JSON.stringify(pathToFileURL(require.resolve('i18next')).href))
-    .replace("'react-i18next'", JSON.stringify(pathToFileURL(require.resolve('react-i18next')).href));
+    .replace("'react-i18next'", JSON.stringify(pathToFileURL(require.resolve('react-i18next')).href))
+    .replace("'./deviceLanguage'", JSON.stringify(new URL('../src/translate/deviceLanguage.js', import.meta.url).href));
   for (const lng of languages) source = source.replace(`import ${lng} from './${lng}.json';`, `const ${lng} = ${JSON.stringify(resources[lng])};`);
   const {default: i18n} = await import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'));
   assert.equal(i18n.resolvedLanguage, 'fr');
