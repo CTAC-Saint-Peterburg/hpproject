@@ -12,6 +12,7 @@ dist
 dist-ssr
 dist-android
 android-backups
+mobile/web/fonts/part-*.ttf
 *.local
 
 # Editor directories and files
