@@ -10,6 +10,9 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebViewClient
 import androidx.webkit.WebViewAssetLoader
+import androidx.webkit.WebViewCompat
+import androidx.webkit.WebViewFeature
+import org.json.JSONArray
 
 class MainActivity : Activity() {
     private lateinit var web: WebView
@@ -31,13 +34,21 @@ class MainActivity : Activity() {
         web.settings.domStorageEnabled = true
         web.settings.allowFileAccess = false
         web.settings.allowContentAccess = false
+        web.settings.mixedContentMode = android.webkit.WebSettings.MIXED_CONTENT_NEVER_ALLOW
+        if (WebViewFeature.isFeatureSupported(WebViewFeature.DOCUMENT_START_SCRIPT)) {
+            val locales = resources.configuration.locales
+            val tags = JSONArray((0 until locales.size()).map { locales[it].toLanguageTag() })
+            WebViewCompat.addDocumentStartJavaScript(web,
+                "window.__HYPED_POT_LOCALES__ = $tags;", setOf("https://appassets.androidplatform.net"))
+        }
         WebView.setWebContentsDebuggingEnabled((applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0)
         val loader = WebViewAssetLoader.Builder()
             .addPathHandler("/assets/", WebViewAssetLoader.AssetsPathHandler(this)).build()
         web.webChromeClient = WebChromeClient()
         web.webViewClient = object : WebViewClient() {
             override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? = loader.shouldInterceptRequest(request.url)
-            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean = request.url.host != "appassets.androidplatform.net"
+            override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
+                request.url.scheme != "https" || request.url.host != "appassets.androidplatform.net" || request.url.port !in listOf(-1, 443)
         }
         if (Build.VERSION.SDK_INT >= 33) onBackInvokedDispatcher.registerOnBackInvokedCallback(android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT) { confirmExit() }
         web.loadUrl("https://appassets.androidplatform.net/assets/www/index.html")

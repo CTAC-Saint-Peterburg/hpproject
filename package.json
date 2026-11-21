@@ -9,7 +9,8 @@
     "build:android": "vite build --mode android",
     "android:sync": "node scripts/sync-android.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "android:build": "node scripts/build-android.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

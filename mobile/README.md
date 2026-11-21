@@ -1,5 +1,13 @@
 # Android — подготовка включена в master
 
+## Актуальное состояние: 21.11.2026, 5.5.0 stable
+
+Стабильная игровая база отмечена `stable-v5.5.0`; перенос ведётся в `android-port-5.5.0`. Проект hpgame обновлён, debug APK собран. Подробности, проверки, hash APK и ограничения — [PORT_STATUS.md](PORT_STATUS.md).
+
+Актуальная команда из корня игры: `npm.cmd run android:build -- "C:\Users\стас\AndroidStudioProjects\hpgame"`.
+
+Она включает Android-only локальный шрифт, backup native-файлов, чистый отдельный веб-билд, синхронизацию и Gradle. Физическое размещение www изменено: `app/build/generated/hypedWeb/<id>/www`, Gradle читает `hyped-web-assets.path`. Внутри APK и URL по-прежнему `assets/www`. Старый каталог src/main/assets/www не участвует в сборке при наличии указателя. INTERNET теперь включён, versionName 5.5.0/versionCode 5500. Ниже сохранена историческая инструкция 3.7.0; её утверждения о разрешениях, размере и расположении файлов заменены этим разделом.
+
 Подготовлено 14.11.2026. Android-проект: `C:\Users\стас\AndroidStudioProjects\hpgame`.
 
 ## Повторная сборка
