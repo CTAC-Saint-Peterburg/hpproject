@@ -1,4 +1,5 @@
 {
+  "selection.next": "自动选择 — 下一个目标",
   "loading.preparing": "正在加载声音和字体…",
   "loading.failed": "无法加载游戏资源。请检查网络连接后重试。",
   "loading.retry": "重新加载",
@@ -468,5 +469,15 @@
   "achievements.full_master.name": "大炼金师",
   "achievements.full_master.description": "将全部11种药水酿造成3星。",
   "achievements.advanced.name": "高难任务",
-  "achievements.advanced.description": "将难度8或更高的配方酿造成3星。"
+  "achievements.advanced.description": "将难度8或更高的配方酿造成3星。",
+  "display.title": "显示",
+  "display.frame": "游戏画面比例",
+  "display.auto": "自动",
+  "display.standard": "紧凑 · 16:10",
+  "display.wide": "宽屏 · 16:9",
+  "display.description": "适用于炼药和水晶防御。超宽屏幕两侧留边。菜单和训练支持横屏及竖屏。",
+  "display.rotate": "请旋转手机",
+  "display.rotateHint": "请横屏游玩。计时已暂停；旋转后点击徽章上的 ▶ 继续。",
+  "display.selectTarget": "请点击目标",
+  "display.pages": "菜单页面"
 }

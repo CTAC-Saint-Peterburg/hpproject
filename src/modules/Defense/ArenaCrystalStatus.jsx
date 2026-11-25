@@ -1,4 +1,5 @@
 import { Html } from '@react-three/drei';
+import SelectionSparks from '../Input/SelectionSparks';
 import { BackSide } from 'three';
 import { useTranslation } from 'react-i18next';
 import { useDefenseStore } from './DefenseStore';
@@ -25,7 +26,8 @@ export default function ArenaCrystalStatus({ gestureRef }) {
     event.stopPropagation();
     useDefenseStore.getState().select('crystal');
   }}>
-    <TouchHitArea size={32} position={[0, .43, 0]} />
+    <group scale={2.5}>
+    <TouchHitArea size={48} maxWorldRadius={1.05} position={[0, .43, 0]} />
     <mesh position={[0, .05, 0]}>
       <cylinderGeometry args={[.35, .4, .1, 6]} />
       <meshStandardMaterial color={theme.colors.crystalBase} roughness={.65} />
@@ -33,7 +35,8 @@ export default function ArenaCrystalStatus({ gestureRef }) {
     <mesh position={[0, .43, 0]}>
       <octahedronGeometry args={[.32, 0]} />
       <meshStandardMaterial color={color} emissive={color} emissiveIntensity={.5} roughness={.3} flatShading />
-      {selected && <mesh scale={1.13} raycast={() => null}>
+      {selected && <SelectionSparks radius={.4} />}
+      {selected && <mesh scale={1.22} raycast={() => null}>
         <octahedronGeometry args={[.32, 0]} />
         <meshBasicMaterial color={theme.colors.crystalSelected} side={BackSide} />
       </mesh>}
@@ -41,7 +44,8 @@ export default function ArenaCrystalStatus({ gestureRef }) {
     <mesh position={[0, .4, 0]}>
       <boxGeometry args={[.85, .85, .85]} /><meshBasicMaterial visible={false} />
     </mesh>
-    <Html center position={[0, .99, 0]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
+    </group>
+    <Html center position={[.8, 2.55, 0]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
       <div className={'arena-crystal-status' + (selected ? ' arena-crystal-status-selected' : '')}
         role="status" aria-label={t('arena.crystalStatus')}>
         <strong>{t('arena.crystal')} · {Math.ceil(state.hp)}/{config.crystal.maxHp}</strong>

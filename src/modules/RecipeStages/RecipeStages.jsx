@@ -1,13 +1,18 @@
 import { useTranslation } from 'react-i18next';
-import { Text } from '@react-three/drei';
+import { Html, Text } from '@react-three/drei';
+import { useThree } from '@react-three/fiber';
 import { SPAWN_BOTTLES_CORDS } from '../../static/constants';
 import { theme } from '../../static/theme';
 import { brewingActions } from './brewingActions';
 export const RecipeStages = ({ stages = [], currentStage = 0, temperature = 20, agitation = 0, position = [-3, 1, 0], baseFontSize = theme.typography.recipeSize }) => {
   const { t } = useTranslation();
+  const compact = useThree(state => state.size.height < 600);
   const rows = [...brewingActions(stages[currentStage], temperature, agitation), ...stages.slice(currentStage, currentStage + 4)].slice(0, 4);
   return (
   <group position={position}>
+    {compact ? <Html center position={[0, -.65, .03]} zIndexRange={[4, 0]} style={{pointerEvents:'none'}}><div className="compact-recipe">
+      {rows.map((stage, i) => <div key={currentStage+i} style={{color:i===0?theme.colors.recipeCurrent:theme.colors.recipeUpcoming}}>{stage.id && <i style={{background:SPAWN_BOTTLES_CORDS.find(item=>item.id===stage.id)?.color}}/>}{stage.id?t(stage.name):stage.icon+' '+t(stage.name)}</div>)}
+    </div></Html> : <>
     {rows.map((stage, i) => <group
       key={currentStage + i} position={[0, -i * 0.45, 0]}>
       {stage.id && <mesh position={[-1.25, 0, 0]} raycast={() => null}>
@@ -18,7 +23,7 @@ export const RecipeStages = ({ stages = [], currentStage = 0, temperature = 20, 
       fontSize={Math.max(theme.typography.recipeMinSize, baseFontSize - i * theme.typography.recipeSizeStep)}
       color={i === 0 ? theme.colors.recipeCurrent : theme.colors.recipeUpcoming} anchorX="left" anchorY="middle">
       {stage.id ? t(stage.name) : stage.icon + ' ' + t(stage.name)}
-    </Text></group>)}
+    </Text></group>)}</>}
   </group>
   );
 };

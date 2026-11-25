@@ -1,6 +1,19 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createPotMistBuffers, writePotMistFrame, POT_MIST_CAPACITY, POT_MIST_LIFETIME } from '../src/modules/Pot/potMistMotion.js';
+import { writePotErrorFrame, POT_ERROR_SECONDS } from '../src/modules/Pot/potMistMotion.js';
+
+test('wrong ingredient puff reuses the budget and completely fades within one second', () => {
+  const buffers=createPotMistBuffers(),positions=buffers.positions;
+  assert.equal(writePotErrorFrame(buffers,0),POT_MIST_CAPACITY);
+  const initial=buffers.opacities[0];
+  writePotErrorFrame(buffers,.4);
+  assert.ok(buffers.positions[1]>0 && buffers.opacities[0]<initial);
+  assert.ok(POT_ERROR_SECONDS<1);
+  assert.equal(writePotErrorFrame(buffers,POT_ERROR_SECONDS),0);
+  assert.ok(buffers.opacities.every(value=>value===0));
+  assert.equal(buffers.positions,positions);
+});
 
 test('mist rises from the mouth then spreads and sinks with a smooth fade', () => {
   const buffers = createPotMistBuffers();

@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import TrainerCrystal from './Cheats/TrainerCrystal';
 import { HintToggle } from './Menu/HintControls';
 import { useHintVisibility } from './Menu/useHintVisibility';
 import { openTriptych, useTriptychStore } from './Menu/triptychStore';
@@ -13,6 +12,7 @@ import StirringIndicator from './Pot/StirringIndicator';
 import TemperatureIndicator from './Pot/TemperatureIndicator';
 import { useInputStore } from './Input/inputStore';
 import { POTION_IDS } from './Stores/potionInventory';
+import AutoSelectButton from './Input/AutoSelectButton';
 
 export function FrameCounter() {
   const sample = useRef({ time: 0, frames: 0 });
@@ -28,7 +28,6 @@ export function FrameCounter() {
 }
 
 export default function GameHud() {
-  const menuOpen = useTriptychStore(state => state.phase === 'open');
   const { t } = useTranslation();
   const s = useGameStore();
   const [hintsVisible, toggleHints] = useHintVisibility(s.runId);
@@ -64,12 +63,12 @@ export default function GameHud() {
   }, [s.startGame, s.status, s.paused]);
   const stage = s.mission?.stages[s.currentStage];
   return <>
-    {!s.startGame && menuOpen && <div className="wallet"><TrainerCrystal /> {s.stones} {t('hud.stones')}</div>}
     {showFps && <div className="fps">{s.fps}</div>}
     {s.startGame && <>
       <div className="timer">{s.remaining === null ? t('time.unlimited') : t('time.seconds', {value: Math.ceil(s.remaining)})}</div>
       <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="brewing-hints" trainer />
-      {s.status === 'playing' && <><TemperatureIndicator value={s.potTemperature} /><StirringIndicator value={s.agitation} paused={s.paused} /></>}
+      <AutoSelectButton />
+      {s.status === 'playing' && <div className="brewing-meters"><TemperatureIndicator value={s.potTemperature} /><StirringIndicator value={s.agitation} paused={s.paused} /></div>}
       <div className="hud" id="brewing-hints" hidden={!hintsVisible}>
         <p className="recipe-quality-rule">{t('brewing.qualityRule',{three:s.mission.rating.threeStarMistakes,two:s.mission.rating.twoStarMistakes})}</p>
         <p>🌡 {Math.round(s.potTemperature)} °C · {t('hud.heat', {level: s.heatLevel})}</p>

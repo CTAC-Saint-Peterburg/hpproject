@@ -1,6 +1,6 @@
 import { theme } from '../../static/theme';
 import { useTranslation } from 'react-i18next';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useGameStore } from '../Stores/GameStore';
 import { matchesLesson, resampleStroke, spellLessons } from '../../static/spellLessons';
 import { appendBoundedPoint } from '../Input/pointerInput';
@@ -13,6 +13,8 @@ export default function SpellTraining({ onBack }) {
   const [index, setIndex] = useState(() => Math.max(0, spellLessons.findIndex(lesson => (progress[lesson.id] || 0) < 2)));
   const [stroke, setStroke] = useState([]);
   const [message, setMessage] = useState('training.start');
+  const [started, setStarted] = useState(false);
+  const [boardSize, setBoardSize] = useState(0);
   const drawing = useRef(null);
   const board = useRef(null);
   const lesson = spellLessons[index];
@@ -42,7 +44,13 @@ export default function SpellTraining({ onBack }) {
       const active = drawing.current; drawing.current = null;
       if (active && element?.hasPointerCapture(active.id)) element.releasePointerCapture(active.id);
     };
-  }, []);
+  }, [started]);
+  useLayoutEffect(() => {
+    if (!started) return;
+    const observer = new ResizeObserver(([entry]) => setBoardSize(Math.floor(Math.min(entry.contentRect.width, entry.contentRect.height))));
+    observer.observe(board.current.parentElement);
+    return () => observer.disconnect();
+  }, [started]);
   const cancel = event => {
     if (!drawing.current || drawing.current.id !== event.pointerId) return;
     release(); setStroke([]); setMessage('training.cancelled');
@@ -63,16 +71,18 @@ export default function SpellTraining({ onBack }) {
   };
   const path = points => points.map((p, i) => (i ? 'L' : 'M') + p[0] * 600 + ',' + p[1] * 600).join(' ');
   const arrow = resampleArrow(lesson.points);
-  return <div className="training">
+  if (!started) return <div className="training training-intro"><h2>{t('training.title')}</h2><p>{t('training.intro')}</p><p>{t('training.reward')}</p>
+    <button onClick={() => setStarted(true)}>{t('training.next')}</button><button onClick={onBack}>{t('menu.return')}</button></div>;
+  return <div className="training training-practice">
+    <div className="training-info">
     <h2>{t('training.title')}</h2>
-    <p>{t('training.intro')}</p>
-    <p>{t('training.reward')}</p>
     <p>{t('training.progress', {completed, total: Object.values(progress).reduce((sum, value) => sum + value, 0)})}</p>
     <label>{t('training.spell')}<select value={index} onChange={e => choose(Number(e.target.value))}>
       {spellLessons.map((item, i) => <option key={item.id} value={i}>{i + 1}. {t(item.name)} · {progress[item.id] || 0}/2</option>)}
     </select></label>
-    <h3>{t(lesson.name)} · {t('training.repeats', {count: repeats})}</h3><p>{t(lesson.effect, {id: lesson.id})}</p>
-    <svg ref={board} className="training-board" viewBox="0 0 600 600" role="img" aria-label={t('training.trace', {name: t(lesson.name)})}
+    <h3>{t(lesson.name)} · {t('training.repeats', {count: repeats})}</h3><p>{t(lesson.effect, {id: lesson.id})}</p></div>
+    <div className="training-drawing">
+    <svg ref={board} className="training-board" style={{width:boardSize,height:boardSize}} viewBox="0 0 600 600" role="img" aria-label={t('training.trace', {name: t(lesson.name)})}
       onPointerDown={e => {
         if (drawing.current || e.button !== 0 || e.isPrimary === false) return;
         e.currentTarget.setPointerCapture(e.pointerId);
@@ -93,9 +103,9 @@ export default function SpellTraining({ onBack }) {
       <path d={path(arrow)} fill="none" stroke={theme.colors.trainingRune} strokeWidth="3" markerEnd="url(#rune-arrow)" />
       <circle cx={lesson.points[0][0] * 600} cy={lesson.points[0][1] * 600} r="11" fill={theme.colors.trainingStart} stroke={theme.colors.trainingStartBorder} strokeWidth="3" />
       <path d={path(stroke)} fill="none" stroke={theme.colors.trainingStroke} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" pointerEvents="none" />
-    </svg>
+    </svg></div><div className="training-feedback">
     <p role="status" aria-live="polite">{t(message)}</p>
-    {completed === 10 && <p>{t('training.finished')}</p>}
+    {completed === 10 && <p>{t('training.finished')}</p>}</div>
     <div className="training-actions"><button onClick={() => { release(); setStroke([]); setMessage('training.cleared'); }}>{t('training.clear')}</button>
       <button disabled={index === 0} onClick={() => choose(index - 1)}>{t('training.previous')}</button>
       <button disabled={index === spellLessons.length - 1} onClick={() => choose(index + 1)}>{t('training.next')}</button>

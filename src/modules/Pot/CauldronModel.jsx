@@ -1,4 +1,5 @@
 import { useEffect, useMemo } from 'react';
+import SelectionSparks from '../Input/SelectionSparks';
 import { BackSide } from 'three';
 import { theme } from '../../static/theme';
 import { CAULDRON, createCauldronGeometry } from './cauldronGeometry';
@@ -11,7 +12,8 @@ export default function CauldronModel({ color, warmth, selected }) {
       <meshStandardMaterial color={color} roughness={.86} metalness={.18} flatShading
         emissive={theme.colors.potEmissive} emissiveIntensity={warmth * .65} />
     </mesh>
-    {selected && <mesh geometry={geometry} dispose={null} scale={1.035} raycast={() => null}>
+    {selected && <SelectionSparks radius={1.1} height={.75} color={theme.colors.potSelected} />}
+    {selected && <mesh geometry={geometry} dispose={null} scale={1.075} raycast={() => null}>
       <meshBasicMaterial color={theme.colors.potSelected} side={BackSide} />
     </mesh>}
     <mesh position={[0, CAULDRON.liquidY, 0]} rotation={[-Math.PI / 2, 0, 0]}>

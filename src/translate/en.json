@@ -1,4 +1,5 @@
 {
+  "selection.next": "Auto-select — next target",
   "loading.preparing": "Loading sounds and fonts…",
   "loading.failed": "Game resources could not be loaded. Check your connection and try again.",
   "loading.retry": "Retry loading",
@@ -468,5 +469,15 @@
   "achievements.full_master.name": "Grand alchemist",
   "achievements.full_master.description": "Brew all 11 potion types at 3 stars.",
   "achievements.advanced.name": "Difficult work",
-  "achievements.advanced.description": "Brew a difficulty 8 or higher recipe at 3 stars."
+  "achievements.advanced.description": "Brew a difficulty 8 or higher recipe at 3 stars.",
+  "display.title": "Display",
+  "display.frame": "Game frame",
+  "display.auto": "Automatic",
+  "display.standard": "Compact · 16:10",
+  "display.wide": "Wide · 16:9",
+  "display.description": "Shared by brewing and crystal defense. Extra-wide screens have side borders. Menus and training support both orientations.",
+  "display.rotate": "Rotate your phone",
+  "display.rotateHint": "Play in landscape. Time is paused; after rotating, tap ▶ on the crest.",
+  "display.selectTarget": "Tap your target",
+  "display.pages": "Menu pages"
 }

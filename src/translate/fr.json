@@ -1,4 +1,5 @@
 {
+  "selection.next": "Sélection automatique — cible suivante",
   "loading.preparing": "Chargement des sons et des polices…",
   "loading.failed": "Impossible de charger les ressources. Vérifiez la connexion et réessayez.",
   "loading.retry": "Réessayer",
@@ -468,5 +469,15 @@
   "achievements.full_master.name": "Grand alchimiste",
   "achievements.full_master.description": "Préparer les 11 types à 3 étoiles.",
   "achievements.advanced.name": "Travail difficile",
-  "achievements.advanced.description": "Préparer une recette de difficulté 8 ou plus à 3 étoiles."
+  "achievements.advanced.description": "Préparer une recette de difficulté 8 ou plus à 3 étoiles.",
+  "display.title": "Écran",
+  "display.frame": "Format du jeu",
+  "display.auto": "Automatique",
+  "display.standard": "Compact · 16:10",
+  "display.wide": "Large · 16:9",
+  "display.description": "Commun aux potions et à la défense. Des marges encadrent les écrans très larges. Menus et entraînement acceptent les deux orientations.",
+  "display.rotate": "Tournez votre téléphone",
+  "display.rotateHint": "Jouez en paysage. Le temps est arrêté ; après rotation, touchez ▶ sur le blason.",
+  "display.selectTarget": "Touchez votre cible",
+  "display.pages": "Pages du menu"
 }

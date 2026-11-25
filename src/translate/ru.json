@@ -1,4 +1,5 @@
 {
+  "selection.next": "Автовыбор — следующая цель",
   "loading.preparing": "Загружаем звуки и шрифты…",
   "loading.failed": "Не удалось загрузить ресурсы игры. Проверьте подключение и повторите попытку.",
   "loading.retry": "Повторить загрузку",
@@ -468,5 +469,15 @@
   "achievements.full_master.name": "Великий алхимик",
   "achievements.full_master.description": "Сварить все 11 видов зелий на 3 звезды.",
   "achievements.advanced.name": "Сложная работа",
-  "achievements.advanced.description": "Сварить рецепт сложности 8 или выше на 3 звезды."
+  "achievements.advanced.description": "Сварить рецепт сложности 8 или выше на 3 звезды.",
+  "display.title": "Экран",
+  "display.frame": "Формат игрового кадра",
+  "display.auto": "Автоматически",
+  "display.standard": "Компактный · 16:10",
+  "display.wide": "Широкий · 16:9",
+  "display.description": "Общий формат для варки и защиты кристалла. На вытянутом экране по краям остаются поля. Меню и обучение доступны в любой ориентации.",
+  "display.rotate": "Переверните телефон",
+  "display.rotateHint": "Игра доступна горизонтально. Время остановлено; после поворота нажмите ▶ на гербе.",
+  "display.selectTarget": "Нажмите на вашу цель",
+  "display.pages": "Страницы меню"
 }

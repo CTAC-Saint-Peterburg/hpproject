@@ -1,5 +1,19 @@
 export const POT_MIST_CAPACITY = 24;
 export const POT_MIST_LIFETIME = 3.6;
+export const POT_ERROR_SECONDS = .85;
+
+export function writePotErrorFrame(buffers, age) {
+  const progress = Math.max(0,Math.min(1,age/POT_ERROR_SECONDS));
+  for(let i=0;i<buffers.sizes.length;i++) {
+    const angle=i*2.39996, spread=.15+progress*(.45+(i%4)*.07);
+    buffers.positions[i*3]=Math.cos(angle)*spread;
+    buffers.positions[i*3+1]=progress*(.55+(i%5)*.12);
+    buffers.positions[i*3+2]=Math.sin(angle)*spread;
+    buffers.sizes[i]=.26+progress*.28;
+    buffers.opacities[i]=.78*(1-progress)*(1-progress);
+  }
+  return progress < 1 ? buffers.sizes.length : 0;
+}
 
 const clamp = value => Math.max(0, Math.min(1, value));
 const smooth = value => { const t = clamp(value); return t * t * (3 - 2 * t); };

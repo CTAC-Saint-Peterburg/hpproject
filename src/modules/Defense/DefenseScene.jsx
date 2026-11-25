@@ -1,4 +1,7 @@
 import ArenaHeader from './ArenaHeader';
+import AutoSelectButton from '../Input/AutoSelectButton';
+import SceneAutoSelect from '../Input/SceneAutoSelect';
+import { requestTarget } from '../Display/requestTarget';
 import { HintToggle } from '../Menu/HintControls';
 import { useHintVisibility } from '../Menu/useHintVisibility';
 import SceneMenuControls from '../Menu/SceneMenuControls';
@@ -41,7 +44,7 @@ function Board({walletRef,gestureRef,inputBridge,onHeldTest}){
  const tip=useRef(new Vector3());
  const w=config.field.width,d=config.field.depth;
  const front=arenaFrontBorder();
- return <><ArenaCamera/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
+ return <><ArenaCamera/><SceneAutoSelect arena/><color attach="background" args={[theme.colors.roomBackground]}/><ambientLight intensity={1.2}/>
  <directionalLight position={[4,10,6]} intensity={2.2}/><FrameCounter/>
  <CastleRoom variant="arena" lighting={false} furniture={false}/>
  <SceneMenuControls arena />
@@ -87,7 +90,7 @@ export default function DefenseScene(){
   onStroke:setStroke,
   onPosition:(point,event,role)=>{const bridge=inputBridge.current;bridge.touch=input.current?.getSession()?.touch??isTouchInput(event,useInputStore.getState().mode);bridge.role=role;if(role==='drag')bridge.point=point;},
   onDrag:point=>{inputBridge.current.point=point;},
-  onCast:({points,aspectRatio})=>{const spell=recognizeGesture(points,{aspectRatio});if(spell)useDefenseStore.getState().cast(spell);},
+  onCast:({points,aspectRatio})=>{const spell=recognizeGesture(points,{aspectRatio});if(spell){const state=useDefenseStore.getState();if(state.selected==null&&!state.carriedEnemyId&&!state.pendingPotion)requestTarget();state.cast(spell);}},
   onSuppressClick:(suppressed,pointerId)=>{gestureRef.current={suppressed,pointerId};},
   onCancel:()=>{inputBridge.current.role=null;},
   });
@@ -143,6 +146,7 @@ export default function DefenseScene(){
  <ArenaHeader state={s} stones={stones} pending={Math.max(0,s.pendingStones-visualPending)} walletRef={walletRef} />
  {showFps&&<div className="fps">{fps}</div>}
  <HintToggle visible={hintsVisible} onToggle={toggleHints} panelId="arena-hints" />
+ <AutoSelectButton arena />
  <aside className="arena-hints" id="arena-hints" hidden={!hintsVisible}><p>{t(s.message)}</p>
  <p>{t('arena.enemiesLeft',{count:s.enemies.length+s.queue.length})}</p>
  {s.projectiles.length>0&&<p>{t('arena.projectilesLeft',{count:s.projectiles.length})}</p>}

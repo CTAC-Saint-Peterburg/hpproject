@@ -17,6 +17,8 @@ import brewing from '../../static/brewing.json';
 import SceneMenuControls from '../Menu/SceneMenuControls';
 import { useInputStore } from '../Input/inputStore';
 import { brewingCameraDepth } from '../Ingredients/ingredientPointer';
+import { requestTarget } from '../Display/requestTarget';
+import SceneAutoSelect from '../Input/SceneAutoSelect';
 
 function BrewingCameraFit() {
   const { camera, size, invalidate, setSize } = useThree();
@@ -43,11 +45,15 @@ export default function Scene() {
     const state = useGameStore.getState();
     if (state.status !== 'playing' || state.paused) return;
     const spell = recognizeGesture(points, { aspectRatio });
-    if (spell) state.setCurrentSpell(spell);
+    if (spell) {
+      if (!state.isPotSelected && state.selectedEnemyId == null && state.selectedIngredientId == null && state.heldIngredientId == null) requestTarget();
+      state.setCurrentSpell(spell);
+    }
   };
   return <div style={{ position: 'absolute', inset: 0 }}>
   <Canvas dpr={[1, 1.5]} frameloop={s.paused ? 'demand' : 'always'} camera={{ position: brewing.scene.cameraPosition, fov: brewing.scene.cameraFov }}>
     <BrewingCameraFit />
+    <SceneAutoSelect positions={positions} />
     <SceneMenuControls />
     <color attach="background" args={[theme.colors.roomBackground]} />
     <FrameCounter />

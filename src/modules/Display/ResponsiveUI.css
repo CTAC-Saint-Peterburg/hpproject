@@ -1,0 +1,83 @@
+/* Task 50: final layout rules, after the historical App / Triptych styles. */
+.auto-select { left:auto;right:16px;color:var(--color-rune-start);box-shadow:0 0 10px var(--color-rune-start); }
+.auto-select svg { width:36px;height:36px;vertical-align:middle; }
+.auto-select:disabled { color:var(--color-hint-inactive);box-shadow:0 0 6px var(--color-hint-inactive); }
+@media(max-height:600px) { .hint-toggle.auto-select { left:auto;right:8px; } }
+.app { height:100vh;height:100dvh; }
+.game-frame-host { position:absolute;inset:0;display:grid;place-items:center;background:var(--color-black); }
+.game-frame { position:relative;overflow:hidden; }
+.rotate-screen { position:absolute;inset:0;z-index:16777273;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:var(--color-surface);color:var(--color-rune);text-align:center; }
+.rotate-screen > span { font-size:72px; }.rotate-screen p { max-width:360px;font-size:16px; }
+.triptych-content .menu.triptych-page { padding:12px 18px;gap:8px;overflow:hidden;justify-content:flex-start; }
+.menu-heading { position:relative;flex:none;text-align:center;padding:0 120px;box-sizing:border-box;width:100%;min-height:58px; }
+.menu-wallet { position:absolute;top:0;right:0;max-width:120px;display:flex;align-items:center;gap:4px;font-size:12px;overflow-wrap:anywhere; }.menu-wallet .trainer-crystal { flex:none; }.menu-wallet span { min-width:0; }
+.menu-heading h1 { font-size:26px;line-height:30px;margin:0;color:var(--color-rune); }.menu-heading p { margin:0;font-size:12px; }
+.menu-pagination { flex:1;min-height:0;width:min(400px,100%);display:flex;flex-direction:column;gap:8px; }
+.menu-page-area { flex:1;min-height:0;position:relative; }
+.menu-page-measure { position:absolute;left:0;top:0;width:100%;visibility:hidden;pointer-events:none;display:flex;flex-direction:column;gap:8px; }
+.menu-page-items { height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px; }
+.menu-block { flex:none;width:100%; }.menu-block > * { box-sizing:border-box;width:100%;max-width:none;margin:0; }
+.menu-block button,.menu-block select { width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere; }
+.menu-block label { text-align:center;gap:4px;font-size:14px; }.menu-block article { width:100%;padding:8px;font-size:14px; }.menu-block article p { margin:0 0 8px; }
+.page-arrows { display:flex;flex:none;align-items:center;justify-content:center;gap:16px;min-height:44px; }
+.page-arrows button { width:48px;height:44px;padding:0;font-size:28px;line-height:1; }.page-arrows span { min-width:60px;text-align:center;font-size:14px; }
+button:disabled { opacity:.45;cursor:default; }
+.menu-section-content { flex:1;min-height:0;width:100%;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;align-items:center;gap:12px; }
+.menu-section-content > * { flex-shrink:0; }.menu-back { min-height:40px;padding:6px 12px; }
+.game-frame:not(.game-frame-active) .wallet { z-index:9;top:44px;right:44px;max-width:160px;padding:4px 6px;font-size:14px; }
+.defense-setup { position:relative;max-width:760px;gap:8px; }.defense-setup p { margin:0;font-size:14px; }
+.setup-heading { display:flex;align-items:center;justify-content:center;gap:12px; }.setup-heading h2 { margin:0;font-size:20px; }
+.small-help { width:38px;height:38px;padding:0;border-radius:50%;color:var(--color-rune);font-weight:700;font-size:22px; }
+.setup-help { box-sizing:border-box;width:100%;padding:14px;background:var(--color-surface-card);border:1px solid var(--color-border);border-radius:8px; }.setup-help p+p { margin-top:8px; }
+.potion-carousel { width:100%; }.menu .potion-carousel .potion-card { width:100%;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center; }
+.potion-card h3 { margin:0;font-size:17px; }.potion-details p { margin:6px 0;font-size:14px; }.potion-details .potion-symbol { float:left;margin-right:8px;font-size:28px; }
+.potion-choice { min-width:0; }.potion-choice label { font-size:14px; }.potion-choice select { min-height:44px;padding:8px; }
+.loadout-summary { display:flex;justify-content:center;flex-wrap:wrap;gap:4px; }.loadout-summary button { padding:5px 8px;min-height:36px;font-size:12px; }
+.triptych-content .menu.training-menu { padding:12px;overflow:hidden; }
+.training-intro { margin:auto;max-height:100%;overflow:auto;flex-shrink:1; }.training-intro p { font-size:16px; }
+.training-practice { width:100%;height:100%;min-height:0;flex-shrink:1;display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,1.3fr);grid-template-rows:minmax(0,1fr) auto auto;gap:8px 16px; }
+.training-info { min-height:0;max-height:100%;overflow:auto; }
+.training-info { grid-column:1;grid-row:1;align-self:center;display:flex;flex-direction:column;gap:6px;min-width:0; }.training-info h2 { font-size:20px; }.training-info h3 { font-size:15px; }.training-info p,.training-info label { font-size:14px;line-height:1.3; }.training-info select { width:100%;padding:6px;min-height:40px; }
+.training-drawing { grid-column:2;grid-row:1 / 4;align-self:stretch;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+.training-drawing .training-board { box-sizing:border-box;width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1;object-fit:contain;flex-shrink:1; }
+.training-feedback { grid-column:1;grid-row:2;font-size:14px;line-height:1.3; }.training-feedback p { line-height:1.3; }
+.training-actions { grid-column:1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;gap:6px; }.training-actions button { min-height:40px;padding:6px;font-size:14px; }
+.brewing-meters { position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:24;display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:none; }
+.brewing-meters .temperature-indicator,.brewing-meters .stirring-indicator { position:relative;left:auto;bottom:auto;transform:none; }
+.brewing-meters .temperature-indicator { width:54px;height:70px; }.brewing-meters .stirring-icon { width:70px;height:57px; }
+.brewing-meters .stirring-percent,.brewing-meters .temperature-indicator strong { font-size:24px; }
+.periodic-hint { animation:spell-hint-breathe 6s ease-in-out infinite;pointer-events:none; }.hint-paused { animation-play-state:paused; }
+@keyframes spell-hint-breathe { 0%,38%,100% { opacity:1; } 50%,88% { opacity:0; } }
+.target-prompt { position:absolute;z-index:30;left:50%;bottom:92px;transform:translateX(-50%);max-width:90%;padding:5px 10px;border-radius:6px;background:var(--color-surface-veil);color:var(--color-rune);font-size:18px;pointer-events:none;text-align:center; }
+.compact-recipe { box-sizing:border-box;width:220px;max-width:30vw;padding:8px;background:var(--color-surface-veil);border-radius:4px;font-size:14px;line-height:1.25;text-shadow:0 1px 2px var(--color-black); }
+.compact-recipe > div { margin:4px 0; }.compact-recipe i { display:inline-block;width:8px;height:8px;margin-right:5px; }
+.game-frame-active .hud,.game-frame-active .arena-hints { box-sizing:border-box;max-width:30%;max-height:55%;overflow:auto;pointer-events:auto;font-size:14px;line-height:1.3;padding:8px;bottom:76px;left:8px; }
+.game-frame-active .hud p,.game-frame-active .arena-hints p { margin:5px 0;line-height:1.3; }.game-frame-active .arena-hints { top:100px;bottom:auto; }
+@media (orientation:portrait) {
+  .training-practice { grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto auto;gap:8px; }
+  .training-info { grid-column:1;grid-row:1;gap:4px; }.training-info h2 { font-size:18px; }.training-info h3 { display:none; }
+  .training-drawing { grid-column:1;grid-row:2; }.training-feedback { grid-column:1;grid-row:3; }.training-actions { grid-column:1;grid-row:4; }
+  .menu .potion-carousel .potion-card { grid-template-columns:1fr;gap:8px; }
+}
+@media (max-height:600px) {
+  .triptych-content { inset:6px;border-width:6px; }.triptych-content .menu.triptych-page { padding:6px 12px;gap:5px; }
+  .menu-heading { min-height:40px; }.menu-heading h1 { font-size:20px;line-height:24px; }.menu-heading p { font-size:11px; }
+  .game-frame:not(.game-frame-active) .wallet { top:20px;right:24px;font-size:12px;max-width:140px; }
+  .menu-back { min-height:36px;padding:4px; }.defense-setup { gap:5px; }.setup-heading h2 { font-size:17px; }
+  .game-frame-active .timer { top:8px;right:8px;padding:6px;font-size:14px; }
+  .pot-runes { gap:7px; }.pot-runes .spell-hint { width:30px;height:30px; }.pot-rune { width:auto;min-width:44px; }.pot-rune span:last-child { font-size:12px; }
+  .ingredient-rune .spell-hint { width:36px;height:36px; }
+  .brewing-meters { bottom:4px;gap:14px; }.brewing-meters .temperature-indicator { width:44px;height:58px; }.brewing-meters .stirring-icon { width:58px;height:48px; }
+  .brewing-meters .stirring-percent,.brewing-meters .temperature-indicator strong { font-size:22px; }.stirring-label { font-size:13px; }
+  .target-prompt { bottom:72px;font-size:16px; }.hint-toggle { bottom:8px;left:8px;width:42px;height:42px;font-size:26px; }
+  .arena-top.arena-top-indicators { top:7px;left:8px;right:8px; }.arena-crystal-health { width:56px;height:60px; }.arena-currency-target,.arena-currency .trainer-crystal { width:32px;height:32px; }.arena-currency .currency-coin { width:30px;height:30px; }
+  .arena-currency strong,.arena-crystal-health strong { font-size:22px; }.arena-wave { font-size:13px; }.arena-wave strong { font-size:23px; }.defense-game .pause-notice { top:68px; }
+  .arena-crystal-status { width:140px;padding:4px;font-size:12px;gap:2px; }.arena-crystal-status strong,.arena-crystal-status small { font-size:12px; }
+  .arena-enemy-status-list > span { font-size:12px; }
+  .arena-between { top:85px;right:8px;padding:10px;max-height:calc(100% - 110px);overflow:auto; }.arena-between h2 { font-size:18px; }
+}
+@media (max-width:600px) {
+  .menu-heading { padding:0 130px 0 0;text-align:left; }.menu-heading h1 { font-size:21px; }
+  .game-frame:not(.game-frame-active) .wallet { top:27px;right:24px;max-width:135px;font-size:12px; }
+}
+@media (prefers-reduced-motion:reduce) { .periodic-hint { animation:none; } }

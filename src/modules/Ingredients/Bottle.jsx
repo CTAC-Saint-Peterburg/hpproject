@@ -66,9 +66,10 @@ export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
     <IngredientModel id={id} color={color} selected={isSelected} materialRef={material} raycast={ingredientRaycast}
       onClick={select} />
     <TouchHitArea onClick={select} />
-    {showHint && <Html center position={[0, -brewing.ingredientSize * .5 - .36, 0]} style={{ pointerEvents: 'none' }}>
+    {showHint && <Html center position={[0, -brewing.ingredientSize * .5 - .62, 0]} style={{ pointerEvents: 'none' }}>
+      <div className="periodic-hint ingredient-rune">
       <SpellHint spellId={following ? brewing.dropSpell : brewing.liftSpell}
-        labelKey={following ? 'brewing.drop' : 'brewing.lift'} />
+        labelKey={following ? 'brewing.drop' : 'brewing.lift'} /></div>
     </Html>}
   </group>;
 };

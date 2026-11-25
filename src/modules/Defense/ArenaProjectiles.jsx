@@ -1,4 +1,5 @@
 import { Html } from '@react-three/drei';
+import SelectionSparks from '../Input/SelectionSparks';
 import { useTranslation } from 'react-i18next';
 import { config } from './defenseState';
 import { useDefenseStore } from './DefenseStore';
@@ -13,6 +14,7 @@ function Projectile({ shot, selected, time, gestureRef }) {
   const color = config.enemies[shot.type]?.color || (shot.element === 'freeze' ? theme.colors.frozenEnemy : theme.colors.burningEnemy);
   const hitSize = Math.max(.72, size * 2.5);
   return <group position={[shot.x, shot.y, shot.z]}>
+    {selected && shot.interceptable && <SelectionSparks radius={size*2} />}
     <group rotation={[time * 5, time * 6, 0]}>
       <mesh scale={size} raycast={() => null}>
         <octahedronGeometry args={[1, 0]} />

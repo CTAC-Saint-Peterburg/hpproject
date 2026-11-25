@@ -2,6 +2,7 @@ import { theme } from '../../static/theme';
 import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
+import SelectionSparks from '../Input/SelectionSparks';
 import { BackSide } from 'three';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../Stores/GameStore';
@@ -63,7 +64,8 @@ export default function Slime({ enemy, selected, gestureRef }) {
       <mesh ref={body} onClick={select}>
         <sphereGeometry args={[1, 24, 16]} />
         <meshStandardMaterial color={color} transparent opacity={.58} roughness={.2} emissive={color} emissiveIntensity={.18} depthWrite={false} />
-        {selected && <mesh scale={1.06} raycast={() => null}><sphereGeometry args={[1, 24, 16]} />
+        {selected && <SelectionSparks radius={1.13} />}
+        {selected && <mesh scale={1.12} raycast={() => null}><sphereGeometry args={[1, 24, 16]} />
           <meshBasicMaterial color={theme.colors.white} side={BackSide} transparent opacity={.7} depthWrite={false} />
         </mesh>}
       </mesh>

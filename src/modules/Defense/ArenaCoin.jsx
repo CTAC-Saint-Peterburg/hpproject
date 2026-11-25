@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import SelectionSparks from '../Input/SelectionSparks';
 import { useFrame } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { AdditiveBlending, DoubleSide } from 'three';
@@ -30,6 +31,7 @@ export default function ArenaCoin({ selected, result, time, toss, startedAt = 0,
   }}>
     <TouchHitArea size={40} enabled={!toss && !resolved} />
     <group ref={visual}>
+      {selected && <SelectionSparks radius={.75} height={.2} />}
       <mesh geometry={geometries.body}>
         <meshStandardMaterial color={selected ? theme.colors.coinSelected : theme.colors.coin} roughness={.42} metalness={.65}
           emissive={theme.colors.coin} emissiveIntensity={selected ? .25 : .07} flatShading />

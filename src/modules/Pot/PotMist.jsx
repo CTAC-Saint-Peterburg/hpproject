@@ -1,9 +1,9 @@
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Color, DynamicDrawUsage } from 'three';
 import { theme } from '../../static/theme';
 import { useGameStore } from '../Stores/GameStore';
-import { createPotMistBuffers, writePotMistFrame } from './potMistMotion';
+import { createPotMistBuffers, writePotMistFrame, writePotErrorFrame, POT_ERROR_SECONDS } from './potMistMotion';
 
 // Twenty-four point sprites share one draw call. The tiny textureless shader
 // only sizes/fades soft octagonal puffs; it has no noise, texture or light work.
@@ -36,10 +36,15 @@ const fragmentShader = `
 export function PotMist({ warmth = 0, position = [0, .48, 0] }) {
   const points = useRef();
   const time = useRef(0);
+  const errorAge = useRef(Infinity);
   const buffers = useMemo(() => createPotMistBuffers(), []);
   const uniforms = useMemo(() => ({
     color: { value: new Color(theme.colors.potMist) },
     pixelScale: { value: 1 },
+  }), []);
+  useEffect(() => useGameStore.subscribe((state,previous) => {
+    if (state.runId !== previous.runId || !state.startGame) errorAge.current=Infinity;
+    else if (state.mistakes > previous.mistakes && state.message === 'messages.wrongIngredient') errorAge.current=0;
   }), []);
 
   useFrame((frame, rawDelta) => {
@@ -48,7 +53,11 @@ export function PotMist({ warmth = 0, position = [0, .48, 0] }) {
     points.current.visible = state.status === 'playing';
     if (state.status !== 'playing' || state.paused) return;
     time.current += Math.max(0, Math.min(rawDelta, .1));
-    const count = writePotMistFrame(buffers, time.current, warmth);
+    let count = writePotMistFrame(buffers, time.current, warmth);
+    errorAge.current += Math.max(0,Math.min(rawDelta,.1));
+    const error = errorAge.current < POT_ERROR_SECONDS;
+    points.current.material.uniforms.color.value.set(error ? theme.colors.hudRed : theme.colors.potMist);
+    if (error) count=writePotErrorFrame(buffers,errorAge.current);
     const geometry = points.current.geometry;
     geometry.setDrawRange(0, count);
     geometry.attributes.position.needsUpdate = true;

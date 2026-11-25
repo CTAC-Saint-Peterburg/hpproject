@@ -1,4 +1,5 @@
 import { useMemo, useRef } from 'react';
+import SelectionSparks from '../Input/SelectionSparks';
 import { useFrame } from '@react-three/fiber';
 import { BackSide, Color } from 'three';
 import { config } from './defenseState';
@@ -46,7 +47,8 @@ export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
       onClick={event => { if (!isSelectionClick(event, gestureRef?.current)) return; event.stopPropagation(); useDefenseStore.getState().select(enemy.id); }}>
       <meshStandardMaterial color={color} emissive={frozen ? theme.colors.frozenEnemy : enemy.burnUntil > time ? theme.colors.burningEnemy : elementColor}
         emissiveIntensity={disoriented ? .08 : pulse} roughness={.4} flatShading={shape !== 'slime'} />
-      {selected && <mesh geometry={geometry} scale={1.1} raycast={() => null}>
+      {selected && <SelectionSparks radius={.7} height={.52} />}
+      {selected && <mesh geometry={geometry} scale={1.18} raycast={() => null}>
         <meshBasicMaterial color={theme.colors.enemySelected} side={BackSide} />
       </mesh>}
       <TouchHitArea size={40} />

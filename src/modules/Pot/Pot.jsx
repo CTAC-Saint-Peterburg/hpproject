@@ -52,8 +52,8 @@ export const Pot = ({ bottleRadar = [], gestureRef }) => {
       {s.mission && <CauldronStars rating={s.status === 'lost' ? 0 : brewingRating(s.mission, s.mistakes)} />}
       <PotMist warmth={warmth} position={[0, CAULDRON.mouthY, 0]} />
     </group>
-      {s.status === 'playing' && <Html center position={[0, -1.25, .82]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
-        <div className="pot-runes">
+      {s.status === 'playing' && <Html center position={[0, -1.5, .82]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
+        <div className={'pot-runes periodic-hint' + (s.paused ? ' hint-paused' : '')}>
           <div className="pot-rune pot-rune-heat"><SpellHint spellId={1} labelKey="brewing.ignite" /><span>{t('brewing.heatLabel')}</span></div>
           <div className="pot-rune pot-rune-cool"><SpellHint spellId={2} labelKey="brewing.cool" /><span>{t('brewing.coolLabel')}</span></div>
           <div className="pot-rune pot-rune-stir"><SpellHint spellId={brewing.stirSpell} labelKey="brewing.stir" /><span>{t('brewing.stirLabel')}</span></div>

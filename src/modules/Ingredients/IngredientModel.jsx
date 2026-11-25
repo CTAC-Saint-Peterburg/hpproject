@@ -1,4 +1,5 @@
 import { BackSide, DoubleSide } from 'three';
+import SelectionSparks from '../Input/SelectionSparks';
 import { theme } from '../../static/theme';
 import brewing from '../../static/brewing.json';
 import { getIngredientGeometry, INGREDIENT_MODEL_SIZE } from './ingredientGeometry';
@@ -12,7 +13,8 @@ export default function IngredientModel({ id, color, selected = false, materialR
     scale={brewing.ingredientSize / INGREDIENT_MODEL_SIZE} onClick={onClick} raycast={raycast}>
     <meshStandardMaterial ref={materialRef} color={color} emissive={color} emissiveIntensity={emissiveIntensity}
       roughness={1} metalness={0} flatShading side={flat ? DoubleSide : undefined} transparent />
-    {selected && <mesh geometry={geometry} scale={1.1}
+    {selected && <SelectionSparks radius={INGREDIENT_MODEL_SIZE*.7} />}
+    {selected && <mesh geometry={geometry} scale={1.22}
       position={flat ? [0, 0, -.012] : undefined} raycast={() => null}>
       <meshBasicMaterial color={theme.colors.white} side={flat ? DoubleSide : BackSide} />
     </mesh>}

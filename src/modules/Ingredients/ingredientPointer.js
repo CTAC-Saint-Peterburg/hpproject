@@ -36,5 +36,5 @@ export function clampIngredientPointer(point, camera, z, size, out) {
 
 export function brewingCameraDepth(scene, aspect, touch) {
   const safeAspect = Number.isFinite(aspect) && aspect > 0 ? aspect : 16 / 9;
-  return scene.cameraPosition[2] * (touch ? Math.max(1, 1.35 / safeAspect) : 1);
+  return scene.cameraPosition[2] * (touch ? .92 * Math.max(1, 1.5 / safeAspect) : 1);
 }

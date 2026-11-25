@@ -23,12 +23,12 @@ function FlyingPotion({ flight, time }) {
     displayTime.current = Math.min(time, Math.max(displayTime.current, time - .1) + Math.min(delta, .1));
     writePotionFlightPose(flight, displayTime.current, pose);
     // Rotate around the bottle's centre, preserving the motion helper's feet path.
-    root.current.position.set(pose.position[0], pose.position[1] + .5, pose.position[2]);
+    root.current.position.set(pose.position[0], pose.position[1] + 1.25, pose.position[2]);
     root.current.rotation.set(...pose.rotation);
   });
   if (!potion) return null;
-  return <group ref={root} position={[flight.from[0], flight.from[1] + .5, flight.from[2]]}>
-    <PotionModel potion={potion} quality={flight.quality} position={[0, -.5, 0]} raycast={() => null} />
+  return <group ref={root} position={[flight.from[0], flight.from[1] + 1.25, flight.from[2]]}>
+    <PotionModel potion={potion} quality={flight.quality} scale={2.5} position={[0, -1.25, 0]} raycast={() => null} />
   </group>;
 }
 
@@ -46,23 +46,23 @@ export default function ArenaPotions({ gestureRef }) {
         useDefenseStore.getState().usePotion(potion.id);
       }}>
         <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, .006, 0]} raycast={() => null}>
-          <ringGeometry args={[.28, .36, 12]} />
+          <ringGeometry args={[.7, .9, 12]} />
           <meshBasicMaterial color={selected ? theme.colors.coinSelected : theme.colors.arenaWoodLine} />
         </mesh>
         {count > 0 && <>
-          <PotionModel potion={potion} quality={effect.quality} selected={selected} />
-          <TouchHitArea size={32} position={[0, .5, 0]} />
-          <mesh position={[0, .5, 0]}>
-            <boxGeometry args={[.85, 1.08, .85]} />
+          <PotionModel potion={potion} quality={effect.quality} selected={selected} scale={2.5} />
+          <TouchHitArea size={48} maxWorldRadius={.82} position={[0, 1.25, 0]} />
+          <mesh position={[0, 1.25, 0]}>
+            <boxGeometry args={[1.65, 2.6, 1.65]} />
             <meshBasicMaterial visible={false} />
           </mesh>
         </>}
-        <Html center position={[.43, .23, 0]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
+        <Html center position={[.72, .35, .35]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
           <span className={'arena-potion-count' + (count ? '' : ' arena-potion-empty')} title={t(potion.name)}>
             ×{count}
           </span>
         </Html>
-        {selected && <Html center position={[0, 1.65, 0]} zIndexRange={[6, 0]} style={{ pointerEvents: 'none' }}>
+        {selected && <Html center position={[0, 3.25, 0]} zIndexRange={[6, 0]} style={{ pointerEvents: 'none' }}>
           <div className="arena-potion-hint">
             <strong>{t(potion.name)}</strong>
             <p>{t('arena.potionQuality', {quality: t('potion.quality.' + effect.quality), multiplier: effect.multiplier})}</p>

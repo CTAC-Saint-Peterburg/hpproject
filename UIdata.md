@@ -1,6 +1,61 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **21.11.2026**, версия игры **5.5.0 stable**, пункты **38–49**. Это описание существующего UI, а не макет нового дизайна. Визуальные измерения на устройстве не выполнялись: значения взяты из CSS, JSX, темы и конфигураций.
+Снимок исходников от **25.11.2026**, версия разработки **5.7.0**, пункты **38–51**. Стабильная база 5.5.0 сохранена отдельно. Это описание реализованного UI по CSS/JSX; визуальная приёмка нового APK на телефоне ещё не выполнена.
+
+## Пункт 51 — автовыбор и выделение
+
+| Элемент | Реализованные размеры/состояния | Цвета/эффекты |
+| --- | --- | --- |
+| Кнопка следующей цели | Наследует hint-toggle:46², справа16/снизу16; при высоте≤600:42², справа8/снизу8. SVG36², viewBox48², stroke2.5, палочка и лучи на конце | RuneStart #ffd46b, тень10px; disabled HintInactive и тень6px. Background Surface; круглая рамка2px. Доступная подпись переведена на5 языков |
+| Обводка котла | scale1.075 вместо1.035, BackSide; следует покачиванию | PotSelected #90ffab,16 искр вокруг радиуса1.1/высоты.75 |
+| Ингредиенты | scale1.22 вместо1.1; плоские модели сохраняют DoubleSide | White; искры вокруг радиуса .7×INGREDIENT_MODEL_SIZE |
+| Враги варки | Куб scale1.26 вместо1.16; слизень1.12 вместо1.06 | White; искры следуют модели |
+| Враги арены | scale1.18 вместо1.1; enemyGroundedLift учитывает именно1.18 | EnemySelected #fff3c6;16 искр, радиус.7/высота.52 в локальной системе |
+| Кристаллы | Обводка1.22 вместо1.13 | CrystalSelected #fff2bf;16 искр |
+| Бутылки | Body outline[1.2,1.05,1.2], y=.015; stopper[1.2,1.04,1.2], y=-.035; низ над бортиком | EnemySelected; искры центр[0,.53,0], радиус.38, высота.48 |
+| Искры выбора | Points16, size3px без size attenuation, opacity.85, один draw call; без текстур, света и raycast | EnemySelected по умолчанию; depthWrite false. Пауза замораживает, reduced-motion отключает движение |
+| Красная дымка | Пул24 PotMist, длительность.85с; рост размера.26→.54, подъём до1.03; opacity=.78×(1-progress)² | HudRed #ef5350, затем прежняя обычная дымка; без дополнительного draw call |
+| Зоны выбора | TouchHitArea доступен и мыши; размер минимум46px на touch, минимум34px на ПК, далее учитывается заданный size (по умолчанию44) | Невидимый материал, визуальные модели не раздуваются ради попадания |
+| Бутылки на арене | Модель×2.5, высота2.5; ring .7/.9; hit box1.65×2.6×1.65, дополнительная сфера ≤.82 мирового радиуса | Счётчик [.72,.35,.35], описание [0,3.25,0]; HTML-шрифты прежние |
+| Мини-кристалл | Визуальная группа×2.5, исходный центр на бортике прежний [-6.8,.41,7.1]. Центральный кристалл не масштабируется | Подпись относительно мини-модели [.8,2.55,0], сдвиг вправо предотвращает обрезку слева; сфера попадания ≤1.05 мирового радиуса |
+
+Новых токенов цветов/шрифтов нет; использованы существующие theme.json tokens. Кнопка вызывает штатный выбор, не меняет заклинание. Подробный порядок выбора и ограничения см. DOCUMENTATION.md, раздел5.7.0. Размеры/подпись мини-кристалла и старые коэффициенты выделения в исторических разделах ниже заменены этой таблицей.
+
+Снимок добавленных CSS-правил (ResponsiveUI.css, пункт51):
+
+```css
+.auto-select { left:auto;right:16px;color:var(--color-rune-start);box-shadow:0 0 10px var(--color-rune-start); }
+.auto-select svg { width:36px;height:36px;vertical-align:middle; }
+.auto-select:disabled { color:var(--color-hint-inactive);box-shadow:0 0 6px var(--color-hint-inactive); }
+@media(max-height:600px) { .hint-toggle.auto-select { left:auto;right:8px; } }
+```
+
+## Пункт 50 — актуальная адаптивная компоновка
+
+Этот раздел и заключительный снимок `ResponsiveUI.css` уточняют прежние размеры ниже. Порядок CSS: App → Triptych → ResponsiveUI. Последний файл переопределяет базовые правила; старые снимки App/Triptych сами по себе больше не описывают итоговую компоновку.
+
+| Блок | Размеры / поведение 5.6.0 | Цвета / шрифты / состояния |
+| --- | --- | --- |
+| Игровой кадр | Центрирование внутри окна, Auto ограничивает aspect 1.5–1.8; Compact 1.6; Wide 16/9. Высота app 100dvh с fallback 100vh. Canvas, след и HUD ограничены одним кадром | Поля `black`; без масштабирования DOM transform, координаты указателя относительно Canvas |
+| Портрет телефона | Только в активных режимах и при touch/maxTouchPoints: непрозрачный экран, padding 24, z 16777273; игра inert и штатно приостановлена | `surface/rune`, знак 72px, текст 16px; переводы ru/en/es/fr/zh; продолжение вручную гербом после поворота |
+| Главное меню | flex header + область страниц + навигация; меню overflow hidden. Header min-height 58, на высоте ≤600 — 40. Контент до 400px шириной | Hyped Pot 26/30px, компактно 20/24px; версия 12px/11px; цвет rune |
+| Кошелёк меню | В header справа, max-width 120; больше не отдельный HUD вне рамки. В обучении скрыт | 12px; переиспользована монета TrainerCrystal, быстрые 10 нажатий сохранены |
+| Страницы | ResizeObserver измеряет фактические переведённые блоки; перенос целых блоков, gap 8. Стрелки 48×44, номер страницы 14px. Все основные кнопки одной ширины, min-height 44, перенос текста | Общие button/border/white; disabled opacity .45; скрытый измеритель inert/aria-hidden |
+| Подразделы | Заголовок и верхняя кнопка возврата неподвижны; длинный контент подраздела прокручивается внутри. Язык только на главной странице | Возврат min-height 40 (36 при высоте ≤600) |
+| Пикер зелий | Одна карточка, стрелки ‹/›, выбранные зелья отдельными кнопками быстрого перехода. Карточка 2 колонки в landscape, 1 в portrait; padding 12, gap 16/8 | Название 17px; текст/качество 14px; поля выбора и кнопка полная ширина; выбранность/доступность/качество прежние |
+| Помощь пикера | По умолчанию скрыта; кнопка ? 38×38, circle, aria-expanded; раскрывается над каруселью | rune 22px/700; панель surfaceCard/border |
+| Обучение | Отдельное вступление с «Следующее». Практика: info/actions слева, поле справа; в portrait info/поле/status/actions вертикально. Внешний экран не скроллится | Info 14px, заголовок 20/18px; кнопки min-height 40, 14px; при экстремальной высоте прокручивается только текст info |
+| Поле обучения | ResizeObserver назначает квадрат min(width,height) доступной ячейки; viewBox 600², размер DOM и рисунка согласован. SVG не скроллится, pointer capture сохранён | Прежние parchment, strokes, сетка; действия 2×2, gap 6 |
+| Температура + помешивание | Единый flex внизу по центру, bottom 8/4, gap 18/14. Температура 54×70 (44×58 при высоте ≤600), котёл 70×57 (58×48) | Значения 24px/22px; подпись 14px/13px, прежняя волна букв. Прежние SVG/заливка runeStart |
+| Подсказки котла | Html [0,-1.5,.82] вместо [0,-1.25,.82]; цикл 6с: плавные фазы видимости/скрытия примерно по 3с | opacity: 1 на 0–38%, 0 на 50–88%, затем 1. На паузе котла замерзает. reduced-motion: постоянно видны |
+| Подсказки ингредиентов | Html y = -ingredientSize*.5-.62 вместо -.36; такой же цикл, pointer-events none | При малой высоте руна 36²; у котла руны 30², подписи 12px, ширина по тексту, min 44 |
+| Рецепт | При высоте кадра <600: вместо 3D-глифов Html в [-3,.35,.03], width 220/max 30vw, padding 8, строки margin 4; те же максимум 4 текущих действия/этапа | 14px/1.25; фон surfaceVeil, текущая строка recipeCurrent, остальные recipeUpcoming; цветные маркеры 8² |
+| Камера варки | Touch: cameraZ × .92 × max(1,1.5/aspect); PC cameraZ прежний 9.2, FOV60 | Это изменение кадрирования, не размера или коллизии котла; все ингредиенты проверены проекционными тестами |
+| Каст без цели | Центр, bottom 92/72, max-width90%, padding5×10, z30, 3с; обе сцены. Удерживаемый объект считается целью | «Нажмите на вашу цель», rune/surfaceVeil, 18/16px, прежняя волна букв; сообщение не меняет эффект каста |
+| Развёрнутые игровые подсказки | Max-width30% кадра, max-height55%, padding8, отдельная прокрутка текста; открываются прежней ? | 14px/1.3. Не накрывают центральные нижние индикаторы |
+| Арена на высоте ≤600 | HP56×60; монета30²/контейнер32²; значения22px, волна13px/римское число23px. Статус кристалла140px, текст12px | Статусы врагов подняты с10 до12px; HP/руны сохранили контраст; микроанимации и фильтрация наложений прежние |
+
+Новых цветов, шрифтовых файлов и 3D-моделей нет. Таблица существующих цветовых токенов ниже сохраняется. Дополнительные адаптивные типоразмеры — локальные CSS-значения из таблицы выше (не новые theme.json tokens). Настройка экрана сохраняется в `hpproject-display-v1`, игровые данные `hpproject-save-v1` не мигрируются. См. UI50_REPORT.md для тестов и ограничений.
 
 Пункт 49: без сохранённого ручного выбора язык определяется по системному списку (Android native locales, затем navigator.languages/language). Региональные варианты сводятся к ru/en/zh/es/fr, при отсутствии поддерживаемого языка используется English. Ручной выбор в меню приоритетнее системного. CSS, размеры, цвета и токены не менялись. Версия 5.5.0 признана стабильной базой, дальнейшая работа — Android-перенос, без новых изменений игрового UI/баланса.
 
@@ -129,7 +184,7 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 
 При prefers-reduced-motion: reduce нет покачивания/частиц, раскрытие мгновенное, CSS появления отключён. В варке на паузе Canvas работает demand, чтобы герб обновлялся и оставался доступным; игровой tick остановлен. Экран раскрытия z-index 16777274, закрытый триптих 8, открытое главное меню auto (не изолирует модальное окно карточек от кошелька), trainer по-прежнему в top layer. Цветовых токенов не добавлено.
 
-`.menu`: height 100%, border-box, overflow auto, flex column, align-items center, justify-content safe center, gap 16px, padding 72px 24px; абзацы max-width 680px. У обучения и бестиария выравнивание сверху. Размер кнопок меню зависит от текста, единой фиксированной ширины нет.
+В 5.6.0 `.menu.triptych-page` имеет overflow hidden и фиксированную шапку; главный список разбит на измеряемые страницы шириной до 400px. Подразделы прокручивают только `.menu-section-content`. Общие старые `.menu` стили ниже переопределяются `ResponsiveUI.css`; кнопки главного списка одинаковой ширины и допускают перенос текста.
 
 | Блок | Размеры и расположение | Цвет / текст / состояния |
 | --- | --- | --- |
@@ -158,7 +213,7 @@ Emoji (💎, значки зелий, 🏆, 🔒) рисует системны�
 
 ## Обучение и звук
 
-Обучение width min(760px,100%), column centered gap 12px. Поле SVG width min(520px,100%), aspect-ratio 1, viewBox 600×600, border 3px parchmentBorder, radius 12px, parchment; внутренний shadow 0 0 60px parchmentShadow и внешний 0 12px 32px shadowSoft. Touch-action none, user-select none, cursor crosshair.
+В 5.6.0 обучение занимает доступную область без внешнего скролла; вступление отделено от практики. Практика — адаптивная grid (см. таблицу пункта 50). SVG квадрат по доступной ячейке, viewBox 600×600, border 3px parchmentBorder, radius 12px, parchment; внутренний shadow 0 0 60px parchmentShadow и внешний 0 12px 32px shadowSoft. Touch-action none, user-select none, cursor crosshair.
 
 SVG сетка 30×30, trainingGrid opacity .15. Образец: ореол толщиной 32 trainingGlow opacity .3; пунктир trainingRune 3, dasharray 9 7; стрелка 3, marker 9×9; старт радиус 11, trainingStart с рамкой 3 trainingStartBorder. Нарисованный след 7 trainingStroke, скруглённые концы/стыки. Это отдельный след обучения, не золотой игровой Canvas-след. Панель действий flex wrap gap 10px; крайние предыдущий/следующий disabled.
 
@@ -845,4 +900,90 @@ button:disabled { opacity: .45; cursor: default; }
 @keyframes triptych-reveal { from { opacity: .3; transform: scale(.98); } to { opacity: 1; transform: scale(1); } }
 @media (max-width: 600px) { .triptych-content { inset: 7px; border-width: 8px; }.triptych-content .menu { padding: 84px 14px 24px; }.pause-notice { top: 154px; }.triptych-content::before { left: -6px; }.triptych-content::after { right: -6px; } }
 @media (prefers-reduced-motion: reduce) { .triptych-content { animation: none; } }
+```
+
+
+## ResponsiveUI.css: snapshot 50 (5.6.0)
+
+```css
+/* Task 50: final layout rules, after the historical App / Triptych styles. */
+.app { height:100vh;height:100dvh; }
+.game-frame-host { position:absolute;inset:0;display:grid;place-items:center;background:var(--color-black); }
+.game-frame { position:relative;overflow:hidden; }
+.rotate-screen { position:absolute;inset:0;z-index:16777273;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:var(--color-surface);color:var(--color-rune);text-align:center; }
+.rotate-screen > span { font-size:72px; }.rotate-screen p { max-width:360px;font-size:16px; }
+.triptych-content .menu.triptych-page { padding:12px 18px;gap:8px;overflow:hidden;justify-content:flex-start; }
+.menu-heading { position:relative;flex:none;text-align:center;padding:0 120px;box-sizing:border-box;width:100%;min-height:58px; }
+.menu-wallet { position:absolute;top:0;right:0;max-width:120px;display:flex;align-items:center;gap:4px;font-size:12px;overflow-wrap:anywhere; }.menu-wallet .trainer-crystal { flex:none; }.menu-wallet span { min-width:0; }
+.menu-heading h1 { font-size:26px;line-height:30px;margin:0;color:var(--color-rune); }.menu-heading p { margin:0;font-size:12px; }
+.menu-pagination { flex:1;min-height:0;width:min(400px,100%);display:flex;flex-direction:column;gap:8px; }
+.menu-page-area { flex:1;min-height:0;position:relative; }
+.menu-page-measure { position:absolute;left:0;top:0;width:100%;visibility:hidden;pointer-events:none;display:flex;flex-direction:column;gap:8px; }
+.menu-page-items { height:100%;display:flex;flex-direction:column;justify-content:center;gap:8px; }
+.menu-block { flex:none;width:100%; }.menu-block > * { box-sizing:border-box;width:100%;max-width:none;margin:0; }
+.menu-block button,.menu-block select { width:100%;min-height:44px;white-space:normal;overflow-wrap:anywhere; }
+.menu-block label { text-align:center;gap:4px;font-size:14px; }.menu-block article { width:100%;padding:8px;font-size:14px; }.menu-block article p { margin:0 0 8px; }
+.page-arrows { display:flex;flex:none;align-items:center;justify-content:center;gap:16px;min-height:44px; }
+.page-arrows button { width:48px;height:44px;padding:0;font-size:28px;line-height:1; }.page-arrows span { min-width:60px;text-align:center;font-size:14px; }
+button:disabled { opacity:.45;cursor:default; }
+.menu-section-content { flex:1;min-height:0;width:100%;overflow:auto;overscroll-behavior:contain;display:flex;flex-direction:column;align-items:center;gap:12px; }
+.menu-section-content > * { flex-shrink:0; }.menu-back { min-height:40px;padding:6px 12px; }
+.game-frame:not(.game-frame-active) .wallet { z-index:9;top:44px;right:44px;max-width:160px;padding:4px 6px;font-size:14px; }
+.defense-setup { position:relative;max-width:760px;gap:8px; }.defense-setup p { margin:0;font-size:14px; }
+.setup-heading { display:flex;align-items:center;justify-content:center;gap:12px; }.setup-heading h2 { margin:0;font-size:20px; }
+.small-help { width:38px;height:38px;padding:0;border-radius:50%;color:var(--color-rune);font-weight:700;font-size:22px; }
+.setup-help { box-sizing:border-box;width:100%;padding:14px;background:var(--color-surface-card);border:1px solid var(--color-border);border-radius:8px; }.setup-help p+p { margin-top:8px; }
+.potion-carousel { width:100%; }.menu .potion-carousel .potion-card { width:100%;padding:12px;display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center; }
+.potion-card h3 { margin:0;font-size:17px; }.potion-details p { margin:6px 0;font-size:14px; }.potion-details .potion-symbol { float:left;margin-right:8px;font-size:28px; }
+.potion-choice { min-width:0; }.potion-choice label { font-size:14px; }.potion-choice select { min-height:44px;padding:8px; }
+.loadout-summary { display:flex;justify-content:center;flex-wrap:wrap;gap:4px; }.loadout-summary button { padding:5px 8px;min-height:36px;font-size:12px; }
+.triptych-content .menu.training-menu { padding:12px;overflow:hidden; }
+.training-intro { margin:auto;max-height:100%;overflow:auto;flex-shrink:1; }.training-intro p { font-size:16px; }
+.training-practice { width:100%;height:100%;min-height:0;flex-shrink:1;display:grid;grid-template-columns:minmax(220px,1fr) minmax(0,1.3fr);grid-template-rows:minmax(0,1fr) auto auto;gap:8px 16px; }
+.training-info { min-height:0;max-height:100%;overflow:auto; }
+.training-info { grid-column:1;grid-row:1;align-self:center;display:flex;flex-direction:column;gap:6px;min-width:0; }.training-info h2 { font-size:20px; }.training-info h3 { font-size:15px; }.training-info p,.training-info label { font-size:14px;line-height:1.3; }.training-info select { width:100%;padding:6px;min-height:40px; }
+.training-drawing { grid-column:2;grid-row:1 / 4;align-self:stretch;min-height:0;min-width:0;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+.training-drawing .training-board { box-sizing:border-box;width:100%;height:100%;max-width:100%;max-height:100%;aspect-ratio:1;object-fit:contain;flex-shrink:1; }
+.training-feedback { grid-column:1;grid-row:2;font-size:14px;line-height:1.3; }.training-feedback p { line-height:1.3; }
+.training-actions { grid-column:1;grid-row:3;display:grid;grid-template-columns:1fr 1fr;gap:6px; }.training-actions button { min-height:40px;padding:6px;font-size:14px; }
+.brewing-meters { position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:24;display:flex;align-items:center;justify-content:center;gap:18px;pointer-events:none; }
+.brewing-meters .temperature-indicator,.brewing-meters .stirring-indicator { position:relative;left:auto;bottom:auto;transform:none; }
+.brewing-meters .temperature-indicator { width:54px;height:70px; }.brewing-meters .stirring-icon { width:70px;height:57px; }
+.brewing-meters .stirring-percent,.brewing-meters .temperature-indicator strong { font-size:24px; }
+.periodic-hint { animation:spell-hint-breathe 6s ease-in-out infinite;pointer-events:none; }.hint-paused { animation-play-state:paused; }
+@keyframes spell-hint-breathe { 0%,38%,100% { opacity:1; } 50%,88% { opacity:0; } }
+.target-prompt { position:absolute;z-index:30;left:50%;bottom:92px;transform:translateX(-50%);max-width:90%;padding:5px 10px;border-radius:6px;background:var(--color-surface-veil);color:var(--color-rune);font-size:18px;pointer-events:none;text-align:center; }
+.compact-recipe { box-sizing:border-box;width:220px;max-width:30vw;padding:8px;background:var(--color-surface-veil);border-radius:4px;font-size:14px;line-height:1.25;text-shadow:0 1px 2px var(--color-black); }
+.compact-recipe > div { margin:4px 0; }.compact-recipe i { display:inline-block;width:8px;height:8px;margin-right:5px; }
+.game-frame-active .hud,.game-frame-active .arena-hints { box-sizing:border-box;max-width:30%;max-height:55%;overflow:auto;pointer-events:auto;font-size:14px;line-height:1.3;padding:8px;bottom:76px;left:8px; }
+.game-frame-active .hud p,.game-frame-active .arena-hints p { margin:5px 0;line-height:1.3; }.game-frame-active .arena-hints { top:100px;bottom:auto; }
+@media (orientation:portrait) {
+  .training-practice { grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto auto;gap:8px; }
+  .training-info { grid-column:1;grid-row:1;gap:4px; }.training-info h2 { font-size:18px; }.training-info h3 { display:none; }
+  .training-drawing { grid-column:1;grid-row:2; }.training-feedback { grid-column:1;grid-row:3; }.training-actions { grid-column:1;grid-row:4; }
+  .menu .potion-carousel .potion-card { grid-template-columns:1fr;gap:8px; }
+}
+@media (max-height:600px) {
+  .triptych-content { inset:6px;border-width:6px; }.triptych-content .menu.triptych-page { padding:6px 12px;gap:5px; }
+  .menu-heading { min-height:40px; }.menu-heading h1 { font-size:20px;line-height:24px; }.menu-heading p { font-size:11px; }
+  .game-frame:not(.game-frame-active) .wallet { top:20px;right:24px;font-size:12px;max-width:140px; }
+  .menu-back { min-height:36px;padding:4px; }.defense-setup { gap:5px; }.setup-heading h2 { font-size:17px; }
+  .game-frame-active .timer { top:8px;right:8px;padding:6px;font-size:14px; }
+  .pot-runes { gap:7px; }.pot-runes .spell-hint { width:30px;height:30px; }.pot-rune { width:auto;min-width:44px; }.pot-rune span:last-child { font-size:12px; }
+  .ingredient-rune .spell-hint { width:36px;height:36px; }
+  .brewing-meters { bottom:4px;gap:14px; }.brewing-meters .temperature-indicator { width:44px;height:58px; }.brewing-meters .stirring-icon { width:58px;height:48px; }
+  .brewing-meters .stirring-percent,.brewing-meters .temperature-indicator strong { font-size:22px; }.stirring-label { font-size:13px; }
+  .target-prompt { bottom:72px;font-size:16px; }.hint-toggle { bottom:8px;left:8px;width:42px;height:42px;font-size:26px; }
+  .arena-top.arena-top-indicators { top:7px;left:8px;right:8px; }.arena-crystal-health { width:56px;height:60px; }.arena-currency-target,.arena-currency .trainer-crystal { width:32px;height:32px; }.arena-currency .currency-coin { width:30px;height:30px; }
+  .arena-currency strong,.arena-crystal-health strong { font-size:22px; }.arena-wave { font-size:13px; }.arena-wave strong { font-size:23px; }.defense-game .pause-notice { top:68px; }
+  .arena-crystal-status { width:140px;padding:4px;font-size:12px;gap:2px; }.arena-crystal-status strong,.arena-crystal-status small { font-size:12px; }
+  .arena-enemy-status-list > span { font-size:12px; }
+  .arena-between { top:85px;right:8px;padding:10px;max-height:calc(100% - 110px);overflow:auto; }.arena-between h2 { font-size:18px; }
+}
+@media (max-width:600px) {
+  .menu-heading { padding:0 130px 0 0;text-align:left; }.menu-heading h1 { font-size:21px; }
+  .game-frame:not(.game-frame-active) .wallet { top:27px;right:24px;max-width:135px;font-size:12px; }
+}
+@media (prefers-reduced-motion:reduce) { .periodic-hint { animation:none; } }
+
 ```

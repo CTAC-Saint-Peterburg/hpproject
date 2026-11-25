@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import SelectionSparks from '../Input/SelectionSparks';
 import { useFrame } from '@react-three/fiber';
 import { theme } from '../../static/theme';
 import { shopItems } from '../../static/themedConfigs';
@@ -27,7 +28,8 @@ export default function ArenaCrystal({ selected, effects = {}, gestureRef }) {
     }}>
       <octahedronGeometry args={[.85, 0]} />
       <meshStandardMaterial color={color} emissive={color} emissiveIntensity={.8} metalness={.3} roughness={.1} />
-      {selected && <mesh scale={1.13} raycast={() => null}>
+      {selected && <SelectionSparks radius={1.02} />}
+      {selected && <mesh scale={1.22} raycast={() => null}>
         <octahedronGeometry args={[.85, 0]} />
         <meshBasicMaterial color={theme.colors.crystalSelected} wireframe />
       </mesh>}
