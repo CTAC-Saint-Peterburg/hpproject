@@ -1,5 +1,6 @@
 ﻿import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
+import { potDepth } from '../Room/workshopLayout';
 import { PotParticles } from './PotParticles';
 import { useGameStore } from '../Stores/GameStore';
 import { Html } from '@react-three/drei';
@@ -22,6 +23,9 @@ export const Pot = ({ bottleRadar = [], gestureRef }) => {
   const s = useGameStore();
   const appearance = shopItems.find(item => item.id === s.equippedItems.pot && item.type === 'pot');
   const bowl = useRef();
+  const { camera, size } = useThree();
+  const depth=potDepth(camera.position.z);
+  const hintY=-1.65-Math.min(.35,100/size.height);
   useFrame((frame, delta) => {
     if (useGameStore.getState().paused) return;
     if (bowl.current) {
@@ -44,7 +48,7 @@ export const Pot = ({ bottleRadar = [], gestureRef }) => {
     if (!isSelectionClick(event, gestureRef?.current)) return;
     event.stopPropagation(); if (s.status === 'playing') s.togglePotSelected();
   };
-  return <group>
+  return <group position={[0,0,depth]}>
     <group ref={bowl} rotation={[CAULDRON.tilt, 0, 0]}
       onClick={select}>
       <TouchHitArea onClick={select} minWorldRadius={.65} />
@@ -52,7 +56,7 @@ export const Pot = ({ bottleRadar = [], gestureRef }) => {
       {s.mission && <CauldronStars rating={s.status === 'lost' ? 0 : brewingRating(s.mission, s.mistakes)} />}
       <PotMist warmth={warmth} position={[0, CAULDRON.mouthY, 0]} />
     </group>
-      {s.status === 'playing' && <Html center position={[0, -1.5, .82]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
+      {s.status === 'playing' && <Html center position={[0, hintY, .2]} zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
         <div className={'pot-runes periodic-hint' + (s.paused ? ' hint-paused' : '')}>
           <div className="pot-rune pot-rune-heat"><SpellHint spellId={1} labelKey="brewing.ignite" /><span>{t('brewing.heatLabel')}</span></div>
           <div className="pot-rune pot-rune-cool"><SpellHint spellId={2} labelKey="brewing.cool" /><span>{t('brewing.coolLabel')}</span></div>

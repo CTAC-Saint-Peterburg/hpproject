@@ -3,11 +3,12 @@ import { useThree } from '@react-three/fiber';
 import { Vector3 } from 'three';
 import { useGameStore } from '../Stores/GameStore';
 import { useDefenseStore } from '../Defense/DefenseStore';
-import { enemyPosition, isPotBlocked } from '../../static/enemies';
+import { isPotBlocked } from '../../static/enemies';
 import { SPAWN_BOTTLES_CORDS } from '../../static/constants';
 import brewing from '../../static/brewing.json';
 import { defenseConfig } from '../../static/themedConfigs';
 import { nearestEnemies, nextTarget } from './autoTargets';
+import { potDepth, rackPoint, workshopEnemyPosition } from '../Room/workshopLayout';
 
 export default function SceneAutoSelect({ arena = false, positions }) {
   const { camera, viewport } = useThree();
@@ -30,13 +31,13 @@ export default function SceneAutoSelect({ arena = false, positions }) {
       if (s.paused || s.status !== 'playing') return;
       const view = viewport.getCurrentViewport(camera,[0,0,0]), targets = [];
       if (!isPotBlocked(s.enemies,now)) {
-        if (visible([0,0,0])) targets.push({key:'pot',kind:'pot'});
+        if (visible([0,0,potDepth(camera.position.z)])) targets.push({key:'pot',kind:'pot'});
         if (!s.ingredientFlight) for (const item of SPAWN_BOTTLES_CORDS) {
-          const position = positions?.current.get(item.id)?.toArray() ?? item.cords;
+          const position = positions?.current.get(item.id)?.toArray() ?? rackPoint(item.cords);
           if (now-(s.ingredientRefills[item.id]??-Infinity) >= brewing.ingredientAnimation.refillSeconds*1000 && visible(position)) targets.push({key:'ingredient:'+item.id,kind:'ingredient',id:item.id});
         }
       }
-      for (const enemy of s.enemies) if (visible(enemyPosition(enemy,now,view.width,view.height))) targets.push({key:'enemy:'+enemy.id,kind:'enemy',id:enemy.id});
+      for (const enemy of s.enemies) if (visible(workshopEnemyPosition(enemy,now,camera,view))) targets.push({key:'enemy:'+enemy.id,kind:'enemy',id:enemy.id});
       const current = s.isPotSelected ? 'pot' : s.selectedEnemyId != null ? 'enemy:'+s.selectedEnemyId : s.selectedIngredientId != null ? 'ingredient:'+s.selectedIngredientId : null;
       const next = nextTarget(targets,current);
       // Existing selectors toggle on repetition; a single available target must stay selected.

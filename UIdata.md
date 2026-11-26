@@ -1,6 +1,52 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **25.11.2026**, версия разработки **5.7.0**, пункты **38–51**. Стабильная база 5.5.0 сохранена отдельно. Это описание реализованного UI по CSS/JSX; визуальная приёмка нового APK на телефоне ещё не выполнена.
+Снимок исходников от **26.11.2026**, версия разработки **5.9.1**, пункты **38–53 с правками**. Стабильная база5.5.0 сохранена отдельно. Значения проверены по исходникам и автоматическим тестам; визуальная приёмка APK на телефоне ещё не выполнена.
+
+### Правки53, 5.9.1
+
+- Дымка превью плавно затухает в экранном шейдере: полностью видна дальше17% ширины/высоты от края, исчезает за3.5% до границы. Canvas теперь inset0, рамка/модель не маскируются. Обычная игровая дымка без этого затухания.
+- Селект миссии и «Играть» всегда ниже модели, включая landscape. Для низких экранов уменьшена только высота превью; интерактивные кнопки остаются ≥44px.
+- Все модели врагов защиты ×1.15 по каждой оси, включая обводку и искры. Наземные модели/обводки удерживаются над столом через enemyGroundedLift, подсказки подняты под новый размер. Hit-test идёт по увеличенному мешу, дополнительная зона touch прежнего минимального размера. HP, скорость, дальности атак, перенос и спавн не менялись.
+- Монета внутри TrainerCrystal (кошелёк меню и защиты) вращается вокруг Y без смещения: цикл11с, поворот360° между79% и94% цикла (1.65с), остальное время покой. Центр50%50%, область кнопки неподвижна. reduced-motion отключает вращение; декоративные цены магазина не анимируются.
+
+## 53 — карточка выбора режима, 26.11.2026
+
+Главное меню теперь начинает с неделимого блока ModeSelector: заголовок «Выбор режима», две стрелки, 3D-превью с названием режима, выбор миссии и общая зелёная кнопка «Играть». Первая карточка — варка, начальная миссия по прежнему GameStore — level_01. Котёл использует купленный/надетый цвет, CauldronModel и CauldronStars; 0–3 звезды берутся из records[selectedLevel], непройденная миссия показывает погасшие звёзды. Смена миссии обновляет звёзды без запуска игры. Защита показывает CrystalModel из бестиария (та же геометрия арены), цвет экипировки плавно переходит к огню и холоду. «Играть» в защите открывает прежний DefenseSetup, расход зелий и запуск волны не обходятся.
+
+Карточка идёт первой, чтобы на низком экране игрок сразу видел режим; язык и остальные пункты идут далее в прежней пагинации. Hyped Pot, версия и кошелёк остаются в неподвижной шапке. Меняется только блок запуска; качество рецепта доступно в игровых подсказках, отдельный абзац правила качества из главного меню убран.
+
+| Элемент / токен | Реализованное значение |
+| --- | --- |
+| Ширина главной пагинации | min(560px,100%); обычные пункты min(400px,100%) |
+| Заголовок выбора | 18px / 24px, rune; на низком landscape 16px / 20px |
+| Стрелки режима | 44×52px, глиф32px, rune; gap10px |
+| Превью | высота180px, border1px border, radius12px, surfaceCard |
+| Название режима | 14px / 18px, rune, тень black; снизу4px |
+| Селект | ≥44px, padding8px, 14px, обрезка длинного выбранного текста; полные названия в системном списке |
+| Играть | ≥44px, health #a1dfb1; текст surface; hover potSelected #90ffab; жирный |
+| Низкий landscape ≤600px | 1 колонка; превью clamp(52px,100vh−260px,112px), fallback64px; название12px / 14px, селект и запуск под моделью; gap4px |
+| Узкий portrait ≤380px | превью150px, gap5px, действия на всю ширину |
+| Дымка | прежний PotMist, 24 частицы из котла + 4×21 по краям; фиксированные буферы, без текстур; opacity×2.5 / ×1.6, размер×1.3 |
+| Отрисовка | один Canvas только у видимой карточки, DPR1, без antialias; измерительная копия не создаёт сцену; reduced-motion → demand |
+
+CSS после ResponsiveUI.css: `src/modules/Menu/ModeSelector.css`. Это актуальное дополнение к старым снимкам меню ниже; их отдельные кнопки запуска заменены каруселью. Размеры проверены по коду, не по скриншоту. Ручная матрица: 568×320, 640×360, 844×390, 320×568, 390×844, desktop; пять языков, 0/1/2/3 звезды, смена режима туда/обратно, возврат из магазина/подготовки, запуск обоих режимов, reduced-motion.
+
+
+## Пункт52 — актуальная компоновка варки
+
+Этот раздел заменяет прежние положения котла/стенда/рецепта и правило HTML-рецепта из пункта50. Камера и экранные индикаторы не перемещались.
+
+| Элемент | Размеры и расположение | Цвета/шрифты |
+| --- | --- | --- |
+| Котёл со звёздами, дымкой, нагревом | Z=cameraZ×.25:2.116 в стандартном touch,2.3 на ПК. Расстояние до камеры75% прежнего | Прежние материалы, скины и выделение |
+| Руны котла | Внутри новой группы: [0,−1.65−min(.35,100/height),.2]; ниже прежнего положения | Размеры CSS, периодичность, цвета прежние |
+| Стенд | Pivot исходного X=4; scaleX=.8, yaw=−.16rad, translation[3.8,0,1.2]. Ингредиенты используют ту же функцию rackPoint | Прежняя древесина/моноцвет; меш стенда отдельно от доски |
+| Доска | Z=cameraZ×.25; width=max(2,min(viewWidth×.48−1.45,max(4.7,230×worldPixel))); rightX=−1.45. Высота=4×row+.32; y=max(.45,height/2−.85) | Старые roomBoard/roomWood/roomWoodLight; один объединённый mesh |
+| Текст | font=max(.22,worldPixel×(heightPx<360?13:14)); row=max(.48,font×2.4); maxWidth=boardWidth−.62; lineHeight1.15; anchor left/top, marginLeft.4, top.16; до4 действий/этапов | RecipeCurrent/RecipeUpcoming, прежний spatial font. Одинаковая читаемая высота строк вместо уменьшения нижних |
+| Маркеры | Квадрат font×.65, слева на boardWidth/2−.19, рядом с первой строкой каждого ингредиента | Прежние цвета ингредиентов |
+| Слизень | Z=potZ+1; X корректируется отношением расстояний до камеры, чтобы подход оставался в той же экранной области | Сохранены модель, подсказки и след; не скрывается за новым котлом |
+
+`worldPixel` — мировая высота на1 CSS px в плоскости нового котла. HTML `.compact-recipe` и оба его CSS-правила удалены; никаких окон поверх доски больше не создаётся. Общая панель помощи по кнопке? сохраняет своё обычное поведение. Новых токенов цветов/шрифтов нет. Исторический CSS-снимок50 ниже содержит старые compact-recipe правила только как историю; в актуальном ResponsiveUI.css их нет.
 
 ## Пункт 51 — автовыбор и выделение
 
@@ -985,5 +1031,44 @@ button:disabled { opacity:.45;cursor:default; }
   .game-frame:not(.game-frame-active) .wallet { top:27px;right:24px;max-width:135px;font-size:12px; }
 }
 @media (prefers-reduced-motion:reduce) { .periodic-hint { animation:none; } }
+
+```
+
+## CSS snapshot 53: Menu/ModeSelector.css (5.9.1)
+
+```css
+/* Task 53: one measured carousel block; hidden pagination copies have no Canvas. */
+.page-main .menu-pagination { width:min(560px,100%); }
+.page-main .menu-block > :not(.mode-selector) { width:min(400px,100%);margin-inline:auto; }
+.page-main .menu-block > button { display:block; }
+.menu .mode-selector { display:grid;gap:8px;width:100%;padding:0;background:none; }
+.mode-selector h2 { margin:0;text-align:center;color:var(--color-rune);font-size:18px;line-height:24px; }
+.mode-carousel { display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:10px; }
+.menu-block .mode-arrow { width:44px;height:52px;padding:0;font-size:32px;color:var(--color-rune); }
+.mode-preview { position:relative;min-width:0;height:180px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-card); }
+.mode-preview-canvas { position:absolute;inset:0;pointer-events:none; }
+.mode-name { position:absolute;left:4px;right:4px;bottom:4px;text-align:center;color:var(--color-rune);font-size:14px;line-height:18px;text-shadow:0 1px 3px var(--color-black);pointer-events:none; }
+.mode-actions { display:grid;gap:8px;width:calc(100% - 108px);min-width:0;justify-self:center; }
+.mode-mission,.mode-mission select { min-width:0;max-width:100%; }
+.menu-block .mode-mission select { box-sizing:border-box;padding:8px;font-size:14px;text-overflow:ellipsis; }
+.mode-actions .mode-defense-note { margin:0;min-height:44px;display:grid;place-items:center;text-align:center;font-size:14px;line-height:18px; }
+.menu-block .mode-play { background:var(--color-health);color:var(--color-surface);border-color:var(--color-health);font-weight:700; }
+.menu-block .mode-play:hover { background:var(--color-pot-selected); }
+@media (max-height:600px) and (orientation:landscape) {
+  .menu .mode-selector { grid-template-columns:minmax(0,1fr);gap:4px; }
+  .mode-selector h2 { font-size:16px;line-height:20px; }
+  .mode-carousel { grid-template-columns:44px minmax(0,1fr) 44px;gap:4px; }
+  .mode-preview { height:64px;height:clamp(52px,calc(100vh - 260px),112px); }
+  .mode-actions { width:calc(100% - 96px);gap:4px; }
+  .mode-name { font-size:12px;line-height:14px; }
+}
+.trainer-crystal .currency-coin { transform-origin:50% 50%;animation:currency-turn 11s ease-in-out infinite; }
+@keyframes currency-turn { 0%,79% { transform:rotateY(0deg); } 94%,100% { transform:rotateY(360deg); } }
+@media (prefers-reduced-motion:reduce) { .trainer-crystal .currency-coin { animation:none; } }
+@media (max-width:380px) and (orientation:portrait) {
+  .mode-carousel { gap:5px; }
+  .mode-preview { height:150px; }
+  .mode-actions { width:100%; }
+}
 
 ```

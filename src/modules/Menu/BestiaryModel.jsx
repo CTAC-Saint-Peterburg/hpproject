@@ -75,12 +75,12 @@ function CoinModel({ currency }) {
   </group>)}</>;
 }
 
-function CrystalModel({ color }) {
+export function CrystalModel({ color, materialRef }) {
   return <group position={[0, -.9, 0]}>
     <mesh position={[0, .18, 0]}><cylinderGeometry args={[1.1, 1.3, .35, 8]} />
       <meshStandardMaterial color={theme.colors.crystalBase} metalness={.5} roughness={.4} /></mesh>
     <mesh position={[0, 1.1, 0]}><octahedronGeometry args={[.85, 0]} />
-      <meshStandardMaterial color={color} emissive={color} emissiveIntensity={.6} metalness={.3} roughness={.1} /></mesh>
+      <meshStandardMaterial ref={materialRef} color={color} emissive={color} emissiveIntensity={.6} metalness={.3} roughness={.1} /></mesh>
   </group>;
 }
 

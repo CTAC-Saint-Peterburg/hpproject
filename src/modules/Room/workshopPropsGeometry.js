@@ -4,7 +4,7 @@ import { theme } from '../../static/theme.js';
 
 // All props stay behind the ingredient/recipe interaction plane. Twenty-two boxes,
 // 264 triangles, one vertex-coloured material and one draw call.
-export function createWorkshopPropsGeometry() {
+export function createWorkshopPropsGeometry({ board = true, rack = true } = {}) {
   const parts = [];
   const addBox = (size, position, colorToken) => {
     const geometry = new BoxGeometry(...size);
@@ -23,6 +23,7 @@ export function createWorkshopPropsGeometry() {
 
   // A quiet, broad timber rack behind the two existing ingredient rows.
   // Narrow seams suggest planks without adding a texture or extra material.
+  if (rack) {
   for (let plank = 0; plank < 5; plank++) {
     addBox([1.26, 3.25, .08], [2.04 + plank * 1.28, 1.9, -1.92],
       plank % 2 ? 'roomWoodDark' : 'roomWood');
@@ -40,8 +41,10 @@ export function createWorkshopPropsGeometry() {
     }
   }
 
+  }
   // The floating recipe remains the only writing: this is a dark slate backing
   // and a restrained timber frame, positioned behind the original text.
+  if (board) {
   addBox([4.7, 2.3, .08], [-3.1, .45, -1.65], 'roomBoard');
   for (const x of [-5.45, -.75]) {
     addBox([.12, 2.42, .12], [x, .45, -1.60], 'roomWoodLight');
@@ -51,6 +54,7 @@ export function createWorkshopPropsGeometry() {
   }
   for (const x of [-5.3, -.9]) {
     addBox([.14, .32, .18], [x, -.84, -1.64], 'roomWoodDark');
+  }
   }
 
   const geometry = mergeGeometries(parts, false);

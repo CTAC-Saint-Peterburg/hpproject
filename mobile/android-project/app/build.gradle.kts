@@ -18,8 +18,8 @@ android {
         applicationId = "com.example.hpgame"
         minSdk = 24
         targetSdk = 37
-        versionCode = 5700
-        versionName = "5.7.0"
+        versionCode = 5901
+        versionName = "5.9.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

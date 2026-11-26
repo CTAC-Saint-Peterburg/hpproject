@@ -7,10 +7,10 @@ import { STAR_PLACEMENTS, createCauldronStarGeometry } from './cauldronStarsGeom
 
 const geometry = createCauldronStarGeometry();
 const gold = new Color(theme.colors.runeStart), dark = new Color(theme.colors.roomWoodDark);
-function Star({ placement, active, index }) {
-  const material = useRef(), halo = useRef(), light = useRef(1), clock = useRef(0);
+function Star({ placement, active, index, preview }) {
+  const material = useRef(), halo = useRef(), light = useRef(active ? 1 : 0), clock = useRef(0);
   useFrame((_, delta) => {
-    if (useGameStore.getState().paused || !material.current) return;
+    if ((!preview && useGameStore.getState().paused) || !material.current) return;
     clock.current += delta;
     light.current += ((active ? 1 : 0) - light.current) * (1 - Math.exp(-4 * delta));
     material.current.color.copy(dark).lerp(gold, light.current);
@@ -26,6 +26,6 @@ function Star({ placement, active, index }) {
     </mesh>
   </group>;
 }
-export default function CauldronStars({ rating }) {
-  return STAR_PLACEMENTS.map((placement, index) => <Star key={index} placement={placement} index={index} active={index < rating} />);
+export default function CauldronStars({ rating, preview = false }) {
+  return STAR_PLACEMENTS.map((placement, index) => <Star key={index} placement={placement} index={index} active={index < rating} preview={preview} />);
 }

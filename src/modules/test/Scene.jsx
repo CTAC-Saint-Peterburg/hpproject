@@ -67,8 +67,7 @@ export default function Scene() {
       disabled={s.status !== 'playing' || s.paused} onPositionUpdate={setSelectedBottle} />
     {s.ingredientFlight && <IngredientFlight key={s.ingredientFlight.sequence} flight={s.ingredientFlight} />}
     <RecipeStages stages={s.mission?.stages || []} currentStage={s.currentStage}
-      temperature={s.potTemperature} agitation={s.agitation}
-      position={[-3, 1, 0]} />
+      temperature={s.potTemperature} agitation={s.agitation} />
   </Canvas>
   <MagicGestureTrail points={trail} paused={s.paused} enabled={s.status === 'playing'} />
   </div>;

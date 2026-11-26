@@ -1,5 +1,6 @@
 import { useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
+import { potDepth } from '../Room/workshopLayout';
 import { Vector3 } from 'three';
 import { useGameStore } from '../Stores/GameStore';
 import { WandParticles } from '../Wand/WandParticles';
@@ -12,12 +13,13 @@ import { INGREDIENT_MODEL_SIZE } from './ingredientGeometry';
 // The same renderer as spell effects, with its emitter attached to the ingredient.
 export default function IngredientFlight({ flight }) {
   const ingredient = useRef();
+  const { camera }=useThree();
   const tip = useRef(new Vector3(...flight.from));
   const color = SPAWN_BOTTLES_CORDS.find(item => item.id === flight.id)?.color;
   useFrame(() => {
     const s = useGameStore.getState();
     if (!ingredient.current || s.paused || !s.ingredientFlight) return;
-    const pose = ingredientFlightPose(flight.from, (Date.now() - s.ingredientFlight.startedAt) / 1000, brewing.ingredientAnimation);
+    const pose = ingredientFlightPose(flight.from, (Date.now() - s.ingredientFlight.startedAt) / 1000, brewing.ingredientAnimation,potDepth(camera.position.z));
     ingredient.current.position.set(...pose.position);
     ingredient.current.scale.setScalar(pose.scale * brewing.ingredientSize / INGREDIENT_MODEL_SIZE);
     ingredient.current.rotation.set(pose.rotation, pose.rotation * .6, 0);

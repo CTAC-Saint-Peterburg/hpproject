@@ -6,7 +6,8 @@ import SelectionSparks from '../Input/SelectionSparks';
 import { BackSide } from 'three';
 import { useTranslation } from 'react-i18next';
 import { useGameStore } from '../Stores/GameStore';
-import { enemyPosition, ENEMY_TYPES } from '../../static/enemies';
+import { ENEMY_TYPES } from '../../static/enemies';
+import { workshopEnemyPosition } from '../Room/workshopLayout';
 import { spellLessons } from '../../static/spellLessons';
 import { effects } from '../../static/themedConfigs';
 import TouchHitArea from '../Input/TouchHitArea';
@@ -20,7 +21,7 @@ export default function Slime({ enemy, selected, gestureRef }) {
   const ghosts = useRef([]);
   const history = useRef([]);
   const sampled = useRef(0);
-  const { viewport } = useThree();
+  const { viewport, camera } = useThree();
   const color = ENEMY_TYPES.enemyslime.color;
   const trail = effects.slimeTrail;
   const select = event => {
@@ -31,7 +32,7 @@ export default function Slime({ enemy, selected, gestureRef }) {
     if (!group.current) return;
     const state = useGameStore.getState();
     const now = state.status === 'playing' ? Date.now() : state.lastTick;
-    const position = enemyPosition(enemy, now, viewport.width, viewport.height);
+    const position = workshopEnemyPosition(enemy, now, camera, viewport);
     group.current.position.set(...position);
     const phase = (now - enemy.bornAt) / 1000;
     body.current.scale.set(1.15 + Math.sin(phase * 3) * .06, .7 + Math.cos(phase * 3) * .04, .65);

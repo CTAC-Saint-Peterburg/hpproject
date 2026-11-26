@@ -1,5 +1,6 @@
 import { theme } from '../../static/theme';
 import SelectionSparks from '../Input/SelectionSparks';
+import { potDepth } from '../Room/workshopLayout';
 import { useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { BackSide } from 'three';
@@ -43,14 +44,14 @@ function Enemy({ enemy, selected, gestureRef }) {
 
 function Projectile({ shot }) {
   const mesh = useRef();
-  const { viewport } = useThree();
+  const { viewport, camera } = useThree();
   useFrame(() => {
     if (!mesh.current) return;
     const state = useGameStore.getState();
     const now = state.status === 'playing' ? Date.now() : state.lastTick;
     const progress = Math.max(0, Math.min(1, (now - shot.launchedAt) / (shot.impactAt - shot.launchedAt)));
     const from = enemyPosition(shot, shot.launchedAt, viewport.width, viewport.height);
-    mesh.current.position.set(from[0] * (1 - progress), from[1] * (1 - progress), 0);
+    mesh.current.position.set(from[0] * (1 - progress), from[1] * (1 - progress), potDepth(camera.position.z)*progress);
     mesh.current.rotation.set(progress * 5, progress * 6, 0);
   });
   const color = ENEMY_TYPES[shot.type].color;

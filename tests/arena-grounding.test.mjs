@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Euler, Vector3, PerspectiveCamera } from 'three';
-import { enemyGroundedLift } from '../src/modules/Defense/enemyGrounding.js';
+import { enemyGroundedLift, ENEMY_VISUAL_SCALE } from '../src/modules/Defense/enemyGrounding.js';
 import { createArenaEnemyGeometry } from '../src/modules/Defense/arenaEnemyGeometry.js';
 import { arenaBaseCameraPose, crystalStatusPosition } from '../src/modules/Defense/arenaLayout.js';
 import { potionRackPosition } from '../src/modules/Defense/arenaLayout.js';
@@ -31,7 +31,7 @@ test('animated enemy bodies and selected shells clear the tabletop without a bla
     for (const size of [.5, 1, 1.5]) for (const y of [0, 2]) for (const selected of [false, true]) {
       for (const roll of [-.13, 0, .13]) {
         const enemy = { size, y }, pose = { roll, lift: -.01 };
-        const scale = new Vector3(size * (shape === 'slime' ? 1.3 : 1), size * (shape === 'slime' ? .7 : 1) * .98, size);
+        const scale = new Vector3(size * (shape === 'slime' ? 1.3 : 1), size * (shape === 'slime' ? .7 : 1) * .98, size).multiplyScalar(ENEMY_VISUAL_SCALE);
         const lift = enemyGroundedLift(enemy, pose, scale, geometry.boundingBox, selected);
         let bottom = Infinity;
         for (let i = 0; i < geometry.attributes.position.count; i++) {

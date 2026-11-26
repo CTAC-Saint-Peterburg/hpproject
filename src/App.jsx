@@ -13,6 +13,7 @@ import AndroidLifecycle from './modules/Input/AndroidLifecycle';
 import GameFrame from './modules/Display/GameFrame';
 import TargetPrompt from './modules/Display/TargetPrompt';
 import './modules/Display/ResponsiveUI.css';
+import './modules/Menu/ModeSelector.css';
 export default function App() {
   const runId = useGameStore(s => s.runId);
   const playing = useGameStore(s => s.startGame);

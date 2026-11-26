@@ -1,4 +1,9 @@
 {
+  "mode.choose": "选择模式",
+  "mode.brewing": "魔药酿造",
+  "mode.previous": "上一个模式",
+  "mode.next": "下一个模式",
+  "mode.prepare": "点击开始后选择携带的魔药",
   "selection.next": "自动选择 — 下一个目标",
   "loading.preparing": "正在加载声音和字体…",
   "loading.failed": "无法加载游戏资源。请检查网络连接后重试。",

@@ -5,6 +5,8 @@ import { createBrewingRoomGeometry, ROOM } from './roomGeometry';
 import { createArenaRoomGeometry } from './arenaRoomGeometry';
 import { createWorkshopPropsGeometry } from './workshopPropsGeometry';
 import { brewingRoomOptions } from './brewingRoomLayout';
+import { Matrix4 } from 'three';
+import { RACK_YAW } from './workshopLayout';
 
 const ignoreRaycast = () => null;
 
@@ -17,7 +19,13 @@ export default memo(function CastleRoom({ variant = 'brewing', lighting = true, 
   const room = useMemo(() => variant === 'arena'
     ? createArenaRoomGeometry(aspect)
     : createBrewingRoomGeometry(halfWidth, brewingRoomOptions(cameraDepth, cameraFov)), [variant, aspect, halfWidth, cameraDepth, cameraFov]);
-  const props = useMemo(() => furniture && variant === 'brewing' ? createWorkshopPropsGeometry() : null, [variant, furniture]);
+  const props = useMemo(() => {
+    if (!furniture || variant !== 'brewing') return null;
+    const geometry=createWorkshopPropsGeometry({board:false});
+    geometry.translate(-4,0,0);geometry.scale(.8,1,1);
+    geometry.applyMatrix4(new Matrix4().makeRotationY(RACK_YAW));geometry.translate(3.8,0,1.2);
+    return geometry;
+  }, [variant, furniture]);
   useEffect(() => () => Object.values(room).forEach(geometry => geometry.dispose()), [room]);
   useEffect(() => () => props?.dispose(), [props]);
   return <group>

@@ -9,7 +9,7 @@ import { getArenaEnemyGeometry } from './arenaEnemyGeometry';
 import { writeEnemyMotion } from './enemyMotion';
 import TouchHitArea from '../Input/TouchHitArea';
 import { isSelectionClick } from '../Input/selectionClick';
-import { enemyGroundedLift } from './enemyGrounding';
+import { enemyGroundedLift, ENEMY_VISUAL_SCALE } from './enemyGrounding';
 
 export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
   const body = useRef();
@@ -21,7 +21,7 @@ export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
     if (!body.current) return;
     const pose = writeEnemyMotion(motion.current, enemy, useDefenseStore.getState().time, shape);
     body.current.scale.set(enemy.size * (shape === 'slime' ? 1.3 : 1) * pose.x,
-      enemy.size * (shape === 'slime' ? .7 : 1) * pose.y, enemy.size * pose.z);
+      enemy.size * (shape === 'slime' ? .7 : 1) * pose.y, enemy.size * pose.z).multiplyScalar(ENEMY_VISUAL_SCALE);
     body.current.position.y = enemyGroundedLift(enemy, pose, body.current.scale, body.current.geometry.boundingBox, selected);
     body.current.rotation.set(0, pose.yaw, pose.roll);
   });
@@ -35,7 +35,7 @@ export default function ArenaEnemy({ enemy, selected, time, gestureRef }) {
   const rage = !disoriented && time < enemy.rageUntil;
   const windup = !disoriented && enemy.windupUntil > time;
   const geometry = getArenaEnemyGeometry(shape);
-  const scale = shape === 'slime' ? [enemy.size * 1.3, enemy.size * .7, enemy.size] : [enemy.size, enemy.size, enemy.size];
+  const scale = (shape === 'slime' ? [enemy.size * 1.3, enemy.size * .7, enemy.size] : [enemy.size, enemy.size, enemy.size]).map(value => value * ENEMY_VISUAL_SCALE);
   const frozen = enemy.frozenUntil > time;
   const color = frozen ? theme.colors.frozenEnemy : elementColor;
   const sentinel = base.movement === 'sentinel';

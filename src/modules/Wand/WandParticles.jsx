@@ -2,8 +2,8 @@ import { useMemo, useRef } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { AdditiveBlending, Color, Object3D } from 'three';
 import { useGameStore } from '../Stores/GameStore';
-import { enemyPosition } from '../../static/enemies';
 import { advanceParticle, settings, spellEffect } from './effectSettings';
+import { potDepth, workshopEnemyPosition } from '../Room/workshopLayout';
 
 export function WandParticles({ tip, getEffectState = useGameStore.getState }) {
   const mesh = useRef();
@@ -19,7 +19,7 @@ export function WandParticles({ tip, getEffectState = useGameStore.getState }) {
   const flash = useRef(null);
   const matrix = useMemo(() => new Object3D(), []);
   const color = useMemo(() => new Color(), []);
-  const { viewport } = useThree();
+  const { viewport, camera } = useThree();
   const capacity = Math.max(1, Math.min(4096, Math.trunc(settings.capacity)));
 
   useFrame((_, rawDelta) => {
@@ -63,8 +63,8 @@ export function WandParticles({ tip, getEffectState = useGameStore.getState }) {
         profile.flash = { ...profile.flash, ringRadius: event.flashRingRadius, ringGrowth: 0 };
       }
       const target = event.target?.kind === 'world' ? [...event.target.position] : event.target?.kind === 'enemy'
-        ? enemyPosition(event.target.enemy, event.at, viewport.width, viewport.height)
-        : event.target?.kind === 'pot' ? [0, 0, 0] : tip.current.toArray();
+        ? workshopEnemyPosition(event.target.enemy, event.at, camera, viewport)
+        : event.target?.kind === 'pot' ? [0, 0, potDepth(camera.position.z)] : tip.current.toArray();
       active.current = { profile, age: 0 };
       flash.current = { profile: profile.flash, age: 0, target, rotation: event.target?.rotation || [0, 0, 0] };
       const count = Math.min(settings.maxBurstParticles, Math.max(0, Math.trunc(profile.burst.count)));

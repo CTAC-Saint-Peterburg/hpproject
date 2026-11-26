@@ -3,6 +3,21 @@ import test from 'node:test';
 import { createPotMistBuffers, writePotMistFrame, POT_MIST_CAPACITY, POT_MIST_LIFETIME } from '../src/modules/Pot/potMistMotion.js';
 import { writePotErrorFrame, POT_ERROR_SECONDS } from '../src/modules/Pot/potMistMotion.js';
 
+test('menu mist is stronger without changing trajectories or allocating extra particles', () => {
+  const normal = createPotMistBuffers(), preview = createPotMistBuffers();
+  const arrays = Object.values(preview);
+  for (const time of [0, .3, 1.2, 3.6, 100]) {
+    const count = writePotMistFrame(normal, time, 1);
+    assert.equal(writePotMistFrame(preview, time, 1, 2.5, 1.3), count);
+    assert.deepEqual(preview.positions, normal.positions);
+    for (let i = 0; i < count; i++) {
+      assert.ok(Math.abs(preview.sizes[i] - normal.sizes[i] * 1.3) < 1e-6);
+      assert.ok(Math.abs(preview.opacities[i] - Math.min(.65, normal.opacities[i] * 2.5)) < 1e-6);
+    }
+  }
+  Object.values(preview).forEach((array, i) => assert.equal(array, arrays[i]));
+});
+
 test('wrong ingredient puff reuses the budget and completely fades within one second', () => {
   const buffers=createPotMistBuffers(),positions=buffers.positions;
   assert.equal(writePotErrorFrame(buffers,0),POT_MIST_CAPACITY);

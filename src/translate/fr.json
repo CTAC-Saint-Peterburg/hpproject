@@ -1,4 +1,9 @@
 {
+  "mode.choose": "Choisir le mode",
+  "mode.brewing": "Préparation de potions",
+  "mode.previous": "Mode précédent",
+  "mode.next": "Mode suivant",
+  "mode.prepare": "Choisissez vos potions après avoir appuyé sur Jouer",
   "selection.next": "Sélection automatique — cible suivante",
   "loading.preparing": "Chargement des sons et des polices…",
   "loading.failed": "Impossible de charger les ressources. Vérifiez la connexion et réessayez.",

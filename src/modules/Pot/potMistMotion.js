@@ -28,7 +28,7 @@ export function createPotMistBuffers() {
 
 // An analytic loop keeps motion independent of FPS and needs no particle objects,
 // respawn allocations, random sampling or velocity integration during rendering.
-export function writePotMistFrame(buffers, elapsed, warmth) {
+export function writePotMistFrame(buffers, elapsed, warmth, strength = 1, size = 1) {
   const heat = Number.isFinite(warmth) ? clamp(warmth) : 0;
   const count = Math.round(8 + heat * (POT_MIST_CAPACITY - 8));
   for (let i = 0; i < POT_MIST_CAPACITY; i++) {
@@ -40,9 +40,9 @@ export function writePotMistFrame(buffers, elapsed, warmth) {
     buffers.positions[i * 3] = Math.cos(angle) * radius;
     buffers.positions[i * 3 + 1] = .04 + .65 * rise - spill * spill;
     buffers.positions[i * 3 + 2] = Math.sin(angle) * radius * .65;
-    buffers.sizes[i] = .16 + .34 * smooth(age);
+    buffers.sizes[i] = (.16 + .34 * smooth(age)) * size;
     const fade = smooth(age / .16) * (1 - smooth((age - .65) / .35));
-    buffers.opacities[i] = i < count ? fade * (.1 + heat * .13) : 0;
+    buffers.opacities[i] = i < count ? Math.min(.65, fade * (.1 + heat * .13) * strength) : 0;
   }
   return count;
 }

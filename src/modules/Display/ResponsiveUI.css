@@ -49,8 +49,6 @@ button:disabled { opacity:.45;cursor:default; }
 .periodic-hint { animation:spell-hint-breathe 6s ease-in-out infinite;pointer-events:none; }.hint-paused { animation-play-state:paused; }
 @keyframes spell-hint-breathe { 0%,38%,100% { opacity:1; } 50%,88% { opacity:0; } }
 .target-prompt { position:absolute;z-index:30;left:50%;bottom:92px;transform:translateX(-50%);max-width:90%;padding:5px 10px;border-radius:6px;background:var(--color-surface-veil);color:var(--color-rune);font-size:18px;pointer-events:none;text-align:center; }
-.compact-recipe { box-sizing:border-box;width:220px;max-width:30vw;padding:8px;background:var(--color-surface-veil);border-radius:4px;font-size:14px;line-height:1.25;text-shadow:0 1px 2px var(--color-black); }
-.compact-recipe > div { margin:4px 0; }.compact-recipe i { display:inline-block;width:8px;height:8px;margin-right:5px; }
 .game-frame-active .hud,.game-frame-active .arena-hints { box-sizing:border-box;max-width:30%;max-height:55%;overflow:auto;pointer-events:auto;font-size:14px;line-height:1.3;padding:8px;bottom:76px;left:8px; }
 .game-frame-active .hud p,.game-frame-active .arena-hints p { margin:5px 0;line-height:1.3; }.game-frame-active .arena-hints { top:100px;bottom:auto; }
 @media (orientation:portrait) {

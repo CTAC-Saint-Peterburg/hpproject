@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { languages } from '../../translate/i18n';
 import { useGameStore } from '../Stores/GameStore';
-import missions from '../../static/missions.json';
+import ModeSelector from './ModeSelector';
 import Collection from './Collection';
 import pkg from '../../../package.json';
 import SpellTraining from './SpellTraining';
@@ -19,20 +19,16 @@ export default function MainMenu() {
  const { t, i18n } = useTranslation();
  const s = useGameStore();
  const [page, setPage] = useState('main');
+ const [mode, setMode] = useState('brewing');
  const languageSelect = <label>{t('language')}<select value={i18n.resolvedLanguage} onChange={e => i18n.changeLanguage(e.target.value)}>
  {Object.entries(languages).map(([code,name]) => <option key={code} value={code}>{name}</option>)}</select></label>;
  if (page === 'training') return <section className="menu training-menu"><SpellTraining onBack={() => setPage('main')} /></section>;
  return <section className={'menu triptych-page page-' + page}><header className="menu-heading"><h1>Hyped Pot</h1><p>{t('app.version', {version:pkg.version})}</p><div className="menu-wallet"><TrainerCrystal /><span>{s.stones} {t('hud.stones')}</span></div></header>
  {page !== 'main' && <button className="menu-back" onClick={() => setPage('main')}>{t('menu.back')}</button>}
  {page === 'main' ? <MenuPages>
+ <ModeSelector mode={mode} onMode={setMode} onDefense={() => setPage('defense')} />
  {languageSelect}
  {s.showFirstVisitWelcome && <article role="status"><p>{t('firstVisit.welcome')}</p><button onClick={s.dismissFirstVisit}>{t('collection.close')}</button></article>}
- <label>{t('menu.mission')}<select value={s.selectedLevel} onChange={e => s.setLevel(e.target.value)}>
- {Object.entries(missions).sort(([,a],[,b])=>a.difficulty-b.difficulty).map(([id,m]) => <option key={id} value={id}>{t(m.name)} · {m.rewardPotion ? t('potions.'+m.rewardPotion+'.name') : ''} · {m.timeLimit ? t('time.seconds',{value:m.timeLimit}) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}</option>)}
- </select></label>
- <p className="recipe-quality-rule">{t('brewing.qualityRule',{three:missions[s.selectedLevel].rating.threeStarMistakes,two:missions[s.selectedLevel].rating.twoStarMistakes})}</p>
- <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.play')}</button>
- <button onClick={() => setPage('defense')}>{t('arena.title')}</button>
  <button onClick={() => setPage('shop')}>{t('shop.title')}</button>
  <button onClick={() => setPage('bestiary')}>{t('bestiary.title')}</button>
  <button onClick={() => setPage('training')}>{t('menu.training')}</button>

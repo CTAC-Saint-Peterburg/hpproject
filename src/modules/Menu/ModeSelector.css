@@ -1,0 +1,33 @@
+/* Task 53: one measured carousel block; hidden pagination copies have no Canvas. */
+.page-main .menu-pagination { width:min(560px,100%); }
+.page-main .menu-block > :not(.mode-selector) { width:min(400px,100%);margin-inline:auto; }
+.page-main .menu-block > button { display:block; }
+.menu .mode-selector { display:grid;gap:8px;width:100%;padding:0;background:none; }
+.mode-selector h2 { margin:0;text-align:center;color:var(--color-rune);font-size:18px;line-height:24px; }
+.mode-carousel { display:grid;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:10px; }
+.menu-block .mode-arrow { width:44px;height:52px;padding:0;font-size:32px;color:var(--color-rune); }
+.mode-preview { position:relative;min-width:0;height:180px;border:1px solid var(--color-border);border-radius:12px;background:var(--color-surface-card); }
+.mode-preview-canvas { position:absolute;inset:0;pointer-events:none; }
+.mode-name { position:absolute;left:4px;right:4px;bottom:4px;text-align:center;color:var(--color-rune);font-size:14px;line-height:18px;text-shadow:0 1px 3px var(--color-black);pointer-events:none; }
+.mode-actions { display:grid;gap:8px;width:calc(100% - 108px);min-width:0;justify-self:center; }
+.mode-mission,.mode-mission select { min-width:0;max-width:100%; }
+.menu-block .mode-mission select { box-sizing:border-box;padding:8px;font-size:14px;text-overflow:ellipsis; }
+.mode-actions .mode-defense-note { margin:0;min-height:44px;display:grid;place-items:center;text-align:center;font-size:14px;line-height:18px; }
+.menu-block .mode-play { background:var(--color-health);color:var(--color-surface);border-color:var(--color-health);font-weight:700; }
+.menu-block .mode-play:hover { background:var(--color-pot-selected); }
+@media (max-height:600px) and (orientation:landscape) {
+  .menu .mode-selector { grid-template-columns:minmax(0,1fr);gap:4px; }
+  .mode-selector h2 { font-size:16px;line-height:20px; }
+  .mode-carousel { grid-template-columns:44px minmax(0,1fr) 44px;gap:4px; }
+  .mode-preview { height:64px;height:clamp(52px,calc(100vh - 260px),112px); }
+  .mode-actions { width:calc(100% - 96px);gap:4px; }
+  .mode-name { font-size:12px;line-height:14px; }
+}
+.trainer-crystal .currency-coin { transform-origin:50% 50%;animation:currency-turn 11s ease-in-out infinite; }
+@keyframes currency-turn { 0%,79% { transform:rotateY(0deg); } 94%,100% { transform:rotateY(360deg); } }
+@media (prefers-reduced-motion:reduce) { .trainer-crystal .currency-coin { animation:none; } }
+@media (max-width:380px) and (orientation:portrait) {
+  .mode-carousel { gap:5px; }
+  .mode-preview { height:150px; }
+  .mode-actions { width:100%; }
+}

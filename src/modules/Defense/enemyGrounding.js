@@ -1,4 +1,5 @@
 // Reserve only the space needed by the animated silhouette, including selection.
+export const ENEMY_VISUAL_SCALE = 1.15;
 // Airborne enemies keep their existing height; grounded ones stay just above wood.
 export function enemyGroundedLift(enemy, pose, scale, bounds, selected) {
   const halfX = Math.max(Math.abs(bounds.min.x), Math.abs(bounds.max.x));

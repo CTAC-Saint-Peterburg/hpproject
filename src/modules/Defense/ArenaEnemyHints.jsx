@@ -4,6 +4,7 @@ import { useMemo, useRef } from 'react';
 import { Vector3 } from 'three';
 import { useTranslation } from 'react-i18next';
 import { config } from './defenseState';
+import { ENEMY_VISUAL_SCALE } from './enemyGrounding';
 import ArenaRune from './ArenaRune';
 import { visibleEnemyHints, enemyHintPhase, enemyStatusHints } from './enemyHintLayout';
 
@@ -15,7 +16,7 @@ export default function ArenaEnemyHints({ enemies, selected, time }) {
   const statuses = new Map(enemies.map(enemy => [enemy.id, enemyStatusHints(enemy, config.enemies[enemy.type], time, selected === enemy.id)]));
   useFrame(({ camera, size }) => {
     const candidates = enemies.map(enemy => {
-      point.set(enemy.x, enemy.y + enemy.size * 1.6 + .45, enemy.z);
+      point.set(enemy.x, enemy.y + enemy.size * ENEMY_VISUAL_SCALE * 1.6 + .45, enemy.z);
       const distance = point.distanceToSquared(camera.position);
       point.project(camera);
       const rows = statuses.get(enemy.id).length;
@@ -34,7 +35,7 @@ export default function ArenaEnemyHints({ enemies, selected, time }) {
     const cycle = enemyHintPhase(time + enemy.seed, settings);
     const spells = enemy.carried ? [config.enemyCarry.dropSpell] : base.hostile === false ? [3] : base.counterSpells ?? [base.counterSpell];
     const spell = spells[Math.floor(time / settings.spellSeconds) % spells.length];
-    return <Html key={enemy.id} center position={[enemy.x, enemy.y + enemy.size * 1.6 + .45, enemy.z]}
+    return <Html key={enemy.id} center position={[enemy.x, enemy.y + enemy.size * ENEMY_VISUAL_SCALE * 1.6 + .45, enemy.z]}
       zIndexRange={[5, 0]} style={{ pointerEvents: 'none' }}>
       <div ref={node => { if (node) nodes.current.set(enemy.id, node); else nodes.current.delete(enemy.id); }}
         className={'arena-enemy-hint' + (enemy.id === selected ? ' is-selected' : '') + (windup ? ' is-dangerous' : '')}

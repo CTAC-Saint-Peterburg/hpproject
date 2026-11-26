@@ -12,6 +12,7 @@ import { ingredientMayFollow, projectIngredientPointer, clampIngredientPointer }
 import { useInputStore } from '../Input/inputStore';
 import TouchHitArea from '../Input/TouchHitArea';
 import { isSelectionClick } from '../Input/selectionClick';
+import { potDepth } from '../Room/workshopLayout';
 
 const roundArray = arr => arr.map(value => Math.round(value * 100) / 100 || 0);
 
@@ -44,8 +45,9 @@ export const Bottle = ({ cords, id, color, isFollowMode, mousePos, isSelected,
     if (!following) targetPos.current.copy(initialPos);
     if (ingredientMayFollow(following, touch, input.dragging, input.heldId, id) && hasMouse) {
       mouseNDC.set(pointer.x, invertY ? -pointer.y : pointer.y);
-      if (touch) clampIngredientPointer(mouseNDC, camera, cords[2], brewing.ingredientSize, mouseNDC);
-      projectIngredientPointer(mouseNDC, camera, cords[2], raycaster, targetPos.current);
+      const dragZ=potDepth(camera.position.z);
+      if (touch) clampIngredientPointer(mouseNDC, camera, dragZ, brewing.ingredientSize, mouseNDC);
+      projectIngredientPointer(mouseNDC, camera, dragZ, raycaster, targetPos.current);
     }
     group.current.position.lerp(targetPos.current, 1 - Math.exp(-14 * delta));
     if (!following || !hasMouse || !onPositionUpdate) return;

@@ -1,6 +1,7 @@
 import { Children, useLayoutEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { paginateHeights } from './paginateHeights';
+import { MenuMeasureContext } from './menuMeasureContext';
 
 // Measure the actual translated blocks, not a fixed number of English buttons.
 export default function MenuPages({ children }) {
@@ -19,7 +20,7 @@ export default function MenuPages({ children }) {
   const current = Math.min(page, pages.length - 1);
   return <div className="menu-pagination">
     <div className="menu-page-area" ref={area}>
-      <div className="menu-page-measure" ref={measure} aria-hidden="true" inert>{items.map((item, i) => <div className="menu-block" key={i}>{item}</div>)}</div>
+      <div className="menu-page-measure" ref={measure} aria-hidden="true" inert><MenuMeasureContext.Provider value={true}>{items.map((item, i) => <div className="menu-block" key={i}>{item}</div>)}</MenuMeasureContext.Provider></div>
       <div className="menu-page-items">{pages[current].filter(i => i < items.length).map(i => <div className="menu-block" key={items[i].key}>{items[i]}</div>)}</div>
     </div>
     <nav className="page-arrows" aria-label={t('display.pages')}>
