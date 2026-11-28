@@ -61,7 +61,7 @@
       "shape": "cube",
       "hp": 24,
       "attack": 1.5,
-      "speed": 0.8,
+      "speed": 0.68,
       "size": 0.6,
       "reward": 2,
       "counterSpell": 2,
@@ -85,7 +85,7 @@
       "shape": "cube",
       "hp": 24,
       "attack": 1.2,
-      "speed": 1,
+      "speed": 0.85,
       "size": 0.5,
       "reward": 2,
       "counterSpell": 1,
@@ -109,7 +109,7 @@
       "shape": "slime",
       "hp": 30,
       "attack": 2.2,
-      "speed": 0.65,
+      "speed": 0.5525,
       "size": 0.8,
       "reward": 3,
       "counterSpell": 6,
@@ -133,7 +133,7 @@
       "shape": "cube",
       "hp": 48,
       "attack": 3,
-      "speed": 0.32,
+      "speed": 0.272,
       "size": 1.15,
       "reward": 4,
       "counterSpell": 2,
@@ -163,7 +163,7 @@
       "shape": "cube",
       "hp": 24,
       "attack": 1,
-      "speed": 0.55,
+      "speed": 0.4675,
       "size": 0.48,
       "reward": 3,
       "counterSpell": 2,
@@ -184,7 +184,7 @@
       "orbit": {
         "radius": 3.3,
         "height": 1.4,
-        "angularSpeed": 0.28
+        "angularSpeed": 0.238
       },
       "ranged": {
         "interval": 7,
@@ -203,7 +203,7 @@
       "shape": "cube",
       "hp": 24,
       "attack": 1,
-      "speed": 0.55,
+      "speed": 0.4675,
       "size": 0.48,
       "reward": 3,
       "counterSpell": 1,
@@ -224,7 +224,7 @@
       "orbit": {
         "radius": 3.3,
         "height": 1.4,
-        "angularSpeed": 0.28
+        "angularSpeed": 0.238
       },
       "ranged": {
         "interval": 7,
@@ -243,7 +243,7 @@
       "shape": "cube",
       "hp": 30,
       "attack": 1,
-      "speed": 0.3,
+      "speed": 0.255,
       "size": 0.55,
       "reward": 3,
       "counterSpell": 1,
@@ -286,7 +286,7 @@
       "hostile": false,
       "hp": 1,
       "attack": 0,
-      "speed": 2.2,
+      "speed": 1.87,
       "size": 0.5,
       "reward": 0,
       "counterSpell": 1,

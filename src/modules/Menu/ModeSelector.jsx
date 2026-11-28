@@ -9,6 +9,7 @@ export default function ModeSelector({ mode, onMode, onDefense }) {
   const { t } = useTranslation(), measuring = useContext(MenuMeasureContext);
   const s = useGameStore(), brewing = mode === 'brewing';
   const switchMode = () => onMode(brewing ? 'defense' : 'brewing');
+  const missionLabel = (id, m) => `${t(m.name)} · ${m.rewardPotion ? t('potions.' + m.rewardPotion + '.name') : ''} · ${m.timeLimit ? t('time.seconds', { value: m.timeLimit }) : t('time.unlimited')} · ${'★'.repeat(s.records[id] || 0)}`;
   return <section className="mode-selector" aria-label={t('mode.choose')}>
     <h2>{t('mode.choose')}</h2>
     <div className="mode-carousel">
@@ -21,9 +22,10 @@ export default function ModeSelector({ mode, onMode, onDefense }) {
     </div>
     <div className="mode-actions">
       {brewing ? <label className="mode-mission"><span className="sr-only">{t('menu.mission')}</span>
+        <span className="mode-mission-value" aria-hidden="true">{missionLabel(s.selectedLevel, missions[s.selectedLevel])}</span>
         <select aria-label={t('menu.mission')} value={s.selectedLevel} onChange={e => s.setLevel(e.target.value)}>
           {Object.entries(missions).sort(([, a], [, b]) => a.difficulty - b.difficulty).map(([id, m]) => <option key={id} value={id}>
-            {t(m.name)} · {m.rewardPotion ? t('potions.' + m.rewardPotion + '.name') : ''} · {m.timeLimit ? t('time.seconds', { value: m.timeLimit }) : t('time.unlimited')} · {'★'.repeat(s.records[id] || 0)}
+            {missionLabel(id, m)}
           </option>)}
         </select>
       </label> : <p className="mode-defense-note">{t('mode.prepare')}</p>}

@@ -14,10 +14,16 @@ import GameFrame from './modules/Display/GameFrame';
 import TargetPrompt from './modules/Display/TargetPrompt';
 import './modules/Display/ResponsiveUI.css';
 import './modules/Menu/ModeSelector.css';
+import './modules/Display/Mobile54.css';
+import ScreenOrientation from './modules/Display/ScreenOrientation';
+import { isGameplayScreen } from './modules/Display/screenMode';
+import { useTriptychStore } from './modules/Menu/triptychStore';
 export default function App() {
   const runId = useGameStore(s => s.runId);
   const playing = useGameStore(s => s.startGame);
   const defense = useDefenseStore(s => s.phase !== 'idle');
-  return <main className="app"><AndroidLifecycle /><GameAudio /><GlobalInput /><GameFrame active={defense || playing}>{defense ? <DefenseScene /> : <>{playing && <Scene key={runId} />}<GameHud /></>}{(playing || defense) && <TargetPrompt />}</GameFrame><TriptychMenu activeGame={defense || playing} /><CheatsMenu /></main>;
+  const status = useGameStore(s => s.status), arenaPhase = useDefenseStore(s => s.phase), menuPhase = useTriptychStore(s => s.phase);
+  const gameplay = isGameplayScreen(playing, status, arenaPhase, menuPhase);
+  return <main className={'app ' + (gameplay ? 'screen-game' : 'screen-menu')}><ScreenOrientation gameplay={gameplay} /><AndroidLifecycle /><GameAudio /><GlobalInput /><GameFrame active={gameplay}>{defense ? <DefenseScene /> : <>{playing && <Scene key={runId} />}<GameHud /></>}{gameplay && <TargetPrompt />}</GameFrame><TriptychMenu activeGame={defense || playing} /><CheatsMenu /></main>;
 }
 

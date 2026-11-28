@@ -1,4 +1,5 @@
 import ArenaHeader from './ArenaHeader';
+import ResultPanel from '../Menu/ResultPanel';
 import AutoSelectButton from '../Input/AutoSelectButton';
 import SceneAutoSelect from '../Input/SceneAutoSelect';
 import { requestTarget } from '../Display/requestTarget';
@@ -158,8 +159,8 @@ export default function DefenseScene(){
  <p>{t('arena.coinChance',{value:Math.round(config.coin.winChance*100)})}</p>
  <button onClick={()=>s.select('coin')}>{t('arena.selectCoin')}</button><button onClick={s.next}>{t(s.wave===9?'arena.finish':'arena.next')}</button></aside>}
  {s.paused&&!['won','lost'].includes(s.phase)&&<div className="pause-notice" role="status">{t('arena.paused')}</div>}
- {['won','lost'].includes(s.phase)&&<div className="result"><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2>{s.phase==='lost'&&<p>{t('arena.pendingLost')}</p>}
- <p>{t('arena.earned',{stones:s.runStones})}</p><button onClick={s.exit}>{t('arena.restock')}</button></div>}
+ {['won','lost'].includes(s.phase)&&<ResultPanel><h2>{t(s.phase==='won'?'arena.victory':'arena.defeat')}</h2>{s.phase==='lost'&&<p>{t('arena.pendingLost')}</p>}
+ <p>{t('arena.earned',{stones:s.runStones})}</p><button onClick={s.exit}>{t('arena.restock')}</button></ResultPanel>}
 
  </section>;
 }

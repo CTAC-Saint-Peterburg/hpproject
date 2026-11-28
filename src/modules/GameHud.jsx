@@ -13,6 +13,7 @@ import TemperatureIndicator from './Pot/TemperatureIndicator';
 import { useInputStore } from './Input/inputStore';
 import { POTION_IDS } from './Stores/potionInventory';
 import AutoSelectButton from './Input/AutoSelectButton';
+import ResultPanel from './Menu/ResultPanel';
 
 export function FrameCounter() {
   const sample = useRef({ time: 0, frames: 0 });
@@ -80,13 +81,13 @@ export default function GameHud() {
         <p role="status">{s.message ? t(s.message, s.messageValues) : ''}</p>
       </div>
       {s.paused && <div className="pause-notice" role="status">{t('arena.paused')}</div>}
-      {s.status !== 'playing' && <div className="result"><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
+      {s.status !== 'playing' && <ResultPanel><h2>{t(s.status === 'won' ? 'result.won' : 'result.lost')}</h2>
         <p>{t('result.rating', {stars: '★'.repeat(s.rating) + '☆'.repeat(3 - s.rating), score:s.score})}</p>
         <p>{t('result.reward', {reward:s.reward})}</p>{s.debugUsed && <p>{t('result.debug')}</p>}
         {s.status === 'won' && s.mission?.rewardPotion && <PotionResult potionId={s.mission.rewardPotion} quality={s.resultQuality} />}
         <button onClick={() => s.beginMission(s.selectedLevel)}>{t('menu.retry')}</button>
         <button onClick={s.exitToMenu}>{t('menu.return')}</button>
-      </div>}
+      </ResultPanel>}
     </>}
   </>;
 }

@@ -39,6 +39,28 @@ test('arena crest stays ahead of wall decorations after billboard rotation', () 
   }
 });
 
+test('enlarged arena controls stay in frame and ahead of the wall on phone landscape', () => {
+  const positions = arenaControlPositions(defenseConfig.field);
+  for (const [width, height] of [[568,320],[640,360],[844,390],[1280,720]]) {
+    const camera = new PerspectiveCamera(50,width/height,.1,1000);
+    camera.position.fromArray(arenaBaseCameraPose(width/height).position);camera.lookAt(0,0,0);camera.updateMatrixWorld();
+    const rotation=camera.getWorldQuaternion(new Quaternion());
+    const room=arenaRoomLayout(width/height);
+    for (const type of ['book','crest']) {
+      const anchor=new Vector3(...positions[type]);
+      const pixels=type==='book'?Math.min(100,Math.max(64,height*.20)):Math.min(90,Math.max(56,height*.18));
+      const modelHeight=type==='book'?3.2:1.8;
+      const scale=2*camera.position.distanceTo(anchor)*Math.tan(camera.fov*Math.PI/360)/height*pixels/modelHeight;
+      for (const x of [-.9,.9]) for(const y of [-modelHeight/2,modelHeight/2]) {
+        const world=new Vector3(x,y,.25).multiplyScalar(scale).applyQuaternion(rotation).add(anchor);
+        assert.ok(world.z>room.backZ+.75,'control intersects the wall');
+        const projected=world.clone().project(camera);
+        assert.ok(Math.abs(projected.x)<1 && Math.abs(projected.y)<1,`${type} outside ${width}x${height}`);
+      }
+    }
+  }
+});
+
 test('hint defaults persist, temporary toggles reset on a new session', async () => {
   const data = new Map();
   globalThis.localStorage = { getItem: key => data.get(key) ?? null, setItem: (key, value) => data.set(key, value), removeItem: key => data.delete(key) };

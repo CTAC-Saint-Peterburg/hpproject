@@ -36,6 +36,6 @@ run(join(javaHome, 'bin/java.exe'), ['-jar', join(project, 'gradle/wrapper/gradl
   '-p', project, 'assembleDebug', '--console=plain'], project, { ...process.env, JAVA_HOME: javaHome });
 const artifact = join(root, 'android-backups', 'artifacts');
 mkdirSync(artifact, { recursive: true });
-copyFileSync(join(project, 'app/build/outputs/apk/debug/app-debug.apk'), join(artifact, 'HypedPot-5.9.1-debug.apk'));
+copyFileSync(join(project, 'app/build/outputs/apk/debug/app-debug.apk'), join(artifact, 'HypedPot-5.10.0-debug.apk'));
 console.log('Native backup:', backup);
-console.log('APK:', join(artifact, 'HypedPot-5.9.1-debug.apk'));
+console.log('APK:', join(artifact, 'HypedPot-5.10.0-debug.apk'));

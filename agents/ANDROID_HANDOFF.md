@@ -1,5 +1,7 @@
 # Android: передача другому разработчику
 
+**28.11.2026, UI54:** текущая5.10.0/6000, читать UI54_REPORT.md. MainActivity теперь FrameLayout→WebView, insets на контейнере, bridge HypedDisplay для portrait меню/награды и sensorLandscape игры. Manifest обрабатывает orientation/screenSize/smallestScreenSize/keyboardHidden; onConfigurationChanged не перезагружает игру. Старые записи ниже о свободной ориентации и rotate-overlay больше не описывают актуальный код. Подсказка сохранена отключённой. На телефоне ещё не проверено; ADB пустой, APK/хеш в PORT_STATUS.
+
 **Дополнение 23.11.2026:** новый запрос №50 разрешил адаптацию UI; текущая версия 5.6.0/5600. Пользователь приложил скриншоты работающей игры на телефоне; прежний дефект запуска этим не диагностирован. Проверять новый APK по журналу `mobile/PORT_STATUS.md`, а не старый файл 5.5.0. Игровая ориентация ограничена на уровне JS: портретный экран ставит паузу, меню/обучение допускают портрет, native Activity принудительно не блокируется. Сценарии проверки — `UI50_REPORT.md`.
 
 Состояние на **22.11.2026**. Выбрана лёгкая native WebView-обёртка с локальной игрой. Основной чек-лист — [ANDROID_PACKAGING_PLAN.md](../ANDROID_PACKAGING_PLAN.md), выполненное — [mobile/PORT_STATUS.md](../mobile/PORT_STATUS.md).

@@ -1,6 +1,26 @@
 # UIdata — опись текущего интерфейса
 
-Снимок исходников от **26.11.2026**, версия разработки **5.9.1**, пункты **38–53 с правками**. Стабильная база5.5.0 сохранена отдельно. Значения проверены по исходникам и автоматическим тестам; визуальная приёмка APK на телефоне ещё не выполнена.
+Снимок исходников от **28.11.2026**, версия разработки **5.10.0**, пункты **38–54**. Стабильная база5.5.0 сохранена отдельно. Значения проверены по исходникам и автоматическим тестам; визуальная приёмка APK на телефоне ещё не выполнена.
+
+## 54 — ориентация, безопасные отступы и читаемость
+
+Актуальные правила заменяют прежнее свободное вращение/подсказку переворота. Native-меню/обучение/подготовка/финальные награды portrait, игровые сцены landscape, включая паузу и монетку между волнами. Android-поворот обрабатывается без пересоздания WebView. Подсказка сохранена, флаг ROTATE_HINT_ENABLED=false. В браузере блокировка по возможности, при отказе — портретная область меню и landscape-кадр игры с полями. Подробнее/ограничения — UI54_REPORT.md.
+
+| Элемент | Размеры / состояния / цвета |
+| --- | --- |
+| Safe area | Native FrameLayout padding по systemBars/displayCutout/mandatoryGestures; viewport реально уменьшается. Web .app inset env(safe-area-inset-*) |
+| Меню | Ширина≤72vh и≤100% доступной ширины, центр; обучение и выбор зелий одноколоночные даже на широком мониторе |
+| Селект языка | text-align и text-align-last center |
+| Миссия | Действия100% ширины; видимое значение min-height64px, padding12px/30px справа, font14px/1.4, перенос строк, прежние button/border/text. Native select прозрачный поверх всего значения, список и доступное имя сохранены |
+| Книга арены | Высота clamp(64px,20% высоты кадра,100px), hit area шириной64% высоты; 3D масштаб по расстоянию до камеры |
+| Герб арены | Высота clamp(56px,18% высоты кадра,90px), hit area квадрат того же размера |
+| Центры управления | Книга x=.3field.width,y=3.15; герб x=−.23field.width,y=2.45; обе z=−field.depth/2+1.1 |
+| Удержание меню | Только во время удержания кольцо справа:90% высоты книги, отступ8px, SVG viewBox100, r43, stroke6, фон полый. Цифра28–42px rune; полный круг за3с; отмена по прежней логике |
+| Пауза | Центр50%/50%, rune, жирный24–40px; opacity1→.7 за2.4с; reduced-motion без пульсации |
+| Финальный экран | ResultPanel, padding12px (8px при высоте≤600), содержимое≤360px, кнопки≥44px; бутылка≤140px/25vh (80px на низком экране), текст14px (12px на низком). При переполнении ResizeObserver масштабирует целый блок, без прокрутки/обрезки кнопок |
+| Враги арены | ENEMY_VISUAL_SCALE=1.3225 (=ещё×1.15). Grounding/обводка/подсказки учитывают его. Базовая скорость и скорость орбиты в JSON ×.85; HP/атаки/награды прежние |
+
+Актуальный последний слой CSS — Display/Mobile54.css, снимок ниже. 287 тестов, ESLint и сборки прошли; Android10/современный телефон, вырезы и системные панели требуют ручной приёмки. Ниже сохранена история старых параметров.
 
 ### Правки53, 5.9.1
 
@@ -1070,5 +1090,53 @@ button:disabled { opacity:.45;cursor:default; }
   .mode-preview { height:150px; }
   .mode-actions { width:100%; }
 }
+
+```
+
+## CSS snapshot 54: Display/Mobile54.css
+
+```css
+/* Native insets shrink the WebView; env() also covers browser/PWA cutouts. */
+.app { position:absolute;inset:env(safe-area-inset-top,0px) env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) env(safe-area-inset-left,0px);width:auto;height:auto; }
+.screen-menu .triptych-screen { left:50%;right:auto;width:min(100%,72vh);height:100%;transform:translateX(-50%); }
+.screen-menu .training-practice { grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto auto;gap:8px; }
+.screen-menu .training-info { grid-column:1;grid-row:1;gap:4px; }
+.screen-menu .training-info h3 { display:none; }
+.screen-menu .training-drawing { grid-column:1;grid-row:2; }
+.screen-menu .training-feedback { grid-column:1;grid-row:3; }
+.screen-menu .training-actions { grid-column:1;grid-row:4; }
+.screen-menu .menu .potion-carousel .potion-card { grid-template-columns:minmax(0,1fr);gap:8px; }
+.menu select { text-align:center;text-align-last:center; }
+.menu .mode-actions { width:100%; }
+.mode-mission { position:relative;display:block; }
+.mode-mission-value { display:block;box-sizing:border-box;min-height:64px;padding:12px 30px 12px 12px;border:1px solid var(--color-border);border-radius:6px;background:var(--color-button);color:var(--color-white);font-size:14px;line-height:1.4;text-align:center;overflow-wrap:anywhere; }
+.mode-mission::after { content:'⌄';position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--color-rune); }
+.menu-block .mode-mission select { position:absolute;inset:0;width:100%;height:100%;opacity:0;max-width:none; }
+.mode-mission:focus-within { outline:2px solid var(--color-focus);outline-offset:2px;border-radius:6px; }
+.app .pause-notice,.app .defense-game .pause-notice { top:50%;left:50%;transform:translate(-50%,-50%);font-size:clamp(24px,4vw,40px);font-weight:700;color:var(--color-rune);padding:12px 22px;text-align:center;max-width:85%;animation:pause-glow 2.4s ease-in-out infinite; }
+@keyframes pause-glow { 0%,100% { opacity:1; } 50% { opacity:.7; } }
+.scene-book-progress { position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);width:var(--hold-size);height:var(--hold-size);display:grid;place-items:center;pointer-events:none;color:var(--color-rune);font-variant-numeric:tabular-nums; }
+.scene-book-progress svg { position:absolute;inset:0;width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:6; }
+.hold-track { opacity:.22; }
+.hold-fill { transform:rotate(-90deg);transform-origin:50% 50%;stroke-dasharray:100;stroke-dashoffset:100;animation:hold-ring 3s linear forwards;stroke-linecap:round; }
+.scene-book-progress strong { font-size:clamp(28px,5vh,42px);text-shadow:0 1px 3px var(--color-black); }
+@keyframes hold-ring { to { stroke-dashoffset:0; } }
+.app .result { display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);place-items:center;overflow:hidden;padding:12px;min-height:0;text-align:center;font-size:14px; }
+.result-body { width:min(360px,100%);display:flex;flex-direction:column;align-items:center;gap:8px;transform-origin:center; }
+.result h2 { font-size:clamp(20px,3vh,28px); }
+.result-body > p { margin:0;line-height:1.25; }
+.result-body > button { width:min(320px,100%);min-height:44px;flex-shrink:0; }
+.result .potion-result { min-height:0;flex:0 1 auto;gap:4px;max-width:100%; }
+.result .potion-result-preview { width:min(140px,25vh);height:min(140px,25vh);min-height:40px;flex-shrink:1; }
+.result .potion-result p,.result .potion-result strong { font-size:14px;line-height:1.25; }
+@media (max-height:600px) {
+  .app .result { padding:8px;font-size:12px; }
+  .result-body { gap:5px; }
+  .result .potion-result-preview { width:80px;height:80px; }
+  .result .potion-result p,.result .potion-result strong { font-size:12px; }
+  .menu .mode-selector { gap:4px; }
+  .mode-preview { height:clamp(40px,calc(100vh - 300px),140px); }
+}
+@media (prefers-reduced-motion:reduce) { .app .pause-notice { animation:none; } }
 
 ```
